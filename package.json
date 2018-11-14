@@ -2,16 +2,12 @@
   "name": "conduit",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-scripts": "2.1.1"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "flow": "flow"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -21,5 +17,18 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "dependencies": {
+    "@reach/router": "^1.2.1",
+    "classnames": "^2.2.6",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "react-scripts": "2.1.1",
+    "tachyons": "^4.11.1"
+  },
+  "devDependencies": {
+    "flow-bin": "^0.86.0",
+    "jest-dom": "^2.1.1",
+    "react-testing-library": "^5.2.3"
+  }
 }
