@@ -20,16 +20,14 @@ const HomeBanner = () => (
 );
 
 type ArticleListProps = {|
-  articles: api.Article[],
-  currentPage: number,
-  pageCount: number
+  articles: api.Article[]
 |};
 
 const authorProfilePath = (article: api.Article) =>
   `/profile/${encodeURIComponent(article.author.username)}`;
 
-const ArticleList = (props: ArticleListProps) => {
-  const articleElements = props.articles.map((article, i) => (
+const ArticleList = (props: ArticleListProps) =>
+  props.articles.map((article, i) => (
     <React.Fragment key={article.slug}>
       <article>
         <div className={cn("mv3", "flex")}>
@@ -108,8 +106,77 @@ const ArticleList = (props: ArticleListProps) => {
     </React.Fragment>
   ));
 
-  return <>{articleElements}</>;
-};
+type PageProps = {|
+  page: number,
+  setPage: number => void,
+  current?: boolean,
+  className?: string
+|};
+
+const Page = (props: PageProps) => (
+  <button
+    type="button"
+    data-testid={`articles-page-${props.page}`}
+    onClick={() => props.setPage(props.page)}
+    disabled={props.current}
+    className={cn(
+      props.className,
+      "br-pill",
+      "ba",
+      "pv1",
+      "ph2",
+      "b--green",
+      props.current
+        ? ["white", "bg-green"]
+        : [
+            "green",
+            "bg-white",
+            "bg-animate",
+            "hover-white",
+            "hover-bg-green",
+            "pointer"
+          ]
+    )}
+  >
+    {props.page}
+  </button>
+);
+
+type PaginationProps = {|
+  currentPage: number,
+  pageCount: number,
+  setPage: number => void
+|};
+
+const Pagination = (props: PaginationProps) => (
+  <div className={cn("mv4", "flex", "justify-center")}>
+    {props.currentPage > 2 ? (
+      <Page className="mr3" page={1} setPage={props.setPage} />
+    ) : null}
+
+    {props.currentPage > 1 ? (
+      <Page
+        className="mr1"
+        page={props.currentPage - 1}
+        setPage={props.setPage}
+      />
+    ) : null}
+
+    <Page current page={props.currentPage} setPage={props.setPage} />
+
+    {props.currentPage < props.pageCount ? (
+      <Page
+        className="ml1"
+        page={props.currentPage + 1}
+        setPage={props.setPage}
+      />
+    ) : null}
+
+    {props.currentPage < props.pageCount - 1 ? (
+      <Page className="ml3" page={props.pageCount} setPage={props.setPage} />
+    ) : null}
+  </div>
+);
 
 type TabsProps = {|
   children: React.Node
@@ -155,49 +222,74 @@ type HomeProps = {|
   listArticles: typeof api.listArticles
 |};
 
-const Home = (props: HomeProps) => (
-  <>
-    <HomeBanner />
+type HomeState = {|
+  page: number
+|};
 
-    <div className={cn("container", "mh-auto", "mv4")}>
-      <Tabs>
-        <TabItem current>Global feed</TabItem>
-      </Tabs>
+class Home extends React.Component<HomeProps, HomeState> {
+  state = {
+    page: 1
+  };
 
-      <Request load={() => props.listArticles({ page: 1, perPage: 10 })}>
-        {request => {
-          switch (request.status) {
-            case "pending":
-              return <div className={cn("moon-gray")}>Loading articles...</div>;
+  setPage = (page: number) => {
+    this.setState({ page });
+  };
 
-            case "error":
-              return (
-                <div className={cn("moon-gray")}>"Error loading articles!"</div>
-              );
+  render() {
+    return (
+      <>
+        <HomeBanner />
 
-            case "success":
-              const { articles, articlesCount } = request.data;
+        <div className={cn("container", "mh-auto", "mv4")}>
+          <Tabs>
+            <TabItem current>Global feed</TabItem>
+          </Tabs>
 
-              return (
-                <ArticleList
-                  articles={articles}
-                  currentPage={1}
-                  pageCount={
-                    articlesCount / 10 +
-                    (articlesCount === 0 || articlesCount % 10 !== 0)
-                      ? 1
-                      : 0
-                  }
-                />
-              );
+          <Request
+            load={() =>
+              this.props.listArticles({ page: this.state.page, perPage: 10 })
+            }
+          >
+            {request => {
+              switch (request.status) {
+                case "pending":
+                  return (
+                    <div className={cn("moon-gray")}>Loading articles...</div>
+                  );
 
-            default:
-              throw new Error("invalid status");
-          }
-        }}
-      </Request>
-    </div>
-  </>
-);
+                case "error":
+                  return (
+                    <div className={cn("red")}>Error loading articles!</div>
+                  );
+
+                case "success":
+                  const { articles, articlesCount } = request.data;
+
+                  return (
+                    <>
+                      <ArticleList articles={articles} />
+                      <Pagination
+                        setPage={this.setPage}
+                        currentPage={this.state.page}
+                        pageCount={
+                          Math.floor(articlesCount / 10) +
+                          (articlesCount === 0 || articlesCount % 10 !== 0
+                            ? 1
+                            : 0)
+                        }
+                      />
+                    </>
+                  );
+
+                default:
+                  throw new Error("invalid status");
+              }
+            }}
+          </Request>
+        </div>
+      </>
+    );
+  }
+}
 
 export default Home;
