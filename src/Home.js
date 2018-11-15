@@ -91,6 +91,7 @@ const ArticleList = (props: ArticleListProps) => {
             <div className={cn("light-silver")}>
               {article.tagList.map(tag => (
                 <span
+                  key={tag}
                   className={cn("dib", "br-pill", "ba", "pv1", "ph2", "ml1")}
                 >
                   {tag}
