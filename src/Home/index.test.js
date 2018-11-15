@@ -3,8 +3,8 @@
 import * as React from "react";
 import * as testing from "react-testing-library";
 import "jest-dom/extend-expect";
-import Home from "./Home";
-import type { ListArticles, Article } from "./api";
+import Home from ".";
+import type { ListArticles, Article } from "../api";
 
 afterEach(testing.cleanup);
 
