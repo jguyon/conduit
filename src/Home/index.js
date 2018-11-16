@@ -28,6 +28,8 @@ type HomeState = {|
 |};
 
 class Home extends React.Component<HomeProps, HomeState> {
+  focusNode: ?HTMLElement = null;
+
   state = {
     page: 1,
     route: { type: "global" }
@@ -78,12 +80,28 @@ class Home extends React.Component<HomeProps, HomeState> {
       });
   }
 
+  componentDidUpdate(_prevProps: HomeProps, prevState: HomeState) {
+    const nextState = this.state;
+
+    if (
+      this.focusNode &&
+      (nextState.page !== prevState.page || nextState.route !== prevState.route)
+    ) {
+      this.focusNode.focus();
+    }
+  }
+
   render() {
     return (
       <>
         <Banner />
 
-        <div className={cn("container", "mh-auto", "mv4")}>
+        <div
+          tabIndex="-1"
+          role="group"
+          ref={node => (this.focusNode = node)}
+          className={cn("outline-0", "container", "mh-auto", "mv4")}
+        >
           <div className={cn("fl", "pr3", "w-70")}>
             {this.renderTabs()}
 

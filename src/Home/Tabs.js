@@ -22,6 +22,7 @@ export const TabItem = ({ current, children, ...props }: TabItemProps) => (
     type="button"
     disabled={current}
     className={cn(
+      "button",
       "bg-transparent",
       current ? "green" : ["light-silver", "hover-gray", "pointer"],
       "pv2",

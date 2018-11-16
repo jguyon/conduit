@@ -18,6 +18,7 @@ const Page = (props: PageProps) => (
     disabled={props.current}
     className={cn(
       props.className,
+      "button",
       "br-pill",
       "ba",
       "pv1",
