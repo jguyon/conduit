@@ -1,11 +1,28 @@
 // @flow
 
 import * as React from "react";
+import Markdown from "react-markdown";
 import cn from "classnames";
 import Request from "./Request";
 import ArticleInfo from "./ArticleInfo";
 import NotFound from "./NotFound";
 import * as api from "./api";
+
+const Hr = (props: {}) => (
+  <hr {...props} className={cn("light-gray", "bt", "bl-0", "br-0", "bb-0")} />
+);
+
+const Link = ({ children, ...props }: { children?: React.Node }) => (
+  <a {...props} className={cn("link", "green", "underline-hover")}>
+    {children}
+  </a>
+);
+
+const renderers = {
+  thematicBreak: Hr,
+  link: Link,
+  linkReference: Link
+};
 
 type ArticleProps = {|
   slug: string,
@@ -44,7 +61,9 @@ const Article = (props: ArticleProps) => (
               </header>
 
               <div className={cn("container mh-auto", "mv4")}>
-                <p className={cn("f4", "serif", "mv4")}>{article.body}</p>
+                <div className={cn("f4", "mv4")}>
+                  <Markdown source={article.body} renderers={renderers} />
+                </div>
 
                 <div className={cn("mv4", "light-silver", "f6")}>
                   {article.tagList.map(tag => (
