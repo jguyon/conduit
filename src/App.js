@@ -19,7 +19,12 @@ const App = () => (
     <Navbar />
     <main>
       <Router>
-        <Route path="/" render={<Home listArticles={api.listArticles} />} />
+        <Route
+          path="/"
+          render={
+            <Home listArticles={api.listArticles} listTags={api.listTags} />
+          }
+        />
         <Route default render={<NotFound />} />
       </Router>
     </main>

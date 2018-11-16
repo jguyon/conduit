@@ -8,7 +8,7 @@ type TabsProps = {|
 |};
 
 export const Tabs = (props: TabsProps) => (
-  <div className={cn("light-gray", "bb", "mv4", "flex")}>{props.children}</div>
+  <div className={cn("light-gray", "bb", "mb4", "flex")}>{props.children}</div>
 );
 
 type TabItemProps = {

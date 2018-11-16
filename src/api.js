@@ -27,18 +27,35 @@ export type ListArticles = {|
 
 type ListArticlesOpts = {|
   page: number,
-  perPage: number
+  perPage: number,
+  tag?: string
+|};
+
+type ListTags = {|
+  tags: string[]
 |};
 
 const ENDPOINT = "https://conduit.productionready.io/api";
 
 export const listArticles = ({
   page,
-  perPage
+  perPage,
+  tag
 }: ListArticlesOpts): Promise<ListArticles> =>
   fetch(
-    `${ENDPOINT}/articles?limit=${perPage}&offset=${(page - 1) * perPage}`
+    `${ENDPOINT}/articles?limit=${perPage}&offset=${(page - 1) * perPage}${
+      tag === undefined ? "" : `&tag=${encodeURIComponent(tag)}`
+    }`
   ).then(response => {
+    if (response.status === 200) {
+      return response.json();
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
+
+export const listTags = (): Promise<ListTags> =>
+  fetch(`${ENDPOINT}/tags`).then(response => {
     if (response.status === 200) {
       return response.json();
     } else {

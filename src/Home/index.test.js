@@ -26,7 +26,7 @@ const makeArticle = (name: string): Article => ({
   }
 });
 
-test("renders the articles", async () => {
+test("renders articles and tags", async () => {
   const rendered = testing.render(
     <Home
       listArticles={() =>
@@ -35,18 +35,26 @@ test("renders the articles", async () => {
           articles: [makeArticle("one"), makeArticle("two")]
         })
       }
+      listTags={() =>
+        Promise.resolve({
+          tags: ["one", "two"]
+        })
+      }
     />
   );
 
   await testing.wait(() => {
     rendered.getByTestId("article-one");
     rendered.getByTestId("article-two");
+    rendered.getByTestId("tag-one");
+    rendered.getByTestId("tag-two");
   });
 });
 
 test("supports changing pages", async () => {
   const rendered = testing.render(
     <Home
+      listTags={() => Promise.resolve({ tags: [] })}
       listArticles={({ page, perPage }) => {
         expect(perPage).toEqual(10);
 
