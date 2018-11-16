@@ -33,10 +33,11 @@ export const TabItem = ({ current, children, ...props }: TabItemProps) => (
       borderLeftWidth: 0,
       borderRightWidth: 0,
       borderBottomWidth: "2px",
-      borderBottomColor: "currentColor",
       position: "relative",
       top: "1px",
-      ...(current ? {} : { borderColor: "transparent" })
+      ...(current
+        ? { borderColor: "currentColor" }
+        : { borderColor: "transparent" })
     }}
   >
     {children}

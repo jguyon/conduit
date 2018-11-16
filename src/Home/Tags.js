@@ -26,6 +26,7 @@ export const TagItem = (props: TagItemProps) => (
   <button
     type="button"
     data-testid={`tag-${props.name}`}
+    onClick={props.onClick}
     className={cn(
       "f6",
       "white",

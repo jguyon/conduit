@@ -31,7 +31,7 @@ type ListArticlesOpts = {|
   tag?: string
 |};
 
-type ListTags = {|
+export type ListTags = {|
   tags: string[]
 |};
 
