@@ -39,7 +39,7 @@ const Article = (props: ArticleProps) => (
                     {article.title}
                   </h1>
 
-                  <ArticleInfo article={article} />
+                  <ArticleInfo color="white" article={article} />
                 </div>
               </header>
 
@@ -76,7 +76,7 @@ const Article = (props: ArticleProps) => (
                 />
 
                 <div className={cn("flex", "justify-center")}>
-                  <ArticleInfo article={article} />
+                  <ArticleInfo color="green" article={article} />
                 </div>
               </div>
             </>

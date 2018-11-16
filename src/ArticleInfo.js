@@ -47,6 +47,7 @@ const PrettyDate = ({ date, ...props }: PrettyDateProps) => (
 );
 
 type ArticleInfoProps = {
+  color: "green" | "white",
   article: api.Article,
   className?: string
 };
@@ -54,7 +55,12 @@ type ArticleInfoProps = {
 const authorProfilePath = (article: api.Article) =>
   `/profile/${encodeURIComponent(article.author.username)}`;
 
-const ArticleInfo = ({ article, className, ...props }: ArticleInfoProps) => (
+const ArticleInfo = ({
+  color,
+  article,
+  className,
+  ...props
+}: ArticleInfoProps) => (
   <div {...props} className={cn(className, "flex")}>
     <Link to={authorProfilePath(article)}>
       <img
@@ -70,7 +76,7 @@ const ArticleInfo = ({ article, className, ...props }: ArticleInfoProps) => (
 
     <div className={cn("ml2")}>
       <Link
-        className={cn("link", "green", "underline-hover")}
+        className={cn("link", color, "underline-hover")}
         to={authorProfilePath(article)}
       >
         {article.author.username}
