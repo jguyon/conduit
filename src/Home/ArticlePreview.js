@@ -14,7 +14,7 @@ const authorProfilePath = (article: api.Article) =>
   `/profile/${encodeURIComponent(article.author.username)}`;
 
 const ArticlePreview = ({ article }: ArticlePreviewProps) => (
-  <article>
+  <article data-testid={`article-${article.slug}`}>
     <div className={cn("mv3", "flex")}>
       <Link to={authorProfilePath(article)}>
         <img
@@ -50,12 +50,7 @@ const ArticlePreview = ({ article }: ArticlePreviewProps) => (
       to={`/article/${article.slug}`}
       className={cn("link", "moon-gray", "hover-gray")}
     >
-      <h3
-        className={cn("f4", "black", "mv1")}
-        data-testid={`article-title-${article.slug}`}
-      >
-        {article.title}
-      </h3>
+      <h3 className={cn("f4", "black", "mv1")}>{article.title}</h3>
       <h4 className={cn("f5", "normal", "light-silver", "mv1")}>
         {article.description}
       </h4>

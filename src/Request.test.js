@@ -11,10 +11,8 @@ afterEach(testing.cleanup);
 const delay = ms => new Promise(resolve => setTimeout(() => resolve(), ms));
 
 test("renders with data", async () => {
-  const sleep = delay(10);
-
   const rendered = testing.render(
-    <Request load={() => sleep.then(() => "data")}>
+    <Request load={() => delay(10).then(() => "data")}>
       {request => {
         switch (request.status) {
           case "pending":
@@ -29,15 +27,14 @@ test("renders with data", async () => {
   );
 
   expect(rendered.container).toHaveTextContent("pending");
-  await sleep;
-  expect(rendered.container).toHaveTextContent("data");
+  await testing.wait(() =>
+    expect(rendered.container).toHaveTextContent("data")
+  );
 });
 
 test("renders with error", async () => {
-  const sleep = delay(10);
-
   const rendered = testing.render(
-    <Request load={() => sleep.then(() => Promise.reject("error"))}>
+    <Request load={() => delay(10).then(() => Promise.reject("error"))}>
       {request => {
         switch (request.status) {
           case "pending":
@@ -52,14 +49,12 @@ test("renders with error", async () => {
   );
 
   expect(rendered.container).toHaveTextContent("pending");
-  await sleep;
-  expect(rendered.container).toHaveTextContent("error");
+  await testing.wait(() =>
+    expect(rendered.container).toHaveTextContent("error")
+  );
 });
 
 test("updates correctly", async () => {
-  const sleep1 = delay(10);
-  const sleep2 = delay(20);
-
   const render = (request: RequestData<string>) => {
     switch (request.status) {
       case "pending":
@@ -72,15 +67,16 @@ test("updates correctly", async () => {
   };
 
   const rendered = testing.render(
-    <Request load={() => sleep1.then(() => "one")}>{render}</Request>
+    <Request load={() => delay(10).then(() => "one")}>{render}</Request>
   );
 
   rendered.rerender(
-    <Request load={() => sleep2.then(() => "two")}>{render}</Request>
+    <Request load={() => delay(20).then(() => "two")}>{render}</Request>
   );
 
-  await sleep1;
   expect(rendered.container).toHaveTextContent("pending");
-  await sleep2;
+  await testing.wait(() =>
+    expect(rendered.container).not.toHaveTextContent("pending")
+  );
   expect(rendered.container).toHaveTextContent("two");
 });
