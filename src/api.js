@@ -31,6 +31,10 @@ type ListArticlesOpts = {|
   tag?: string
 |};
 
+export type GetArticle = {|
+  article: Article
+|};
+
 export type ListTags = {|
   tags: string[]
 |};
@@ -47,6 +51,15 @@ export const listArticles = ({
       tag === undefined ? "" : `&tag=${encodeURIComponent(tag)}`
     }`
   ).then(response => {
+    if (response.status === 200) {
+      return response.json();
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
+
+export const getArticle = (slug: string): Promise<GetArticle> =>
+  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`).then(response => {
     if (response.status === 200) {
       return response.json();
     } else {

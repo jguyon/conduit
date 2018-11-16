@@ -3,48 +3,16 @@
 import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
-import PrettyDate from "../PrettyDate";
+import ArticleInfo from "../ArticleInfo";
 import * as api from "../api";
 
 type ArticlePreviewProps = {|
   article: api.Article
 |};
 
-const authorProfilePath = (article: api.Article) =>
-  `/profile/${encodeURIComponent(article.author.username)}`;
-
 const ArticlePreview = ({ article }: ArticlePreviewProps) => (
   <article data-testid={`article-${article.slug}`}>
-    <div className={cn("mv3", "flex")}>
-      <Link to={authorProfilePath(article)}>
-        <img
-          className={cn("br-100", "h2", "w2", "dib", "overflow-hidden")}
-          alt={article.author.username}
-          src={
-            article.author.image === ""
-              ? "https://static.productionready.io/images/smiley-cyrus.jpg"
-              : article.author.image
-          }
-        />
-      </Link>
-
-      <div className={cn("ml2")}>
-        <Link
-          className={cn("link", "green", "underline-hover")}
-          to={authorProfilePath(article)}
-        >
-          {article.author.username}
-        </Link>
-
-        <br />
-
-        <PrettyDate
-          className={cn("moon-gray", "f6")}
-          pubdate="pubdate"
-          date={new Date(article.createdAt)}
-        />
-      </div>
-    </div>
+    <ArticleInfo className={cn("mv3")} article={article} />
 
     <Link
       to={`/article/${article.slug}`}

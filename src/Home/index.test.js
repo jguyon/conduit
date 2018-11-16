@@ -58,7 +58,7 @@ const makePaginatedList = (page: number): ListArticles => {
   }
 };
 
-const makeTagList = (...tags: string[]) => ({ tags });
+const makeTagList = (...tags: string[]): ListTags => ({ tags });
 
 test("renders global feed", async () => {
   const rendered = testing.render(
