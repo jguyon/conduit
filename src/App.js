@@ -29,7 +29,11 @@ const App = () => (
         <Route
           path="/article/:slug"
           render={({ slug }) => (
-            <Article getArticle={api.getArticle} slug={slug} />
+            <Article
+              getArticle={api.getArticle}
+              listComments={api.listComments}
+              slug={slug}
+            />
           )}
         />
         <Route default render={<NotFound />} />

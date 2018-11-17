@@ -3,48 +3,8 @@
 import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
+import PrettyDate from "./PrettyDate";
 import * as api from "./api";
-
-const prettyMonth = (date: Date) => {
-  switch (date.getMonth()) {
-    case 0:
-      return "January";
-    case 1:
-      return "February";
-    case 2:
-      return "March";
-    case 3:
-      return "April";
-    case 4:
-      return "May";
-    case 5:
-      return "June";
-    case 6:
-      return "July";
-    case 7:
-      return "August";
-    case 8:
-      return "September";
-    case 9:
-      return "October";
-    case 10:
-      return "November";
-    case 11:
-      return "December";
-    default:
-      throw new Error("invalid month");
-  }
-};
-
-type PrettyDateProps = {
-  date: Date
-};
-
-const PrettyDate = ({ date, ...props }: PrettyDateProps) => (
-  <time {...props} dateTime={date.toISOString()}>
-    {prettyMonth(date)} {date.getDate()}, {date.getFullYear()}
-  </time>
-);
 
 type ArticleInfoProps = {
   color: "green" | "white",

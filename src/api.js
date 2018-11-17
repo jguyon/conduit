@@ -39,6 +39,18 @@ export type ListTags = {|
   tags: string[]
 |};
 
+export type Comment = {|
+  id: number,
+  createdAt: string,
+  updatedAt: string,
+  body: string,
+  author: Profile
+|};
+
+export type ListComments = {|
+  comments: Comment[]
+|};
+
 const ENDPOINT = "https://conduit.productionready.io/api";
 
 export const listArticles = ({
@@ -75,3 +87,14 @@ export const listTags = (): Promise<ListTags> =>
       throw new Error(`expected status 200 but got ${response.status}`);
     }
   });
+
+export const listComments = (slug: string): Promise<ListComments> =>
+  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}/comments`).then(
+    response => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error(`expected status 200 but got ${response.status}`);
+      }
+    }
+  );

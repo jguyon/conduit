@@ -26,6 +26,19 @@ const article: api.Article = {
   }
 };
 
+const comment: api.Comment = {
+  id: 1,
+  createdAt: new Date().toJSON(),
+  updatedAt: new Date().toJSON(),
+  body: "lol rofl",
+  author: {
+    username: "jane",
+    bio: null,
+    image: "",
+    following: false
+  }
+};
+
 test("renders the article", async () => {
   const rendered = testing.render(
     <Article
@@ -34,10 +47,15 @@ test("renders the article", async () => {
         expect(slug).toBe("the-answer");
         return Promise.resolve({ article });
       }}
+      listComments={slug => {
+        expect(slug).toBe("the-answer");
+        return Promise.resolve({ comments: [comment] });
+      }}
     />
   );
 
   await testing.wait(() => {
     rendered.getByText(article.title);
+    rendered.getByText(comment.body);
   });
 });
