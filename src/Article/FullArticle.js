@@ -30,7 +30,7 @@ const FullArticle = ({ article }: FullArticleProps) => (
   <article>
     <header className={cn("bg-dark-gray", "white", "pa4", "shadow-inset-2")}>
       <div className={cn("container", "mh-auto")}>
-        <h1 className={cn("f1", "mt0", "mb3", "test-shadow-1")}>
+        <h1 className={cn("f1", "mt0", "mb3", "text-shadow-1")}>
           {article.title}
         </h1>
 
