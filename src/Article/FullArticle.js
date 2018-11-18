@@ -4,6 +4,7 @@ import * as React from "react";
 import Markdown from "react-markdown";
 import cn from "classnames";
 import ArticleInfo from "../ArticleInfo";
+import Separator from "../Separator";
 import * as api from "../api";
 
 const RendererHr = (props: {}) => (
@@ -54,7 +55,7 @@ const FullArticle = ({ article }: FullArticleProps) => (
         ))}
       </div>
 
-      <hr className={cn("light-gray", "bt", "bl-0", "br-0", "bb-0", "mv4")} />
+      <Separator className={cn("mv4")} />
 
       <div className={cn("flex", "justify-center", "mv4")}>
         <ArticleInfo color="green" article={article} pubdate />

@@ -3,12 +3,15 @@
 import * as React from "react";
 import cn from "classnames";
 
-type TabsProps = {|
+type TabsProps = {
+  className?: string,
   children: React.Node
-|};
+};
 
-export const Tabs = (props: TabsProps) => (
-  <div className={cn("light-gray", "bb", "mb4", "flex")}>{props.children}</div>
+export const Tabs = ({ className, children, ...props }: TabsProps) => (
+  <div {...props} className={cn(className, "light-gray", "bb", "flex")}>
+    {children}
+  </div>
 );
 
 type TabItemProps = {

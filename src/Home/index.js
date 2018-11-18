@@ -6,11 +6,11 @@ import * as api from "../api";
 import Request from "../Request";
 import type { RequestData } from "../Request";
 import Banner from "./Banner";
-import { Tabs, TabItem } from "./Tabs";
-import Pagination from "./Pagination";
-import ArticlePreview from "./ArticlePreview";
-import ArticleSeparator from "./ArticleSeparator";
 import { Tags, TagItem } from "./Tags";
+import { Tabs, TabItem } from "../Tabs";
+import Pagination from "../Pagination";
+import ArticlePreview from "../ArticlePreview";
+import Separator from "../Separator";
 
 type HomeProps = {|
   listArticles: typeof api.listArticles,
@@ -124,7 +124,7 @@ class Home extends React.Component<HomeProps, HomeState> {
     const { route } = this.state;
 
     return (
-      <Tabs>
+      <Tabs className={cn("mb4")}>
         <TabItem
           data-testid="global-feed"
           current={route.type === "global"}
@@ -151,13 +151,20 @@ class Home extends React.Component<HomeProps, HomeState> {
 
         const articleElements = articles.map((article, i) => (
           <React.Fragment key={article.slug}>
-            <ArticlePreview article={article} />
-            {i === articles.length - 1 ? null : <ArticleSeparator />}
+            <ArticlePreview
+              article={article}
+              data-testid={`article-${article.slug}`}
+            />
+            {i === articles.length - 1 ? null : (
+              <Separator className={cn("mv4")} />
+            )}
           </React.Fragment>
         ));
 
         const paginationElement = (
           <Pagination
+            className={cn("mv4")}
+            testIdPrefix="articles"
             setPage={this.setPage}
             currentPage={this.state.page}
             pageCount={

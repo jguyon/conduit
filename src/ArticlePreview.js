@@ -3,15 +3,15 @@
 import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
-import ArticleInfo from "../ArticleInfo";
-import * as api from "../api";
+import ArticleInfo from "./ArticleInfo";
+import * as api from "./api";
 
-type ArticlePreviewProps = {|
+type ArticlePreviewProps = {
   article: api.Article
-|};
+};
 
-const ArticlePreview = ({ article }: ArticlePreviewProps) => (
-  <article data-testid={`article-${article.slug}`}>
+const ArticlePreview = ({ article, ...props }: ArticlePreviewProps) => (
+  <article {...props}>
     <ArticleInfo
       color="green"
       className={cn("mv3")}
