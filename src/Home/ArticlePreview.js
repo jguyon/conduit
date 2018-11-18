@@ -12,7 +12,12 @@ type ArticlePreviewProps = {|
 
 const ArticlePreview = ({ article }: ArticlePreviewProps) => (
   <article data-testid={`article-${article.slug}`}>
-    <ArticleInfo color="green" className={cn("mv3")} article={article} />
+    <ArticleInfo
+      color="green"
+      className={cn("mv3")}
+      article={article}
+      pubdate
+    />
 
     <Link
       to={`/article/${article.slug}`}

@@ -9,6 +9,7 @@ import * as api from "./api";
 type ArticleInfoProps = {
   color: "green" | "white",
   article: api.Article,
+  pubdate?: boolean,
   className?: string
 };
 
@@ -18,6 +19,7 @@ const authorProfilePath = (article: api.Article) =>
 const ArticleInfo = ({
   color,
   article,
+  pubdate,
   className,
   ...props
 }: ArticleInfoProps) => (
@@ -46,7 +48,7 @@ const ArticleInfo = ({
 
       <PrettyDate
         className={cn("moon-gray", "f6")}
-        pubdate="pubdate"
+        pubdate={pubdate ? "pubdate" : undefined}
         date={new Date(article.createdAt)}
       />
     </div>
