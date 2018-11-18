@@ -99,6 +99,10 @@ class Request<T> extends React.Component<RequestProps<T>, RequestState<T>> {
     }
   }
 
+  componentWillUnmount() {
+    this.cancel();
+  }
+
   shouldComponentUpdate(
     nextProps: RequestProps<T>,
     nextState: RequestState<T>
