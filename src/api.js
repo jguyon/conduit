@@ -7,6 +7,10 @@ export type Profile = {|
   following: boolean
 |};
 
+export type GetProfile = {|
+  profile: Profile
+|};
+
 export type Article = {|
   slug: string,
   title: string,
@@ -90,6 +94,17 @@ export const listTags = (): Promise<ListTags> =>
 
 export const listComments = (slug: string): Promise<ListComments> =>
   fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}/comments`).then(
+    response => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error(`expected status 200 but got ${response.status}`);
+      }
+    }
+  );
+
+export const getProfile = (username: string): Promise<GetProfile> =>
+  fetch(`${ENDPOINT}/profiles/${encodeURIComponent(username)}`).then(
     response => {
       if (response.status === 200) {
         return response.json();

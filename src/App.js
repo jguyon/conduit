@@ -6,6 +6,7 @@ import * as api from "./api";
 import Navbar from "./Navbar";
 import Home from "./Home";
 import Article from "./Article";
+import Profile from "./Profile";
 import NotFound from "./NotFound";
 
 type RouteProps = {
@@ -34,6 +35,12 @@ const App = () => (
               listComments={api.listComments}
               slug={slug}
             />
+          )}
+        />
+        <Route
+          path="/profile/:username"
+          render={({ username }) => (
+            <Profile getProfile={api.getProfile} username={username} />
           )}
         />
         <Route default render={<NotFound />} />
