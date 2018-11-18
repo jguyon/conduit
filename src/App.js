@@ -40,7 +40,11 @@ const App = () => (
         <Route
           path="/profile/:username"
           render={({ username }) => (
-            <Profile getProfile={api.getProfile} username={username} />
+            <Profile
+              getProfile={api.getProfile}
+              listArticles={api.listArticles}
+              username={username}
+            />
           )}
         />
         <Route default render={<NotFound />} />

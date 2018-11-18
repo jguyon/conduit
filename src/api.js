@@ -32,7 +32,9 @@ export type ListArticles = {|
 type ListArticlesOpts = {|
   page: number,
   perPage: number,
-  tag?: string
+  tag?: string,
+  author?: string,
+  favorited?: string
 |};
 
 export type GetArticle = {|
@@ -60,11 +62,15 @@ const ENDPOINT = "https://conduit.productionready.io/api";
 export const listArticles = ({
   page,
   perPage,
-  tag
+  tag,
+  author,
+  favorited
 }: ListArticlesOpts): Promise<ListArticles> =>
   fetch(
     `${ENDPOINT}/articles?limit=${perPage}&offset=${(page - 1) * perPage}${
-      tag === undefined ? "" : `&tag=${encodeURIComponent(tag)}`
+      tag ? `&tag=${encodeURIComponent(tag)}` : ""
+    }${author ? `&author=${encodeURIComponent(author)}` : ""}${
+      favorited ? `&favorited=${encodeURIComponent(favorited)}` : ""
     }`
   ).then(response => {
     if (response.status === 200) {
