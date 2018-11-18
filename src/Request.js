@@ -2,14 +2,35 @@
 
 import * as React from "react";
 
+class CanceledError extends Error {
+  constructor() {
+    super("promise was canceled");
+  }
+}
+
+const makeCancelable = <T>(promise: Promise<T>): [Promise<T>, () => void] => {
+  let canceled = false;
+
+  return [
+    new Promise((resolve, reject) => {
+      promise.then(
+        value => (canceled ? reject(new CanceledError()) : resolve(value)),
+        error => (canceled ? reject(new CanceledError()) : reject(error))
+      );
+    }),
+    () => {
+      canceled = true;
+    }
+  ];
+};
+
 export type RequestData<T> =
   | {|
-      status: "pending",
-      promise?: Promise<T>
+      status: "pending"
     |}
   | {|
       status: "error",
-      error: any
+      error: mixed
     |}
   | {|
       status: "success",
@@ -32,41 +53,36 @@ class Request<T> extends React.Component<RequestProps<T>, RequestState<T>> {
     }
   };
 
+  cancel = () => {};
+
   load() {
-    const promise = this.props.load();
+    const [promise, cancel] = makeCancelable(this.props.load());
+
+    this.cancel = cancel;
 
     this.setState({
       request: {
-        status: "pending",
-        promise
+        status: "pending"
       }
     });
 
     promise.then(
       data =>
-        this.setState(
-          ({ request }) =>
-            request.status === "pending" && request.promise === promise
-              ? {
-                  request: {
-                    status: "success",
-                    data
-                  }
-                }
-              : null
-        ),
+        this.setState({
+          request: {
+            status: "success",
+            data
+          }
+        }),
       error =>
-        this.setState(
-          ({ request }) =>
-            request.status === "pending" && request.promise === promise
-              ? {
-                  request: {
-                    status: "error",
-                    error
-                  }
-                }
-              : null
-        )
+        error instanceof CanceledError
+          ? undefined
+          : this.setState({
+              request: {
+                status: "error",
+                error
+              }
+            })
     );
   }
 
@@ -78,6 +94,7 @@ class Request<T> extends React.Component<RequestProps<T>, RequestState<T>> {
     const nextProps = this.props;
 
     if (nextProps.load !== prevProps.load) {
+      this.cancel();
       this.load();
     }
   }

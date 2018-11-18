@@ -40,7 +40,11 @@ test("renders with error", async () => {
           case "pending":
             return "pending";
           case "error":
-            return request.error;
+            if (typeof request.error === "string") {
+              return request.error;
+            } else {
+              throw new Error("invalid error");
+            }
           default:
             throw new Error("invalid status");
         }
@@ -54,7 +58,7 @@ test("renders with error", async () => {
   );
 });
 
-test("updates correctly", async () => {
+test("reloads data when load prop changes", async () => {
   const render = (request: RequestData<string>) => {
     switch (request.status) {
       case "pending":
@@ -79,4 +83,33 @@ test("updates correctly", async () => {
     expect(rendered.container).not.toHaveTextContent("pending")
   );
   expect(rendered.container).toHaveTextContent("two");
+});
+
+test("does not reload data when load prop does not change", async () => {
+  let count = 0;
+  const load = () => {
+    count = count + 1;
+    return delay(10).then(() => count);
+  };
+
+  const render = (request: RequestData<number>) => {
+    switch (request.status) {
+      case "pending":
+        return "pending";
+      case "success":
+        return `count = ${request.data}`;
+      default:
+        throw new Error("invalid status");
+    }
+  };
+
+  const rendered = testing.render(<Request load={load}>{render}</Request>);
+
+  await testing.wait(() => {
+    expect(rendered.container).toHaveTextContent("count = 1");
+  });
+
+  rendered.rerender(<Request load={load}>{render}</Request>);
+
+  expect(rendered.container).toHaveTextContent("count = 1");
 });
