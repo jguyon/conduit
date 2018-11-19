@@ -27,21 +27,20 @@ export const TabItem = ({ current, children, ...props }: TabItemProps) => (
     className={cn(
       "button",
       "bg-transparent",
-      current ? "green" : ["light-silver", "hover-gray", "pointer"],
+      current
+        ? ["green", "b--green"]
+        : ["light-silver", "b--transparent", "hover-gray", "pointer"],
+      "bb",
+      "bw1",
+      "bl-0",
+      "bt-0",
+      "br-0",
       "pv2",
       "ph3",
-      "ba"
+      "relative"
     )}
     style={{
-      borderTopWidth: 0,
-      borderLeftWidth: 0,
-      borderRightWidth: 0,
-      borderBottomWidth: "2px",
-      position: "relative",
-      top: "1px",
-      ...(current
-        ? { borderColor: "currentColor" }
-        : { borderColor: "transparent" })
+      top: 1
     }}
   >
     {children}
