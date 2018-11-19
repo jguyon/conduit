@@ -41,6 +41,7 @@ const App = () => (
           path="/profile/:username"
           render={({ username }) => (
             <Profile
+              key={username}
               getProfile={api.getProfile}
               listArticles={api.listArticles}
               username={username}
