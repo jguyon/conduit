@@ -211,42 +211,46 @@ type ProfileProps = {|
   listArticles: typeof api.listArticles
 |};
 
-const Profile = (props: ProfileProps) => (
-  <Request load={() => props.getProfile(props.username)}>
-    {request => {
-      switch (request.status) {
-        case "pending":
-          return (
-            <>
-              <Banner placeholder />
-              <ProfileArticles
-                username={props.username}
-                listArticles={props.listArticles}
-              />
-            </>
-          );
+class Profile extends React.PureComponent<ProfileProps> {
+  render() {
+    return (
+      <Request load={() => this.props.getProfile(this.props.username)}>
+        {request => {
+          switch (request.status) {
+            case "pending":
+              return (
+                <>
+                  <Banner placeholder />
+                  <ProfileArticles
+                    username={this.props.username}
+                    listArticles={this.props.listArticles}
+                  />
+                </>
+              );
 
-        case "error":
-          return <NotFound />;
+            case "error":
+              return <NotFound />;
 
-        case "success":
-          const { profile } = request.data;
+            case "success":
+              const { profile } = request.data;
 
-          return (
-            <>
-              <Banner profile={profile} />
-              <ProfileArticles
-                username={props.username}
-                listArticles={props.listArticles}
-              />
-            </>
-          );
+              return (
+                <>
+                  <Banner profile={profile} />
+                  <ProfileArticles
+                    username={this.props.username}
+                    listArticles={this.props.listArticles}
+                  />
+                </>
+              );
 
-        default:
-          throw new Error("invalid status");
-      }
-    }}
-  </Request>
-);
+            default:
+              throw new Error("invalid status");
+          }
+        }}
+      </Request>
+    );
+  }
+}
 
 export default Profile;
