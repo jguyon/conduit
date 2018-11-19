@@ -51,7 +51,7 @@ const ArticlePreview = (props: ArticlePreviewProps) => {
         <ArticleInfo placeholder color="green" className={cn("mv3")} />
 
         <div className={cn("o-20")}>
-          <div className={cn("f4", "bg-black", "mv1", "w4")}>&nbsp;</div>
+          <div className={cn("f4", "bg-dark-gray", "mv1", "w4")}>&nbsp;</div>
           <div className={cn("f5", "bg-light-silver", "mv1", "w5")}>&nbsp;</div>
 
           <div
@@ -90,7 +90,7 @@ const ArticlePreview = (props: ArticlePreviewProps) => {
           to={`/article/${article.slug}`}
           className={cn("link", "moon-gray", "hover-gray")}
         >
-          <h3 className={cn("f4", "black", "mv1")}>{article.title}</h3>
+          <h3 className={cn("f4", "dark-gray", "mv1")}>{article.title}</h3>
           <h4 className={cn("f5", "normal", "light-silver", "mv1")}>
             {article.description}
           </h4>

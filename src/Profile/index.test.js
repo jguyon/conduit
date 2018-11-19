@@ -194,11 +194,7 @@ test("supports changing pages on favorited feed", async () => {
     />
   );
 
-  const favorited = await testing.waitForElement(() =>
-    rendered.getByTestId("favorited-feed")
-  );
-
-  testing.fireEvent.click(favorited);
+  testing.fireEvent.click(rendered.getByTestId("favorited-feed"));
 
   await testing.wait(() => {
     rendered.getByTestId("article-ten");
@@ -241,11 +237,7 @@ test("supports switching back to authored feed", async () => {
     />
   );
 
-  const favorited = await testing.waitForElement(() =>
-    rendered.getByTestId("favorited-feed")
-  );
-
-  testing.fireEvent.click(favorited);
+  testing.fireEvent.click(rendered.getByTestId("favorited-feed"));
 
   await testing.wait(() => {
     rendered.getByTestId("article-one");

@@ -91,6 +91,21 @@ class ProfileArticles extends React.Component<
     }
   }
 
+  shouldComponentUpdate(
+    nextProps: ProfileArticlesProps,
+    nextState: ProfileArticlesState
+  ) {
+    const prevProps = this.props;
+    const prevState = this.state;
+
+    return (
+      nextProps.username !== prevProps.username ||
+      nextProps.listArticles !== prevProps.listArticles ||
+      nextState.page !== prevState.page ||
+      nextState.route !== prevState.route
+    );
+  }
+
   render() {
     return (
       <Request load={() => this.loadArticles()}>
@@ -101,8 +116,10 @@ class ProfileArticles extends React.Component<
             ref={node => (this.focusNode = node)}
             className={cn("outline-0", "container", "mh-auto", "mv4")}
           >
-            {this.renderTabs()}
-            {this.renderArticles(request)}
+            <div className={cn("w-80", "mh-auto")}>
+              {this.renderTabs()}
+              {this.renderArticles(request)}
+            </div>
           </div>
         )}
       </Request>
@@ -136,7 +153,13 @@ class ProfileArticles extends React.Component<
   renderArticles(request: RequestData<api.ListArticles>) {
     switch (request.status) {
       case "pending":
-        return <div className={cn("moon-gray")}>Loading articles...</div>;
+        return (
+          <>
+            <ArticlePreview placeholder />
+            <Separator className={cn("mv4")} />
+            <ArticlePreview placeholder />
+          </>
+        );
 
       case "error":
         return <div className={cn("red")}>Error loading articles!</div>;
@@ -194,9 +217,13 @@ const Profile = (props: ProfileProps) => (
       switch (request.status) {
         case "pending":
           return (
-            <div className={cn("tc", "moon-gray", "mv5")}>
-              Loading profile...
-            </div>
+            <>
+              <Banner placeholder />
+              <ProfileArticles
+                username={props.username}
+                listArticles={props.listArticles}
+              />
+            </>
           );
 
         case "error":
