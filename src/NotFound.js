@@ -4,7 +4,7 @@ import * as React from "react";
 import cn from "classnames";
 
 const NotFound = () => (
-  <div className={cn("container", "mh-auto", "tc")}>
+  <div className={cn("container", "mh-auto", "tc", "dark-gray", "mv5")}>
     <h1 className={cn("f3", "normal", "mv3")}>Page not found</h1>
 
     <p className={cn("mv3")}>
