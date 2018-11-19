@@ -141,7 +141,29 @@ class Home extends React.Component<HomeProps, HomeState> {
   renderArticles = (request: RequestData<api.ListArticles>) => {
     switch (request.status) {
       case "pending":
-        return <div className={cn("moon-gray")}>Loading articles...</div>;
+        return (
+          <>
+            <ArticlePreview placeholder />
+            <Separator className={cn("mv4")} />
+            <ArticlePreview placeholder />
+            <Separator className={cn("mv4")} />
+            <ArticlePreview placeholder />
+            <Separator className={cn("mv4")} />
+            <ArticlePreview placeholder />
+            <Separator className={cn("mv4")} />
+            <ArticlePreview placeholder />
+            <Separator className={cn("mv4")} />
+            <ArticlePreview placeholder />
+            <Separator className={cn("mv4")} />
+            <ArticlePreview placeholder />
+            <Separator className={cn("mv4")} />
+            <ArticlePreview placeholder />
+            <Separator className={cn("mv4")} />
+            <ArticlePreview placeholder />
+            <Separator className={cn("mv4")} />
+            <ArticlePreview placeholder />
+          </>
+        );
 
       case "error":
         return <div className={cn("red")}>Error loading articles!</div>;
@@ -189,7 +211,24 @@ class Home extends React.Component<HomeProps, HomeState> {
   renderTags = (request: RequestData<api.ListTags>): React.Node => {
     switch (request.status) {
       case "pending":
-        return <div className={cn("f6", "light-silver")}>Loading tags...</div>;
+        return (
+          <>
+            <TagItem placeholder size={3} />
+            <TagItem placeholder size={2} />
+            <TagItem placeholder size={4} />
+            <TagItem placeholder size={3} />
+            <TagItem placeholder size={3} />
+            <TagItem placeholder size={2} />
+            <TagItem placeholder size={3} />
+            <TagItem placeholder size={2} />
+            <TagItem placeholder size={4} />
+            <TagItem placeholder size={2} />
+            <TagItem placeholder size={3} />
+            <TagItem placeholder size={3} />
+            <TagItem placeholder size={4} />
+            <TagItem placeholder size={3} />
+          </>
+        );
 
       case "error":
         return <div className={cn("f6", "red")}>Error loading tags!</div>;

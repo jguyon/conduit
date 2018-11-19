@@ -17,23 +17,29 @@ export const Tags = (props: TagsProps) => (
   </div>
 );
 
-type TagItemProps = {|
-  name: string,
-  onClick: () => void
-|};
+type TagItemProps =
+  | {|
+      placeholder: true,
+      size: 2 | 3 | 4
+    |}
+  | {|
+      placeholder?: false,
+      name: string,
+      onClick: () => void
+    |};
 
 export const TagItem = (props: TagItemProps) => (
   <button
     type="button"
-    data-testid={`tag-${props.name}`}
-    onClick={props.onClick}
+    data-testid={props.placeholder ? undefined : `tag-${props.name}`}
+    onClick={props.placeholder ? undefined : props.onClick}
     className={cn(
+      props.placeholder ? [`w${props.size}`, "o-20"] : "dim",
       "button",
       "f6",
       "white",
       "bg-gray",
       "pointer",
-      "dim",
       "br-pill",
       "bn",
       "pv1",
@@ -42,6 +48,6 @@ export const TagItem = (props: TagItemProps) => (
       "mb1"
     )}
   >
-    {props.name}
+    {props.placeholder ? <>&nbsp;</> : props.name}
   </button>
 );
