@@ -27,7 +27,7 @@ const App = () => (
   >
     {({ currentUser, setCurrentUser }) => (
       <div className="sans-serif">
-        <Navbar />
+        <Navbar currentUser={currentUser} />
 
         <main>
           <Router>
