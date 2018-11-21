@@ -17,6 +17,10 @@ export type Login =
       isOk: false
     |};
 
+export type GetCurrentUser = {|
+  user: User
+|};
+
 export type LoginOpts = {|
   email: string,
   password: string
@@ -100,6 +104,19 @@ export const loginUser = (opts: LoginOpts): Promise<Login> =>
       };
     } else {
       throw new Error(`expected status 200 or 422 but got ${response.status}`);
+    }
+  });
+
+export const getCurrentUser = (token: string): Promise<GetCurrentUser> =>
+  fetch(`${ENDPOINT}/user`, {
+    headers: new Headers({
+      authorization: `Token ${token}`
+    })
+  }).then(response => {
+    if (response.status === 200) {
+      return response.json();
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
     }
   });
 
