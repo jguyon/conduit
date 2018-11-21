@@ -7,6 +7,7 @@ import Navbar from "./Navbar";
 import Home from "./Home";
 import Article from "./Article";
 import Profile from "./Profile";
+import Login from "./Login";
 import NotFound from "./NotFound";
 
 type RouteProps = {
@@ -47,6 +48,17 @@ const App = () => (
               username={username}
             />
           )}
+        />
+        <Route
+          path="/login"
+          render={
+            <Login
+              loginUser={api.loginUser}
+              setCurrentUser={user => {
+                console.log(user);
+              }}
+            />
+          }
         />
         <Route default render={<NotFound />} />
       </Router>

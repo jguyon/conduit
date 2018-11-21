@@ -1,5 +1,27 @@
 // @flow
 
+export type User = {|
+  email: string,
+  token: string,
+  username: string,
+  bio: null | string,
+  image: string
+|};
+
+export type Login =
+  | {|
+      isOk: true,
+      user: User
+    |}
+  | {|
+      isOk: false
+    |};
+
+export type LoginOpts = {|
+  email: string,
+  password: string
+|};
+
 export type Profile = {|
   username: string,
   bio: null | string,
@@ -58,6 +80,28 @@ export type ListComments = {|
 |};
 
 const ENDPOINT = "https://conduit.productionready.io/api";
+
+export const loginUser = (opts: LoginOpts): Promise<Login> =>
+  fetch(`${ENDPOINT}/users/login`, {
+    method: "POST",
+    headers: new Headers({
+      "content-type": "application/json"
+    }),
+    body: JSON.stringify({ user: opts })
+  }).then(response => {
+    if (response.status === 200) {
+      return response.json().then(({ user }) => ({
+        isOk: true,
+        user
+      }));
+    } else if (response.status === 422) {
+      return {
+        isOk: false
+      };
+    } else {
+      throw new Error(`expected status 200 or 422 but got ${response.status}`);
+    }
+  });
 
 export const listArticles = ({
   page,
