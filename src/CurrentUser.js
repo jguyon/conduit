@@ -3,26 +3,51 @@
 import * as React from "react";
 import * as api from "./api";
 
-export type CurrentUserObject = {|
-  currentUser: ?api.User,
-  setCurrentUser: (?api.User) => void
-|};
+export type CurrentUserData =
+  | {|
+      status: "pending"
+    |}
+  | {|
+      status: "ready",
+      currentUser: ?api.User,
+      setCurrentUser: (?api.User) => void
+    |};
 
 type CurrentUserProps = {|
   getCurrentUser: typeof api.getCurrentUser,
   getToken: () => ?string,
   setToken: string => void,
   removeToken: () => void,
-  children: CurrentUserObject => React.Node
+  children: CurrentUserData => React.Node
 |};
 
 type CurrentUserState = {|
-  currentUser: ?api.User
+  data: CurrentUserData
 |};
 
 class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
   state = {
-    currentUser: null
+    data: { status: "pending" }
+  };
+
+  setCurrentUser = (user: ?api.User) => {
+    this.setState(
+      ({ data }) =>
+        data.status === "ready"
+          ? { data: { ...data, currentUser: user } }
+          : undefined,
+      () => {
+        const { data } = this.state;
+
+        if (data.status === "ready") {
+          if (data.currentUser) {
+            this.props.setToken(data.currentUser.token);
+          } else {
+            this.props.removeToken();
+          }
+        }
+      }
+    );
   };
 
   componentDidMount() {
@@ -31,28 +56,37 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
     if (token) {
       this.props.getCurrentUser(token).then(
         ({ user }) => {
-          this.setState({ currentUser: user });
+          this.setState({
+            data: {
+              status: "ready",
+              currentUser: user,
+              setCurrentUser: this.setCurrentUser
+            }
+          });
         },
-        () => {}
+        () => {
+          this.setState({
+            data: {
+              status: "ready",
+              currentUser: null,
+              setCurrentUser: this.setCurrentUser
+            }
+          });
+        }
       );
+    } else {
+      this.setState({
+        data: {
+          status: "ready",
+          currentUser: null,
+          setCurrentUser: this.setCurrentUser
+        }
+      });
     }
   }
 
-  setCurrentUser = (user: ?api.User) => {
-    this.setState({ currentUser: user }, () => {
-      if (user) {
-        this.props.setToken(user.token);
-      } else {
-        this.props.removeToken();
-      }
-    });
-  };
-
   render() {
-    return this.props.children({
-      currentUser: this.state.currentUser,
-      setCurrentUser: this.setCurrentUser
-    });
+    return this.props.children(this.state.data);
   }
 }
 

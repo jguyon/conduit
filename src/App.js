@@ -25,53 +25,73 @@ const App = () => (
     setToken={token => localStorage.setItem("userToken", token)}
     removeToken={() => localStorage.removeItem("userToken")}
   >
-    {({ currentUser, setCurrentUser }) => (
-      <div className="sans-serif">
-        <Navbar currentUser={currentUser} />
+    {data => {
+      switch (data.status) {
+        case "pending":
+          return (
+            <div className="sans-serif">
+              <Navbar placeholder />
+            </div>
+          );
 
-        <main>
-          <Router>
-            <Route
-              path="/"
-              render={
-                <Home listArticles={api.listArticles} listTags={api.listTags} />
-              }
-            />
-            <Route
-              path="/article/:slug"
-              render={({ slug }) => (
-                <Article
-                  getArticle={api.getArticle}
-                  listComments={api.listComments}
-                  slug={slug}
-                />
-              )}
-            />
-            <Route
-              path="/profile/:username"
-              render={({ username }) => (
-                <Profile
-                  key={username}
-                  getProfile={api.getProfile}
-                  listArticles={api.listArticles}
-                  username={username}
-                />
-              )}
-            />
-            <Route
-              path="/login"
-              render={
-                <Login
-                  loginUser={api.loginUser}
-                  setCurrentUser={setCurrentUser}
-                />
-              }
-            />
-            <Route default render={<NotFound />} />
-          </Router>
-        </main>
-      </div>
-    )}
+        case "ready":
+          const { currentUser, setCurrentUser } = data;
+
+          return (
+            <div className="sans-serif">
+              <Navbar currentUser={currentUser} />
+
+              <main>
+                <Router>
+                  <Route
+                    path="/"
+                    render={
+                      <Home
+                        listArticles={api.listArticles}
+                        listTags={api.listTags}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/article/:slug"
+                    render={({ slug }) => (
+                      <Article
+                        getArticle={api.getArticle}
+                        listComments={api.listComments}
+                        slug={slug}
+                      />
+                    )}
+                  />
+                  <Route
+                    path="/profile/:username"
+                    render={({ username }) => (
+                      <Profile
+                        key={username}
+                        getProfile={api.getProfile}
+                        listArticles={api.listArticles}
+                        username={username}
+                      />
+                    )}
+                  />
+                  <Route
+                    path="/login"
+                    render={
+                      <Login
+                        loginUser={api.loginUser}
+                        setCurrentUser={setCurrentUser}
+                      />
+                    }
+                  />
+                  <Route default render={<NotFound />} />
+                </Router>
+              </main>
+            </div>
+          );
+
+        default:
+          throw new Error("invalid status");
+      }
+    }}
   </CurrentUser>
 );
 

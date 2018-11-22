@@ -30,7 +30,16 @@ test("inits empty currentUser with no token", async () => {
       setToken={() => {}}
       removeToken={() => {}}
     >
-      {({ currentUser }) => (currentUser ? currentUser.username : "no user")}
+      {data => {
+        switch (data.status) {
+          case "pending":
+            return "pending";
+          case "ready":
+            return data.currentUser ? data.currentUser.username : "no user";
+          default:
+            throw new Error("invalid status");
+        }
+      }}
     </CurrentUser>
   );
 
@@ -53,7 +62,16 @@ test("inits empty currentUser with invalid token", async () => {
       setToken={() => {}}
       removeToken={() => {}}
     >
-      {({ currentUser }) => (currentUser ? currentUser.username : "no user")}
+      {data => {
+        switch (data.status) {
+          case "pending":
+            return "pending";
+          case "ready":
+            return data.currentUser ? data.currentUser.username : "no user";
+          default:
+            throw new Error("invalid status");
+        }
+      }}
     </CurrentUser>
   );
 
@@ -83,14 +101,23 @@ test("inits non-empty currentUser with valid token", async () => {
       setToken={() => {}}
       removeToken={() => {}}
     >
-      {({ currentUser }) => (currentUser ? currentUser.username : "no user")}
+      {data => {
+        switch (data.status) {
+          case "pending":
+            return "pending";
+          case "ready":
+            return data.currentUser ? data.currentUser.username : "no user";
+          default:
+            throw new Error("invalid status");
+        }
+      }}
     </CurrentUser>
   );
 
   expect(getToken).toHaveBeenCalledTimes(1);
   expect(getCurrentUser).toHaveBeenCalledTimes(1);
   expect(getCurrentUser).toHaveBeenLastCalledWith("abcd");
-  expect(rendered.container).toHaveTextContent("no user");
+  expect(rendered.container).toHaveTextContent("pending");
 
   await testing.wait(() => {
     expect(rendered.container).toHaveTextContent(user.username);
@@ -125,13 +152,23 @@ test("sets current user", async () => {
       setToken={setToken}
       removeToken={removeToken}
     >
-      {({ currentUser, setCurrentUser }) => (
-        <Username currentUser={currentUser} setCurrentUser={setCurrentUser} />
-      )}
+      {data => {
+        switch (data.status) {
+          case "pending":
+            return "pending";
+          case "ready":
+            return (
+              <Username
+                currentUser={data.currentUser}
+                setCurrentUser={data.setCurrentUser}
+              />
+            );
+          default:
+            throw new Error("invalid status");
+        }
+      }}
     </CurrentUser>
   );
-
-  expect(rendered.container).toHaveTextContent("no user");
 
   await testing.wait(() => {
     expect(rendered.container).toHaveTextContent(user.username);
@@ -168,9 +205,21 @@ test("unsets current user", async () => {
       setToken={setToken}
       removeToken={removeToken}
     >
-      {({ currentUser, setCurrentUser }) => (
-        <Username currentUser={currentUser} unsetCurrentUser={setCurrentUser} />
-      )}
+      {data => {
+        switch (data.status) {
+          case "pending":
+            return "pending";
+          case "ready":
+            return (
+              <Username
+                currentUser={data.currentUser}
+                unsetCurrentUser={data.setCurrentUser}
+              />
+            );
+          default:
+            throw new Error("invalid status");
+        }
+      }}
     </CurrentUser>
   );
 
