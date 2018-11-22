@@ -14,6 +14,10 @@ const user: User = {
   image: ""
 };
 
+beforeEach(() => {
+  window.history.pushState(null, "", "/login");
+});
+
 afterEach(testing.cleanup);
 
 test("sets current user with valid credentials", async () => {

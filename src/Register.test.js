@@ -14,6 +14,10 @@ const user: User = {
   image: ""
 };
 
+beforeEach(() => {
+  window.history.pushState(null, "", "/register");
+});
+
 afterEach(testing.cleanup);
 
 test("sets current user with valid fields", async () => {
