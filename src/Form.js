@@ -22,12 +22,17 @@ export const Form = (props: FormProps) => (
 );
 
 type GlobalErrorProps = {|
-  children: React.Node
+  children?: React.Node
 |};
 
-export const GlobalError = (props: GlobalErrorProps) => (
-  <div className={cn("mv3", "dark-red", "tc")}>{props.children}</div>
-);
+export const GlobalError = (props: GlobalErrorProps) =>
+  props.children ? (
+    <div role="alert" className={cn("mv3", "dark-red", "tc")}>
+      {props.children}
+    </div>
+  ) : (
+    <div role="alert" />
+  );
 
 type TextInputProps = {|
   id: string,
@@ -35,8 +40,10 @@ type TextInputProps = {|
   label: string,
   value: string,
   onChange: string => void,
+  disabled?: boolean,
   error?: string,
-  testId?: string
+  testId?: string,
+  inputRef?: { current: null | HTMLInputElement }
 |};
 
 export const TextInput = (props: TextInputProps) => (
@@ -48,8 +55,10 @@ export const TextInput = (props: TextInputProps) => (
       {props.label}
     </label>
     <input
+      ref={props.inputRef}
       type={props.type}
       id={props.id}
+      disabled={props.disabled}
       data-testid={props.testId}
       aria-describedby={`${props.id}-error`}
       className={cn(
@@ -57,6 +66,7 @@ export const TextInput = (props: TextInputProps) => (
         "ba",
         "br2",
         "b--moon-gray",
+        props.disabled ? "bg-moon-gray" : null,
         "db",
         "w-100",
         "pa2",

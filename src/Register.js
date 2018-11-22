@@ -36,6 +36,38 @@ class Register extends React.Component<RegisterProps, RegisterState> {
     password: ""
   };
 
+  usernameInputRef = React.createRef<"input">();
+  emailInputRef = React.createRef<"input">();
+  passwordInputRef = React.createRef<"input">();
+
+  focusFirstInvalidInput() {
+    if (this.state.error.type === "fields") {
+      if (
+        this.state.error.username &&
+        this.state.error.username[0] &&
+        this.usernameInputRef.current
+      ) {
+        this.usernameInputRef.current.select();
+      } else if (
+        this.state.error.email &&
+        this.state.error.email[0] &&
+        this.emailInputRef.current
+      ) {
+        this.emailInputRef.current.select();
+      } else if (
+        this.state.error.password &&
+        this.state.password[0] &&
+        this.passwordInputRef.current
+      ) {
+        this.passwordInputRef.current.select();
+      } else if (this.usernameInputRef.current) {
+        this.usernameInputRef.current.select();
+      }
+    } else if (this.usernameInputRef.current) {
+      this.usernameInputRef.current.select();
+    }
+  }
+
   handleUsernameChange = (username: string) => {
     this.setState({ username });
   };
@@ -66,20 +98,26 @@ class Register extends React.Component<RegisterProps, RegisterState> {
             this.props.setCurrentUser(result.user);
             navigate("/");
           } else {
-            this.setState({
-              submitting: false,
-              error: {
-                type: "fields",
-                ...result.errors
-              }
-            });
+            this.setState(
+              {
+                submitting: false,
+                error: {
+                  type: "fields",
+                  ...result.errors
+                }
+              },
+              () => this.focusFirstInvalidInput()
+            );
           }
         },
         () => {
-          this.setState({
-            submitting: false,
-            error: { type: "network" }
-          });
+          this.setState(
+            {
+              submitting: false,
+              error: { type: "network" }
+            },
+            () => this.focusFirstInvalidInput()
+          );
         }
       );
   };
@@ -102,17 +140,19 @@ class Register extends React.Component<RegisterProps, RegisterState> {
 
         <div className={cn("w-50", "mh-auto")}>
           <Form testId="sign-up-form" onSubmit={this.handleSubmit}>
-            {this.state.error.type === "network" ? (
-              <GlobalError>An error occured</GlobalError>
-            ) : null}
+            <GlobalError>
+              {this.state.error.type === "network" ? "An error occurred" : null}
+            </GlobalError>
 
             <TextInput
               id="username"
               testId="sign-up-username"
+              inputRef={this.usernameInputRef}
               type="text"
               label="Username"
               value={this.state.username}
               onChange={this.handleUsernameChange}
+              disabled={this.state.submitting}
               error={
                 this.state.error.type === "fields" && this.state.error.username
                   ? this.state.error.username[0]
@@ -123,10 +163,12 @@ class Register extends React.Component<RegisterProps, RegisterState> {
             <TextInput
               id="email"
               testId="sign-up-email"
+              inputRef={this.emailInputRef}
               type="text"
               label="Email"
               value={this.state.email}
               onChange={this.handleEmailChange}
+              disabled={this.state.submitting}
               error={
                 this.state.error.type === "fields" && this.state.error.email
                   ? this.state.error.email[0]
@@ -137,10 +179,12 @@ class Register extends React.Component<RegisterProps, RegisterState> {
             <TextInput
               id="password"
               testId="sign-up-password"
+              inputRef={this.passwordInputRef}
               type="password"
               label="Password"
               value={this.state.password}
               onChange={this.handlePasswordChange}
+              disabled={this.state.submitting}
               error={
                 this.state.error.type === "fields" && this.state.error.password
                   ? this.state.error.password[0]
