@@ -107,4 +107,6 @@ test("displays errors with invalid fields", async () => {
       "is invalid"
     );
   });
+
+  expect(setCurrentUser).not.toHaveBeenCalled();
 });

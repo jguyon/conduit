@@ -42,13 +42,14 @@ test("sets current user with valid credentials", async () => {
 
   await testing.wait(() => expect(window.location.pathname).toBe("/"));
 
-  expect(loginUser.mock.calls.length).toBe(1);
-  expect(loginUser.mock.calls[0]).toEqual([
-    { email: "john@doe.com", password: "password" }
-  ]);
+  expect(loginUser).toHaveBeenCalledTimes(1);
+  expect(loginUser).toHaveBeenLastCalledWith({
+    email: "john@doe.com",
+    password: "password"
+  });
 
-  expect(setCurrentUser.mock.calls.length).toBe(1);
-  expect(setCurrentUser.mock.calls[0]).toEqual([user]);
+  expect(setCurrentUser).toHaveBeenCalledTimes(1);
+  expect(setCurrentUser).toHaveBeenLastCalledWith(user);
 });
 
 test("displays error with invalid credentials", async () => {
@@ -74,14 +75,15 @@ test("displays error with invalid credentials", async () => {
 
   testing.fireEvent.submit(rendered.getByTestId("sign-in-form"));
 
-  expect(loginUser.mock.calls.length).toBe(1);
-  expect(loginUser.mock.calls[0]).toEqual([
-    { email: "john@doe.com", password: "password" }
-  ]);
+  expect(loginUser).toHaveBeenCalledTimes(1);
+  expect(loginUser).toHaveBeenLastCalledWith({
+    email: "john@doe.com",
+    password: "password"
+  });
 
   await testing.wait(() => {
     rendered.getByText("Invalid email or password");
   });
 
-  expect(setCurrentUser.mock.calls.length).toBe(0);
+  expect(setCurrentUser).not.toHaveBeenCalled();
 });
