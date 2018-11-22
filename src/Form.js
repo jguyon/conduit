@@ -26,7 +26,7 @@ type GlobalErrorProps = {|
 |};
 
 export const GlobalError = (props: GlobalErrorProps) => (
-  <div className={cn("mv3", "red", "tc")}>{props.children}</div>
+  <div className={cn("mv3", "dark-red", "tc")}>{props.children}</div>
 );
 
 type TextInputProps = {|
@@ -35,6 +35,7 @@ type TextInputProps = {|
   label: string,
   value: string,
   onChange: string => void,
+  error?: string,
   testId?: string
 |};
 
@@ -50,6 +51,7 @@ export const TextInput = (props: TextInputProps) => (
       type={props.type}
       id={props.id}
       data-testid={props.testId}
+      aria-describedby={`${props.id}-error`}
       className={cn(
         "input-reset",
         "ba",
@@ -57,13 +59,21 @@ export const TextInput = (props: TextInputProps) => (
         "b--moon-gray",
         "db",
         "w-100",
-        "pa2"
+        "pa2",
+        "mb1"
       )}
       value={props.value}
       onChange={(event: SyntheticEvent<HTMLInputElement>) =>
         props.onChange(event.currentTarget.value)
       }
     />
+    <div
+      id={`${props.id}-error`}
+      data-testid={props.testId ? `${props.testId}-error` : undefined}
+      className={cn("dark-red")}
+    >
+      {props.error}
+    </div>
   </div>
 );
 

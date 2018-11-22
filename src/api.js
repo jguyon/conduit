@@ -17,13 +17,33 @@ export type Login =
       isOk: false
     |};
 
-export type GetCurrentUser = {|
-  user: User
-|};
-
 export type LoginOpts = {|
   email: string,
   password: string
+|};
+
+export type Register =
+  | {|
+      isOk: true,
+      user: User
+    |}
+  | {|
+      isOk: false,
+      errors: {|
+        username?: string[],
+        email?: string[],
+        password?: string[]
+      |}
+    |};
+
+export type RegisterOpts = {|
+  username: string,
+  email: string,
+  password: string
+|};
+
+export type GetCurrentUser = {|
+  user: User
 |};
 
 export type Profile = {|
@@ -102,6 +122,29 @@ export const loginUser = (opts: LoginOpts): Promise<Login> =>
       return {
         isOk: false
       };
+    } else {
+      throw new Error(`expected status 200 or 422 but got ${response.status}`);
+    }
+  });
+
+export const registerUser = (opts: RegisterOpts): Promise<Register> =>
+  fetch(`${ENDPOINT}/users`, {
+    method: "POST",
+    headers: new Headers({
+      "content-type": "application/json"
+    }),
+    body: JSON.stringify({ user: opts })
+  }).then(response => {
+    if (response.status === 200) {
+      return response.json().then(({ user }) => ({
+        isOk: true,
+        user
+      }));
+    } else if (response.status === 422) {
+      return response.json().then(({ errors }) => ({
+        isOk: false,
+        errors
+      }));
     } else {
       throw new Error(`expected status 200 or 422 but got ${response.status}`);
     }

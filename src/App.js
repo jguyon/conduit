@@ -9,6 +9,7 @@ import Home from "./Home";
 import Article from "./Article";
 import Profile from "./Profile";
 import Login from "./Login";
+import Register from "./Register";
 import NotFound from "./NotFound";
 
 type RouteProps = {
@@ -78,6 +79,15 @@ const App = () => (
                     render={
                       <Login
                         loginUser={api.loginUser}
+                        setCurrentUser={setCurrentUser}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/register"
+                    render={
+                      <Register
+                        registerUser={api.registerUser}
                         setCurrentUser={setCurrentUser}
                       />
                     }
