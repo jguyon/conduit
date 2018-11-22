@@ -87,6 +87,57 @@ export const TextInput = (props: TextInputProps) => (
   </div>
 );
 
+type TextAreaProps = {|
+  id: string,
+  label: string,
+  value: string,
+  onChange: string => void,
+  disabled?: boolean,
+  error?: string,
+  testId?: string,
+  textAreaRef?: { current: null | HTMLTextAreaElement }
+|};
+
+export const TextArea = (props: TextAreaProps) => (
+  <div className={cn("mv3")}>
+    <label
+      htmlFor={props.id}
+      className={cn("f6", "dark-gray", "b", "db", "mb1")}
+    >
+      {props.label}
+    </label>
+    <textarea
+      ref={props.textAreaRef}
+      id={props.id}
+      disabled={props.disabled}
+      data-testid={props.testId}
+      aria-describedby={`${props.id}-error`}
+      className={cn(
+        "ba",
+        "br2",
+        "b--moon-gray",
+        props.disabled ? "bg-moon-gray" : null,
+        "db",
+        "w-100",
+        "pa2",
+        "mb1"
+      )}
+      rows="8"
+      value={props.value}
+      onChange={(event: SyntheticEvent<HTMLTextAreaElement>) =>
+        props.onChange(event.currentTarget.value)
+      }
+    />
+    <div
+      id={`${props.id}-error`}
+      data-testid={props.testId ? `${props.testId}-error` : undefined}
+      className={cn("dark-red")}
+    >
+      {props.error}
+    </div>
+  </div>
+);
+
 type SubmitProps = {|
   text: string,
   disabled?: boolean

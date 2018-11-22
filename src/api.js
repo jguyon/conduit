@@ -46,6 +46,30 @@ export type GetCurrentUser = {|
   user: User
 |};
 
+export type UpdateCurrentUserOpts = {|
+  username?: string,
+  email?: string,
+  password?: string,
+  image?: null | string,
+  bio?: null | string
+|};
+
+export type UpdateCurrentUser =
+  | {|
+      isOk: true,
+      user: User
+    |}
+  | {|
+      isOk: false,
+      errors: {|
+        username?: string[],
+        email?: string[],
+        password?: string[],
+        image?: string[],
+        bio?: string[]
+      |}
+    |};
+
 export type Profile = {|
   username: string,
   bio: null | string,
@@ -160,6 +184,33 @@ export const getCurrentUser = (token: string): Promise<GetCurrentUser> =>
       return response.json();
     } else {
       throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
+
+export const updateCurrentUser = (
+  token: string,
+  opts: UpdateCurrentUserOpts
+): Promise<UpdateCurrentUser> =>
+  fetch(`${ENDPOINT}/user`, {
+    method: "PUT",
+    headers: new Headers({
+      "content-type": "application/json",
+      authorization: `Token ${token}`
+    }),
+    body: JSON.stringify({ user: opts })
+  }).then(response => {
+    if (response.status === 200) {
+      return response.json().then(({ user }) => ({
+        isOk: true,
+        user
+      }));
+    } else if (response.status === 422) {
+      return response.json().then(({ errors }) => ({
+        isOk: false,
+        errors
+      }));
+    } else {
+      throw new Error(`expected status 200 or 422 but got ${response.status}`);
     }
   });
 

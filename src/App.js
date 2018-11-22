@@ -10,6 +10,7 @@ import Article from "./Article";
 import Profile from "./Profile";
 import Login from "./Login";
 import Register from "./Register";
+import Settings from "./Settings";
 import NotFound from "./NotFound";
 
 type RouteProps = {
@@ -92,6 +93,19 @@ const App = () => (
                       />
                     }
                   />
+                  {currentUser ? (
+                    <Route
+                      path="/settings"
+                      render={
+                        <Settings
+                          updateCurrentUser={api.updateCurrentUser}
+                          currentUser={currentUser}
+                          setCurrentUser={setCurrentUser}
+                          unsetCurrentUser={setCurrentUser}
+                        />
+                      }
+                    />
+                  ) : null}
                   <Route default render={<NotFound />} />
                 </Router>
               </main>
