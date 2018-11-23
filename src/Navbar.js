@@ -24,7 +24,7 @@ const NavbarLinks = ({ currentUser }: NavbarLinksProps) => (
           className={cn("f6", "link", "light-silver", "hover-gray", "mr3")}
           to="/editor"
         >
-          New article
+          New Article
         </Link>
         <Link
           className={cn("f6", "link", "light-silver", "hover-gray", "mr3")}

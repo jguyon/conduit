@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import * as testing from "react-testing-library";
-import * as jsdom from "jsdom";
 import "jest-dom/extend-expect";
 import Settings from "./Settings";
 import type { User } from "./api";

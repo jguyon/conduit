@@ -111,6 +111,28 @@ export type GetArticle = {|
   article: Article
 |};
 
+export type CreateArticle =
+  | {|
+      isOk: true,
+      article: Article
+    |}
+  | {|
+      isOk: false,
+      errors: {|
+        title?: string[],
+        description?: string[],
+        body?: string[],
+        tagList?: string[]
+      |}
+    |};
+
+export type CreateArticleOpts = {|
+  title: string,
+  description: string,
+  body: string,
+  tagList: string[]
+|};
+
 export type ListTags = {|
   tags: string[]
 |};
@@ -241,6 +263,33 @@ export const getArticle = (slug: string): Promise<GetArticle> =>
       return response.json();
     } else {
       throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
+
+export const createArticle = (
+  token: string,
+  opts: CreateArticleOpts
+): Promise<CreateArticle> =>
+  fetch(`${ENDPOINT}/articles`, {
+    method: "POST",
+    headers: new Headers({
+      "content-type": "application/json",
+      authorization: `Token ${token}`
+    }),
+    body: JSON.stringify({ article: opts })
+  }).then(response => {
+    if (response.status === 200) {
+      return response.json().then(({ article }) => ({
+        isOk: true,
+        article
+      }));
+    } else if (response.status === 422) {
+      return response.json().then(({ errors }) => ({
+        isOk: false,
+        errors
+      }));
+    } else {
+      throw new Error(`expected status 200 or 422 but got ${response.status}`);
     }
   });
 
