@@ -4,20 +4,24 @@ import * as React from "react";
 import cn from "classnames";
 
 type FormProps = {|
-  onSubmit: () => void,
+  onSubmit?: () => void,
   testId?: string,
   children: React.Node
 |};
 
-export const Form = (props: FormProps) => (
+export const Form = ({ onSubmit, testId, children }: FormProps) => (
   <form
-    data-testid={props.testId}
-    onSubmit={(event: SyntheticEvent<*>) => {
-      event.preventDefault();
-      props.onSubmit();
-    }}
+    data-testid={testId}
+    onSubmit={
+      onSubmit
+        ? (event: SyntheticEvent<*>) => {
+            event.preventDefault();
+            onSubmit();
+          }
+        : undefined
+    }
   >
-    {props.children}
+    {children}
   </form>
 );
 
@@ -38,51 +42,61 @@ type TextInputProps = {|
   id: string,
   type: "text" | "password",
   label: string,
-  value: string,
-  onChange: string => void,
+  value?: string,
+  onChange?: string => void,
   disabled?: boolean,
   error?: string,
   testId?: string,
   inputRef?: { current: null | HTMLInputElement }
 |};
 
-export const TextInput = (props: TextInputProps) => (
+export const TextInput = ({
+  id,
+  type,
+  label,
+  value,
+  onChange,
+  disabled,
+  error,
+  testId,
+  inputRef
+}: TextInputProps) => (
   <div className={cn("mv3")}>
-    <label
-      htmlFor={props.id}
-      className={cn("f6", "dark-gray", "b", "db", "mb1")}
-    >
-      {props.label}
+    <label htmlFor={id} className={cn("f6", "dark-gray", "b", "db", "mb1")}>
+      {label}
     </label>
     <input
-      ref={props.inputRef}
-      type={props.type}
-      id={props.id}
-      disabled={props.disabled}
-      data-testid={props.testId}
-      aria-describedby={`${props.id}-error`}
+      ref={inputRef}
+      type={type}
+      id={id}
+      disabled={disabled}
+      data-testid={testId}
+      aria-describedby={`${id}-error`}
       className={cn(
         "input-reset",
         "ba",
         "br2",
         "b--moon-gray",
-        props.disabled ? "bg-moon-gray" : null,
+        disabled ? "bg-moon-gray" : null,
         "db",
         "w-100",
         "pa2",
         "mb1"
       )}
-      value={props.value}
-      onChange={(event: SyntheticEvent<HTMLInputElement>) =>
-        props.onChange(event.currentTarget.value)
+      value={value}
+      onChange={
+        onChange
+          ? (event: SyntheticEvent<HTMLInputElement>) =>
+              onChange(event.currentTarget.value)
+          : undefined
       }
     />
     <div
-      id={`${props.id}-error`}
-      data-testid={props.testId ? `${props.testId}-error` : undefined}
+      id={`${id}-error`}
+      data-testid={testId ? `${testId}-error` : undefined}
       className={cn("dark-red")}
     >
-      {props.error}
+      {error}
     </div>
   </div>
 );
@@ -90,50 +104,59 @@ export const TextInput = (props: TextInputProps) => (
 type TextAreaProps = {|
   id: string,
   label: string,
-  value: string,
-  onChange: string => void,
+  value?: string,
+  onChange?: string => void,
   disabled?: boolean,
   error?: string,
   testId?: string,
   textAreaRef?: { current: null | HTMLTextAreaElement }
 |};
 
-export const TextArea = (props: TextAreaProps) => (
+export const TextArea = ({
+  id,
+  label,
+  value,
+  onChange,
+  disabled,
+  error,
+  testId,
+  textAreaRef
+}: TextAreaProps) => (
   <div className={cn("mv3")}>
-    <label
-      htmlFor={props.id}
-      className={cn("f6", "dark-gray", "b", "db", "mb1")}
-    >
-      {props.label}
+    <label htmlFor={id} className={cn("f6", "dark-gray", "b", "db", "mb1")}>
+      {label}
     </label>
     <textarea
-      ref={props.textAreaRef}
-      id={props.id}
-      disabled={props.disabled}
-      data-testid={props.testId}
-      aria-describedby={`${props.id}-error`}
+      ref={textAreaRef}
+      id={id}
+      disabled={disabled}
+      data-testid={testId}
+      aria-describedby={`${id}-error`}
       className={cn(
         "ba",
         "br2",
         "b--moon-gray",
-        props.disabled ? "bg-moon-gray" : null,
+        disabled ? "bg-moon-gray" : null,
         "db",
         "w-100",
         "pa2",
         "mb1"
       )}
       rows="8"
-      value={props.value}
-      onChange={(event: SyntheticEvent<HTMLTextAreaElement>) =>
-        props.onChange(event.currentTarget.value)
+      value={value}
+      onChange={
+        onChange
+          ? (event: SyntheticEvent<HTMLTextAreaElement>) =>
+              onChange(event.currentTarget.value)
+          : undefined
       }
     />
     <div
-      id={`${props.id}-error`}
-      data-testid={props.testId ? `${props.testId}-error` : undefined}
+      id={`${id}-error`}
+      data-testid={testId ? `${testId}-error` : undefined}
       className={cn("dark-red")}
     >
-      {props.error}
+      {error}
     </div>
   </div>
 );

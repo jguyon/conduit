@@ -10,7 +10,7 @@ import Article from "./Article";
 import Profile from "./Profile";
 import Login from "./Login";
 import Register from "./Register";
-import NewArticle from "./NewArticle";
+import PostArticle from "./PostArticle";
 import Settings from "./Settings";
 import NotFound from "./NotFound";
 
@@ -98,11 +98,27 @@ const App = () => (
                     <Route
                       path="/editor"
                       render={
-                        <NewArticle
+                        <PostArticle
+                          type="create"
                           createArticle={api.createArticle}
                           currentUser={currentUser}
                         />
                       }
+                    />
+                  ) : null}
+                  {currentUser ? (
+                    <Route
+                      path="/editor/:slug"
+                      render={({ slug }) => (
+                        <PostArticle
+                          key={slug}
+                          type="update"
+                          slug={slug}
+                          getArticle={api.getArticle}
+                          updateArticle={api.updateArticle}
+                          currentUser={currentUser}
+                        />
+                      )}
                     />
                   ) : null}
                   {currentUser ? (

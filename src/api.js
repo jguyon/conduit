@@ -133,6 +133,10 @@ export type CreateArticleOpts = {|
   tagList: string[]
 |};
 
+export type UpdateArticle = CreateArticle;
+
+export type UpdateArticleOpts = CreateArticleOpts;
+
 export type ListTags = {|
   tags: string[]
 |};
@@ -272,6 +276,34 @@ export const createArticle = (
 ): Promise<CreateArticle> =>
   fetch(`${ENDPOINT}/articles`, {
     method: "POST",
+    headers: new Headers({
+      "content-type": "application/json",
+      authorization: `Token ${token}`
+    }),
+    body: JSON.stringify({ article: opts })
+  }).then(response => {
+    if (response.status === 200) {
+      return response.json().then(({ article }) => ({
+        isOk: true,
+        article
+      }));
+    } else if (response.status === 422) {
+      return response.json().then(({ errors }) => ({
+        isOk: false,
+        errors
+      }));
+    } else {
+      throw new Error(`expected status 200 or 422 but got ${response.status}`);
+    }
+  });
+
+export const updateArticle = (
+  token: string,
+  slug: string,
+  opts: UpdateArticleOpts
+): Promise<UpdateArticle> =>
+  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`, {
+    method: "PUT",
     headers: new Headers({
       "content-type": "application/json",
       authorization: `Token ${token}`
