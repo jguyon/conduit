@@ -43,6 +43,7 @@ const CommentList = ({ request }: CommentListProps) => {
 
 type ArticleProps = {|
   slug: string,
+  currentUser: ?api.User,
   getArticle: typeof api.getArticle,
   listComments: typeof api.listComments
 |};
@@ -68,7 +69,10 @@ const Article = (props: ArticleProps) => {
 
                 return (
                   <>
-                    <FullArticle article={article} />
+                    <FullArticle
+                      article={article}
+                      currentUser={props.currentUser}
+                    />
                     <CommentList request={requestComments} />
                   </>
                 );

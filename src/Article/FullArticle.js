@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from "react";
+import { Link } from "@reach/router";
 import Markdown from "react-markdown";
 import cn from "classnames";
 import ArticleInfo from "../ArticleInfo";
@@ -29,7 +30,8 @@ type FullArticleProps =
     |}
   | {|
       placeholder?: false,
-      article: api.Article
+      article: api.Article,
+      currentUser: ?api.User
     |};
 
 const FullArticle = (props: FullArticleProps) => {
@@ -56,7 +58,7 @@ const FullArticle = (props: FullArticleProps) => {
       </div>
     );
   } else {
-    const { article } = props;
+    const { article, currentUser } = props;
 
     return (
       <article>
@@ -68,7 +70,31 @@ const FullArticle = (props: FullArticleProps) => {
               {article.title}
             </h1>
 
-            <ArticleInfo color="white" article={article} pubdate />
+            <div className={cn("flex", "items-center")}>
+              <ArticleInfo color="white" article={article} pubdate />
+
+              {currentUser &&
+              article.author.username === currentUser.username ? (
+                <Link
+                  to={`/editor/${encodeURIComponent(article.slug)}`}
+                  className={cn(
+                    "f6",
+                    "link",
+                    "bg-transparent",
+                    "moon-gray",
+                    "ba",
+                    "br2",
+                    "pointer",
+                    "dim",
+                    "pv1",
+                    "ph2",
+                    "ml4"
+                  )}
+                >
+                  Edit Article
+                </Link>
+              ) : null}
+            </div>
           </div>
         </header>
 

@@ -62,6 +62,7 @@ const App = () => (
                         getArticle={api.getArticle}
                         listComments={api.listComments}
                         slug={slug}
+                        currentUser={currentUser}
                       />
                     )}
                   />

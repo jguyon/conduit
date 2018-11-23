@@ -375,7 +375,7 @@ const PostArticle = (props: PostArticleProps) => {
           {request => {
             switch (request.status) {
               case "pending":
-                return <PostArticlePlaceholder title="Update Article" />;
+                return <PostArticlePlaceholder title="Edit Article" />;
 
               case "error":
                 return <NotFound />;
@@ -385,7 +385,7 @@ const PostArticle = (props: PostArticleProps) => {
 
                 return (
                   <PostArticleForm
-                    title="Update Article"
+                    title="Edit Article"
                     postArticle={fields => updateArticle(token, slug, fields)}
                     initialFields={{
                       title: article.title,
