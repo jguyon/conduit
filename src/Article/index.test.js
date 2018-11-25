@@ -39,6 +39,17 @@ const comment: api.Comment = {
   }
 };
 
+const user: api.User = {
+  email: "john@doe.com",
+  token: "abcd",
+  username: "johndoe",
+  bio: null,
+  image: ""
+};
+
+const EDIT_BUTTON_TEXT = "Edit Article";
+const DELETE_BUTTON_TEXT = "Delete Article";
+
 test("renders the article", async () => {
   const rendered = testing.render(
     <Article
@@ -59,5 +70,88 @@ test("renders the article", async () => {
   await testing.wait(() => {
     rendered.getByText(article.title);
     rendered.getByText(comment.body);
+  });
+});
+
+test("does not render edit buttons with no current user", async () => {
+  const rendered = testing.render(
+    <Article
+      slug="the-answer"
+      getArticle={slug => {
+        expect(slug).toBe("the-answer");
+        return Promise.resolve({ article });
+      }}
+      deleteArticle={() => Promise.resolve()}
+      listComments={slug => {
+        expect(slug).toBe("the-answer");
+        return Promise.resolve({ comments: [comment] });
+      }}
+      currentUser={null}
+    />
+  );
+
+  await testing.wait(() => {
+    rendered.getByText(article.title);
+  });
+
+  expect(rendered.queryByText(EDIT_BUTTON_TEXT)).toEqual(null);
+  expect(rendered.queryByText(DELETE_BUTTON_TEXT)).toEqual(null);
+});
+
+test("does not render edit buttons with non-author current user", async () => {
+  const rendered = testing.render(
+    <Article
+      slug="the-answer"
+      getArticle={slug => {
+        expect(slug).toBe("the-answer");
+        return Promise.resolve({ article });
+      }}
+      deleteArticle={() => Promise.resolve()}
+      listComments={slug => {
+        expect(slug).toBe("the-answer");
+        return Promise.resolve({ comments: [comment] });
+      }}
+      currentUser={user}
+    />
+  );
+
+  await testing.wait(() => {
+    rendered.getByText(article.title);
+  });
+
+  expect(rendered.queryByText(EDIT_BUTTON_TEXT)).toEqual(null);
+  expect(rendered.queryByText(DELETE_BUTTON_TEXT)).toEqual(null);
+});
+
+test("renders edit button with author current user", async () => {
+  const rendered = testing.render(
+    <Article
+      slug="the-answer"
+      getArticle={slug => {
+        expect(slug).toBe("the-answer");
+        return Promise.resolve({
+          article: {
+            ...article,
+            author: {
+              username: user.username,
+              bio: user.bio,
+              image: user.image,
+              following: false
+            }
+          }
+        });
+      }}
+      deleteArticle={() => Promise.resolve()}
+      listComments={slug => {
+        expect(slug).toBe("the-answer");
+        return Promise.resolve({ comments: [comment] });
+      }}
+      currentUser={user}
+    />
+  );
+
+  await testing.wait(() => {
+    rendered.getByText(EDIT_BUTTON_TEXT);
+    rendered.getByText(DELETE_BUTTON_TEXT);
   });
 });
