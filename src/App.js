@@ -60,6 +60,7 @@ const App = () => (
                     render={({ slug }) => (
                       <Article
                         getArticle={api.getArticle}
+                        deleteArticle={api.deleteArticle}
                         listComments={api.listComments}
                         slug={slug}
                         currentUser={currentUser}

@@ -4,6 +4,7 @@ import * as React from "react";
 import { Link } from "@reach/router";
 import Markdown from "react-markdown";
 import cn from "classnames";
+import DeleteArticle from "./DeleteArticle";
 import ArticleInfo from "../ArticleInfo";
 import Separator from "../Separator";
 import * as api from "../api";
@@ -30,6 +31,7 @@ type FullArticleProps =
     |}
   | {|
       placeholder?: false,
+      deleteArticle: typeof api.deleteArticle,
       article: api.Article,
       currentUser: ?api.User
     |};
@@ -58,7 +60,7 @@ const FullArticle = (props: FullArticleProps) => {
       </div>
     );
   } else {
-    const { article, currentUser } = props;
+    const { deleteArticle, article, currentUser } = props;
 
     return (
       <article>
@@ -75,24 +77,32 @@ const FullArticle = (props: FullArticleProps) => {
 
               {currentUser &&
               article.author.username === currentUser.username ? (
-                <Link
-                  to={`/editor/${encodeURIComponent(article.slug)}`}
-                  className={cn(
-                    "f6",
-                    "link",
-                    "bg-transparent",
-                    "moon-gray",
-                    "ba",
-                    "br2",
-                    "pointer",
-                    "dim",
-                    "pv1",
-                    "ph2",
-                    "ml4"
-                  )}
-                >
-                  Edit Article
-                </Link>
+                <>
+                  <Link
+                    to={`/editor/${encodeURIComponent(article.slug)}`}
+                    className={cn(
+                      "f6",
+                      "link",
+                      "moon-gray",
+                      "ba",
+                      "br2",
+                      "pointer",
+                      "dim",
+                      "pv1",
+                      "ph2",
+                      "ml4"
+                    )}
+                  >
+                    Edit Article
+                  </Link>
+
+                  <DeleteArticle
+                    deleteArticle={deleteArticle}
+                    article={article}
+                    currentUser={currentUser}
+                    className={cn("ml2")}
+                  />
+                </>
               ) : null}
             </div>
           </div>

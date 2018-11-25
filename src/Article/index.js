@@ -45,6 +45,7 @@ type ArticleProps = {|
   slug: string,
   currentUser: ?api.User,
   getArticle: typeof api.getArticle,
+  deleteArticle: typeof api.deleteArticle,
   listComments: typeof api.listComments
 |};
 
@@ -70,6 +71,7 @@ const Article = (props: ArticleProps) => {
                 return (
                   <>
                     <FullArticle
+                      deleteArticle={props.deleteArticle}
                       article={article}
                       currentUser={props.currentUser}
                     />

@@ -325,6 +325,13 @@ export const updateArticle = (
     }
   });
 
+export const deleteArticle = (token: string, slug: string): Promise<void> =>
+  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`).then(response => {
+    if (response.status !== 200) {
+      throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
+
 export const listTags = (): Promise<ListTags> =>
   fetch(`${ENDPOINT}/tags`).then(response => {
     if (response.status === 200) {

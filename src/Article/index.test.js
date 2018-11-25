@@ -47,10 +47,12 @@ test("renders the article", async () => {
         expect(slug).toBe("the-answer");
         return Promise.resolve({ article });
       }}
+      deleteArticle={() => Promise.resolve()}
       listComments={slug => {
         expect(slug).toBe("the-answer");
         return Promise.resolve({ comments: [comment] });
       }}
+      currentUser={null}
     />
   );
 
