@@ -61,12 +61,22 @@ const makePaginatedList = (page: number): ListArticles => {
 const makeTagList = (...tags: string[]): ListTags => ({ tags });
 
 test("renders global feed", async () => {
+  const listArticles = jest.fn(() =>
+    Promise.resolve(makeArticleList("one", "two"))
+  );
+
   const rendered = testing.render(
     <Home
-      listArticles={() => Promise.resolve(makeArticleList("one", "two"))}
+      listArticles={listArticles}
       listTags={() => Promise.resolve(makeTagList())}
     />
   );
+
+  expect(listArticles).toHaveBeenCalledTimes(1);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-one");
@@ -75,12 +85,17 @@ test("renders global feed", async () => {
 });
 
 test("renders popular tags", async () => {
+  const listTags = jest.fn(() => Promise.resolve(makeTagList("one", "two")));
+
   const rendered = testing.render(
     <Home
       listArticles={() => Promise.resolve(makeArticleList())}
-      listTags={() => Promise.resolve(makeTagList("one", "two"))}
+      listTags={listTags}
     />
   );
+
+  expect(listTags).toHaveBeenCalledTimes(1);
+  expect(listTags).toHaveBeenLastCalledWith();
 
   await testing.wait(() => {
     rendered.getByTestId("tag-one");
@@ -89,15 +104,22 @@ test("renders popular tags", async () => {
 });
 
 test("supports changing pages on global feed", async () => {
+  const listArticles = jest.fn(({ page }) =>
+    Promise.resolve(makePaginatedList(page))
+  );
+
   const rendered = testing.render(
     <Home
-      listArticles={({ page, perPage }) => {
-        expect(perPage).toEqual(10);
-        return Promise.resolve(makePaginatedList(page));
-      }}
+      listArticles={listArticles}
       listTags={() => Promise.resolve(makeTagList())}
     />
   );
+
+  expect(listArticles).toHaveBeenCalledTimes(1);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-ten");
@@ -106,12 +128,24 @@ test("supports changing pages on global feed", async () => {
 
   testing.fireEvent.click(rendered.getByTestId("articles-page-2"));
 
+  expect(listArticles).toHaveBeenCalledTimes(2);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 2,
+    perPage: 10
+  });
+
   await testing.wait(() => {
     rendered.getByTestId("article-eleven");
     expect(rendered.queryByTestId("article-ten")).toEqual(null);
   });
 
   testing.fireEvent.click(rendered.getByTestId("articles-page-1"));
+
+  expect(listArticles).toHaveBeenCalledTimes(3);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-ten");
@@ -120,19 +154,17 @@ test("supports changing pages on global feed", async () => {
 });
 
 test("supports switching to tag feed", async () => {
+  const listArticles = jest.fn(({ tag, page }) => {
+    if (tag) {
+      return Promise.resolve(makeArticleList("tagged"));
+    } else {
+      return Promise.resolve(makePaginatedList(page));
+    }
+  });
+
   const rendered = testing.render(
     <Home
-      listArticles={({ tag, page, perPage }) => {
-        expect(perPage).toBe(10);
-
-        if (tag === undefined) {
-          return Promise.resolve(makePaginatedList(page));
-        } else {
-          expect(tag).toBe("one");
-          expect(page).toBe(1);
-          return Promise.resolve(makeArticleList("tagged"));
-        }
-      }}
+      listArticles={listArticles}
       listTags={() => Promise.resolve(makeTagList("one"))}
     />
   );
@@ -153,25 +185,30 @@ test("supports switching to tag feed", async () => {
 
   testing.fireEvent.click(tag);
 
+  expect(listArticles).toHaveBeenCalledTimes(3);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10,
+    tag: "one"
+  });
+
   await testing.wait(() => {
     rendered.getByTestId("article-tagged");
   });
 });
 
 test("supports changing pages on tag feed", async () => {
+  const listArticles = jest.fn(({ page, tag }) => {
+    if (tag) {
+      return Promise.resolve(makePaginatedList(page));
+    } else {
+      return Promise.resolve(makeArticleList());
+    }
+  });
+
   const rendered = testing.render(
     <Home
-      listArticles={({ page, perPage, tag }) => {
-        expect(perPage).toBe(10);
-
-        if (tag === undefined) {
-          expect(page).toBe(1);
-          return Promise.resolve(makeArticleList());
-        } else {
-          expect(tag).toBe("one");
-          return Promise.resolve(makePaginatedList(page));
-        }
-      }}
+      listArticles={listArticles}
       listTags={() => Promise.resolve(makeTagList("one"))}
     />
   );
@@ -182,12 +219,26 @@ test("supports changing pages on tag feed", async () => {
 
   testing.fireEvent.click(tag);
 
+  expect(listArticles).toHaveBeenCalledTimes(2);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10,
+    tag: "one"
+  });
+
   await testing.wait(() => {
     rendered.getByTestId("article-ten");
     expect(rendered.queryByTestId("article-eleven")).toEqual(null);
   });
 
   testing.fireEvent.click(rendered.getByTestId("articles-page-2"));
+
+  expect(listArticles).toHaveBeenCalledTimes(3);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 2,
+    perPage: 10,
+    tag: "one"
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-eleven");
@@ -196,6 +247,13 @@ test("supports changing pages on tag feed", async () => {
 
   testing.fireEvent.click(rendered.getByTestId("articles-page-1"));
 
+  expect(listArticles).toHaveBeenCalledTimes(4);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10,
+    tag: "one"
+  });
+
   await testing.wait(() => {
     rendered.getByTestId("article-ten");
     expect(rendered.queryByTestId("article-eleven")).toEqual(null);
@@ -203,19 +261,17 @@ test("supports changing pages on tag feed", async () => {
 });
 
 test("supports switching back to global feed", async () => {
+  const listArticles = jest.fn(({ page, tag }) => {
+    if (tag) {
+      return Promise.resolve(makePaginatedList(page));
+    } else {
+      return Promise.resolve(makeArticleList("untagged"));
+    }
+  });
+
   const rendered = testing.render(
     <Home
-      listArticles={({ page, perPage, tag }) => {
-        expect(perPage).toBe(10);
-
-        if (tag === undefined) {
-          expect(page).toBe(1);
-          return Promise.resolve(makeArticleList("untagged"));
-        } else {
-          expect(tag).toBe("one");
-          return Promise.resolve(makePaginatedList(page));
-        }
-      }}
+      listArticles={listArticles}
       listTags={() => Promise.resolve(makeTagList("one"))}
     />
   );
@@ -237,6 +293,12 @@ test("supports switching back to global feed", async () => {
   });
 
   testing.fireEvent.click(rendered.getByTestId("global-feed"));
+
+  expect(listArticles).toHaveBeenCalledTimes(4);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-untagged");
