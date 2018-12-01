@@ -166,6 +166,9 @@ describe("with type 'update'", () => {
       />
     );
 
+    expect(getArticle).toHaveBeenCalledTimes(1);
+    expect(getArticle).toHaveBeenLastCalledWith(article.slug);
+
     await testing.wait(() => {
       expect(rendered.getByTestId("post-article-title")).toHaveAttribute(
         "value",
