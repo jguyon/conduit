@@ -66,16 +66,18 @@ const makePaginatedList = (page: number): api.ListArticles => {
 };
 
 test("renders the profile", async () => {
+  const getProfile = jest.fn(() => Promise.resolve({ profile }));
+
   const rendered = testing.render(
     <Profile
       username="johndoe"
-      getProfile={slug => {
-        expect(slug).toBe("johndoe");
-        return Promise.resolve({ profile });
-      }}
+      getProfile={getProfile}
       listArticles={() => Promise.resolve(makeArticleList())}
     />
   );
+
+  expect(getProfile).toHaveBeenCalledTimes(1);
+  expect(getProfile).toHaveBeenLastCalledWith("johndoe");
 
   await testing.wait(() => {
     rendered.getByText("johndoe");
@@ -83,17 +85,24 @@ test("renders the profile", async () => {
 });
 
 test("renders authored feed", async () => {
+  const listArticles = jest.fn(() =>
+    Promise.resolve(makeArticleList("one", "two"))
+  );
+
   const rendered = testing.render(
     <Profile
       username="johndoe"
       getProfile={() => Promise.resolve({ profile })}
-      listArticles={({ author, favorited }) => {
-        expect(author).toBe("johndoe");
-        expect(favorited).toBe(undefined);
-        return Promise.resolve(makeArticleList("one", "two"));
-      }}
+      listArticles={listArticles}
     />
   );
+
+  expect(listArticles).toHaveBeenCalledTimes(1);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    author: "johndoe",
+    page: 1,
+    perPage: 10
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-one");
@@ -102,18 +111,24 @@ test("renders authored feed", async () => {
 });
 
 test("supports changing pages on authored feed", async () => {
+  const listArticles = jest.fn(({ page }) =>
+    Promise.resolve(makePaginatedList(page))
+  );
+
   const rendered = testing.render(
     <Profile
       username="johndoe"
       getProfile={() => Promise.resolve({ profile })}
-      listArticles={({ author, favorited, page, perPage }) => {
-        expect(author).toBe("johndoe");
-        expect(favorited).toBe(undefined);
-        expect(perPage).toBe(10);
-        return Promise.resolve(makePaginatedList(page));
-      }}
+      listArticles={listArticles}
     />
   );
+
+  expect(listArticles).toHaveBeenCalledTimes(1);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10,
+    author: "johndoe"
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-ten");
@@ -122,12 +137,26 @@ test("supports changing pages on authored feed", async () => {
 
   testing.fireEvent.click(rendered.getByTestId("articles-page-2"));
 
+  expect(listArticles).toHaveBeenCalledTimes(2);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 2,
+    perPage: 10,
+    author: "johndoe"
+  });
+
   await testing.wait(() => {
     rendered.getByTestId("article-eleven");
     expect(rendered.queryByTestId("article-ten")).toEqual(null);
   });
 
   testing.fireEvent.click(rendered.getByTestId("articles-page-1"));
+
+  expect(listArticles).toHaveBeenCalledTimes(3);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10,
+    author: "johndoe"
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-ten");
@@ -136,23 +165,19 @@ test("supports changing pages on authored feed", async () => {
 });
 
 test("supports switching to favorited feed", async () => {
+  const listArticles = jest.fn(({ page, author }) => {
+    if (author) {
+      return Promise.resolve(makePaginatedList(page));
+    } else {
+      return Promise.resolve(makeArticleList("favorited"));
+    }
+  });
+
   const rendered = testing.render(
     <Profile
       username="johndoe"
       getProfile={() => Promise.resolve({ profile })}
-      listArticles={({ author, favorited, page, perPage }) => {
-        expect(perPage).toBe(10);
-
-        if (author) {
-          expect(author).toBe("johndoe");
-          expect(favorited).toBe(undefined);
-          return Promise.resolve(makePaginatedList(page));
-        } else {
-          expect(favorited).toBe("johndoe");
-          expect(page).toBe(1);
-          return Promise.resolve(makeArticleList("favorited"));
-        }
-      }}
+      listArticles={listArticles}
     />
   );
 
@@ -168,33 +193,43 @@ test("supports switching to favorited feed", async () => {
 
   testing.fireEvent.click(rendered.getByTestId("favorited-feed"));
 
+  expect(listArticles).toHaveBeenCalledTimes(3);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10,
+    favorited: "johndoe"
+  });
+
   await testing.wait(() => {
     rendered.getByTestId("article-favorited");
   });
 });
 
 test("supports changing pages on favorited feed", async () => {
+  const listArticles = jest.fn(({ author, page }) => {
+    if (author) {
+      return Promise.resolve(makeArticleList());
+    } else {
+      return Promise.resolve(makePaginatedList(page));
+    }
+  });
+
   const rendered = testing.render(
     <Profile
       username="johndoe"
       getProfile={() => Promise.resolve({ profile })}
-      listArticles={({ author, favorited, page, perPage }) => {
-        expect(perPage).toBe(10);
-
-        if (author) {
-          expect(author).toBe("johndoe");
-          expect(favorited).toBe(undefined);
-          expect(page).toBe(1);
-          return Promise.resolve(makeArticleList());
-        } else {
-          expect(favorited).toBe("johndoe");
-          return Promise.resolve(makePaginatedList(page));
-        }
-      }}
+      listArticles={listArticles}
     />
   );
 
   testing.fireEvent.click(rendered.getByTestId("favorited-feed"));
+
+  expect(listArticles).toHaveBeenCalledTimes(2);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10,
+    favorited: "johndoe"
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-ten");
@@ -203,12 +238,26 @@ test("supports changing pages on favorited feed", async () => {
 
   testing.fireEvent.click(rendered.getByTestId("articles-page-2"));
 
+  expect(listArticles).toHaveBeenCalledTimes(3);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 2,
+    perPage: 10,
+    favorited: "johndoe"
+  });
+
   await testing.wait(() => {
     rendered.getByTestId("article-eleven");
     expect(rendered.queryByTestId("article-ten")).toEqual(null);
   });
 
   testing.fireEvent.click(rendered.getByTestId("articles-page-1"));
+
+  expect(listArticles).toHaveBeenCalledTimes(4);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10,
+    favorited: "johndoe"
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-ten");
@@ -217,23 +266,19 @@ test("supports changing pages on favorited feed", async () => {
 });
 
 test("supports switching back to authored feed", async () => {
+  const listArticles = jest.fn(({ author, page }) => {
+    if (author) {
+      return Promise.resolve(makeArticleList("authored"));
+    } else {
+      return Promise.resolve(makePaginatedList(page));
+    }
+  });
+
   const rendered = testing.render(
     <Profile
       username="johndoe"
       getProfile={() => Promise.resolve({ profile })}
-      listArticles={({ author, favorited, page, perPage }) => {
-        expect(perPage).toBe(10);
-
-        if (author) {
-          expect(author).toBe("johndoe");
-          expect(favorited).toBe(undefined);
-          expect(page).toBe(1);
-          return Promise.resolve(makeArticleList("authored"));
-        } else {
-          expect(favorited).toBe("johndoe");
-          return Promise.resolve(makePaginatedList(page));
-        }
-      }}
+      listArticles={listArticles}
     />
   );
 
@@ -250,6 +295,13 @@ test("supports switching back to authored feed", async () => {
   });
 
   testing.fireEvent.click(rendered.getByTestId("authored-feed"));
+
+  expect(listArticles).toHaveBeenCalledTimes(4);
+  expect(listArticles).toHaveBeenLastCalledWith({
+    page: 1,
+    perPage: 10,
+    author: "johndoe"
+  });
 
   await testing.wait(() => {
     rendered.getByTestId("article-authored");
