@@ -6,6 +6,10 @@ import "jest-dom/extend-expect";
 import * as api from "../api";
 import Article from ".";
 
+beforeEach(() => {
+  window.history.pushState(null, "", "/article/the-answer");
+});
+
 afterEach(testing.cleanup);
 
 const article: api.Article = {
@@ -51,24 +55,43 @@ const EDIT_BUTTON_TEXT = "Edit Article";
 const DELETE_BUTTON_TEXT = "Delete Article";
 
 test("renders the article", async () => {
+  const getArticle = jest.fn(() => Promise.resolve({ article }));
+
   const rendered = testing.render(
     <Article
       slug="the-answer"
-      getArticle={slug => {
-        expect(slug).toBe("the-answer");
-        return Promise.resolve({ article });
-      }}
+      getArticle={getArticle}
       deleteArticle={() => Promise.resolve()}
-      listComments={slug => {
-        expect(slug).toBe("the-answer");
-        return Promise.resolve({ comments: [comment] });
-      }}
+      listComments={() => Promise.resolve({ comments: [] })}
       currentUser={null}
     />
   );
 
+  expect(getArticle).toHaveBeenCalledTimes(1);
+  expect(getArticle).toHaveBeenLastCalledWith("the-answer");
+
   await testing.wait(() => {
     rendered.getByText(article.title);
+  });
+});
+
+test("renders the comments", async () => {
+  const listComments = jest.fn(() => Promise.resolve({ comments: [comment] }));
+
+  const rendered = testing.render(
+    <Article
+      slug="the-answer"
+      getArticle={() => Promise.resolve({ article })}
+      deleteArticle={() => Promise.resolve()}
+      listComments={listComments}
+      currentUser={null}
+    />
+  );
+
+  expect(listComments).toHaveBeenCalledTimes(1);
+  expect(listComments).toHaveBeenLastCalledWith("the-answer");
+
+  await testing.wait(() => {
     rendered.getByText(comment.body);
   });
 });
@@ -77,15 +100,9 @@ test("does not render edit buttons with no current user", async () => {
   const rendered = testing.render(
     <Article
       slug="the-answer"
-      getArticle={slug => {
-        expect(slug).toBe("the-answer");
-        return Promise.resolve({ article });
-      }}
+      getArticle={() => Promise.resolve({ article })}
       deleteArticle={() => Promise.resolve()}
-      listComments={slug => {
-        expect(slug).toBe("the-answer");
-        return Promise.resolve({ comments: [comment] });
-      }}
+      listComments={() => Promise.resolve({ comments: [] })}
       currentUser={null}
     />
   );
@@ -102,15 +119,9 @@ test("does not render edit buttons with non-author current user", async () => {
   const rendered = testing.render(
     <Article
       slug="the-answer"
-      getArticle={slug => {
-        expect(slug).toBe("the-answer");
-        return Promise.resolve({ article });
-      }}
+      getArticle={() => Promise.resolve({ article })}
       deleteArticle={() => Promise.resolve()}
-      listComments={slug => {
-        expect(slug).toBe("the-answer");
-        return Promise.resolve({ comments: [comment] });
-      }}
+      listComments={() => Promise.resolve({ comments: [] })}
       currentUser={user}
     />
   );
@@ -123,13 +134,12 @@ test("does not render edit buttons with non-author current user", async () => {
   expect(rendered.queryByText(DELETE_BUTTON_TEXT)).toEqual(null);
 });
 
-test("renders edit button with author current user", async () => {
+test("renders edit buttons with author current user", async () => {
   const rendered = testing.render(
     <Article
       slug="the-answer"
-      getArticle={slug => {
-        expect(slug).toBe("the-answer");
-        return Promise.resolve({
+      getArticle={() =>
+        Promise.resolve({
           article: {
             ...article,
             author: {
@@ -139,13 +149,10 @@ test("renders edit button with author current user", async () => {
               following: false
             }
           }
-        });
-      }}
+        })
+      }
       deleteArticle={() => Promise.resolve()}
-      listComments={slug => {
-        expect(slug).toBe("the-answer");
-        return Promise.resolve({ comments: [comment] });
-      }}
+      listComments={() => Promise.resolve({ comments: [] })}
       currentUser={user}
     />
   );
@@ -154,4 +161,39 @@ test("renders edit button with author current user", async () => {
     rendered.getByText(EDIT_BUTTON_TEXT);
     rendered.getByText(DELETE_BUTTON_TEXT);
   });
+});
+
+test("deletes article", async () => {
+  const deleteArticle = jest.fn(() => Promise.resolve());
+
+  const rendered = testing.render(
+    <Article
+      slug="the-answer"
+      getArticle={() =>
+        Promise.resolve({
+          article: {
+            ...article,
+            author: {
+              username: user.username,
+              bio: user.bio,
+              image: user.image,
+              following: false
+            }
+          }
+        })
+      }
+      deleteArticle={deleteArticle}
+      listComments={() => Promise.resolve({ comments: [] })}
+      currentUser={user}
+    />
+  );
+
+  const edit = await testing.waitForElement(() =>
+    rendered.getByText(DELETE_BUTTON_TEXT)
+  );
+
+  testing.fireEvent.click(edit);
+
+  expect(deleteArticle).toHaveBeenCalledTimes(1);
+  await testing.wait(() => expect(window.location.pathname).toBe("/"));
 });
