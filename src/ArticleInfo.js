@@ -4,7 +4,7 @@ import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
 import PrettyDate from "./PrettyDate";
-import * as api from "./api";
+import type { Article } from "./api";
 
 type ProfileImageProps =
   | {|
@@ -13,7 +13,7 @@ type ProfileImageProps =
   | {|
       placeholder?: false,
       alt: string,
-      src: string
+      src: null | string
     |};
 
 const ProfileImage = (props: ProfileImageProps) => (
@@ -21,7 +21,7 @@ const ProfileImage = (props: ProfileImageProps) => (
     className={cn("br-100", "h2", "w2", "dib", "overflow-hidden")}
     alt={props.placeholder ? "profile" : props.alt}
     src={
-      props.placeholder || props.src === ""
+      props.placeholder || !props.src
         ? "https://static.productionready.io/images/smiley-cyrus.jpg"
         : props.src
     }
@@ -39,10 +39,10 @@ type ArticleInfoProps =
       color: "green" | "white",
       pubdate?: boolean,
       className?: string,
-      article: api.Article
+      article: Article
     };
 
-const authorProfilePath = (article: api.Article) =>
+const authorProfilePath = (article: Article) =>
   `/profile/${encodeURIComponent(article.author.username)}`;
 
 const ArticleInfo = (props: ArticleInfoProps) => {

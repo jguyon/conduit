@@ -4,7 +4,7 @@ import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
 import ArticleInfo from "./ArticleInfo";
-import * as api from "./api";
+import type { Article } from "./api";
 
 type TagProps =
   | {|
@@ -39,7 +39,7 @@ type ArticlePreviewProps =
     }
   | {
       placeholder?: false,
-      article: api.Article
+      article: Article
     };
 
 const ArticlePreview = (props: ArticlePreviewProps) => {

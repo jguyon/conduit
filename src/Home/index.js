@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import cn from "classnames";
-import * as api from "../api";
 import Request from "../Request";
 import type { RequestData } from "../Request";
 import Banner from "./Banner";
@@ -11,10 +10,11 @@ import { Tabs, TabItem } from "../Tabs";
 import Pagination from "../Pagination";
 import ArticlePreview from "../ArticlePreview";
 import Separator from "../Separator";
+import type { ListArticles, ListArticlesResp, ListTags } from "../api";
 
 type HomeProps = {|
-  listArticles: typeof api.listArticles,
-  listTags: typeof api.listTags
+  listArticles: ListArticles,
+  listTags: ListTags
 |};
 
 type HomeState = {|
@@ -138,7 +138,7 @@ class Home extends React.Component<HomeProps, HomeState> {
     );
   }
 
-  renderArticles = (request: RequestData<api.ListArticles>) => {
+  renderArticles = (request: RequestData<ListArticlesResp>) => {
     switch (request.status) {
       case "pending":
         return (
@@ -208,7 +208,7 @@ class Home extends React.Component<HomeProps, HomeState> {
     }
   };
 
-  renderTags = (request: RequestData<api.ListTags>): React.Node => {
+  renderTags = (request: RequestData<string[]>): React.Node => {
     switch (request.status) {
       case "pending":
         return (
@@ -234,7 +234,9 @@ class Home extends React.Component<HomeProps, HomeState> {
         return <div className={cn("f6", "red")}>Error loading tags!</div>;
 
       case "success":
-        return request.data.tags.map(tag => (
+        const tags = request.data;
+
+        return tags.map(tag => (
           <TagItem key={tag} name={tag} onClick={this.handleTagClick(tag)} />
         ));
 

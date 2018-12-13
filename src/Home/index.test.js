@@ -4,7 +4,7 @@ import * as React from "react";
 import * as testing from "react-testing-library";
 import "jest-dom/extend-expect";
 import Home from ".";
-import type { ListArticles, Article, ListTags } from "../api";
+import type { ListArticlesResp, Article } from "../api";
 
 afterEach(testing.cleanup);
 
@@ -21,17 +21,17 @@ const makeArticle = (name: string): Article => ({
   author: {
     username: `user-${name}`,
     bio: null,
-    image: "",
+    image: null,
     following: false
   }
 });
 
-const makeArticleList = (...names: string[]): ListArticles => ({
+const makeArticleList = (...names: string[]): ListArticlesResp => ({
   articlesCount: names.length,
   articles: names.map(makeArticle)
 });
 
-const makePaginatedList = (page: number): ListArticles => {
+const makePaginatedList = (page: number): ListArticlesResp => {
   if (page === 1) {
     return {
       articlesCount: 12,
@@ -58,18 +58,13 @@ const makePaginatedList = (page: number): ListArticles => {
   }
 };
 
-const makeTagList = (...tags: string[]): ListTags => ({ tags });
-
 test("renders global feed", async () => {
   const listArticles = jest.fn(() =>
     Promise.resolve(makeArticleList("one", "two"))
   );
 
   const rendered = testing.render(
-    <Home
-      listArticles={listArticles}
-      listTags={() => Promise.resolve(makeTagList())}
-    />
+    <Home listArticles={listArticles} listTags={() => Promise.resolve([])} />
   );
 
   expect(listArticles).toHaveBeenCalledTimes(1);
@@ -85,7 +80,7 @@ test("renders global feed", async () => {
 });
 
 test("renders popular tags", async () => {
-  const listTags = jest.fn(() => Promise.resolve(makeTagList("one", "two")));
+  const listTags = jest.fn(() => Promise.resolve(["one", "two"]));
 
   const rendered = testing.render(
     <Home
@@ -109,10 +104,7 @@ test("supports changing pages on global feed", async () => {
   );
 
   const rendered = testing.render(
-    <Home
-      listArticles={listArticles}
-      listTags={() => Promise.resolve(makeTagList())}
-    />
+    <Home listArticles={listArticles} listTags={() => Promise.resolve([])} />
   );
 
   expect(listArticles).toHaveBeenCalledTimes(1);
@@ -165,7 +157,7 @@ test("supports switching to tag feed", async () => {
   const rendered = testing.render(
     <Home
       listArticles={listArticles}
-      listTags={() => Promise.resolve(makeTagList("one"))}
+      listTags={() => Promise.resolve(["one"])}
     />
   );
 
@@ -209,7 +201,7 @@ test("supports changing pages on tag feed", async () => {
   const rendered = testing.render(
     <Home
       listArticles={listArticles}
-      listTags={() => Promise.resolve(makeTagList("one"))}
+      listTags={() => Promise.resolve(["one"])}
     />
   );
 
@@ -272,7 +264,7 @@ test("supports switching back to global feed", async () => {
   const rendered = testing.render(
     <Home
       listArticles={listArticles}
-      listTags={() => Promise.resolve(makeTagList("one"))}
+      listTags={() => Promise.resolve(["one"])}
     />
   );
 

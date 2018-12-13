@@ -3,8 +3,8 @@
 import * as React from "react";
 import * as testing from "react-testing-library";
 import "jest-dom/extend-expect";
-import * as api from "../api";
 import Article from ".";
+import type { User, Article as ArticleObj, Comment } from "../api";
 
 beforeEach(() => {
   window.history.pushState(null, "", "/article/the-answer");
@@ -12,7 +12,7 @@ beforeEach(() => {
 
 afterEach(testing.cleanup);
 
-const article: api.Article = {
+const article: ArticleObj = {
   slug: "the-answer",
   title: "The Answer",
   description: "The answer to life, the universe and everything",
@@ -25,12 +25,12 @@ const article: api.Article = {
   author: {
     username: "douglas",
     bio: null,
-    image: "",
+    image: null,
     following: false
   }
 };
 
-const comment: api.Comment = {
+const comment: Comment = {
   id: 1,
   createdAt: new Date().toJSON(),
   updatedAt: new Date().toJSON(),
@@ -38,37 +38,37 @@ const comment: api.Comment = {
   author: {
     username: "jane",
     bio: null,
-    image: "",
+    image: null,
     following: false
   }
 };
 
-const user: api.User = {
+const user: User = {
   email: "john@doe.com",
   token: "abcd",
   username: "johndoe",
   bio: null,
-  image: ""
+  image: null
 };
 
 const EDIT_BUTTON_TEXT = "Edit Article";
 const DELETE_BUTTON_TEXT = "Delete Article";
 
 test("renders the article", async () => {
-  const getArticle = jest.fn(() => Promise.resolve({ article }));
+  const getArticle = jest.fn(() => Promise.resolve(article));
 
   const rendered = testing.render(
     <Article
       slug="the-answer"
       getArticle={getArticle}
       deleteArticle={() => Promise.resolve()}
-      listComments={() => Promise.resolve({ comments: [] })}
+      listComments={() => Promise.resolve([])}
       currentUser={null}
     />
   );
 
   expect(getArticle).toHaveBeenCalledTimes(1);
-  expect(getArticle).toHaveBeenLastCalledWith("the-answer");
+  expect(getArticle).toHaveBeenLastCalledWith({ slug: "the-answer" });
 
   await testing.wait(() => {
     rendered.getByText(article.title);
@@ -76,12 +76,12 @@ test("renders the article", async () => {
 });
 
 test("renders the comments", async () => {
-  const listComments = jest.fn(() => Promise.resolve({ comments: [comment] }));
+  const listComments = jest.fn(() => Promise.resolve([comment]));
 
   const rendered = testing.render(
     <Article
       slug="the-answer"
-      getArticle={() => Promise.resolve({ article })}
+      getArticle={() => Promise.resolve(article)}
       deleteArticle={() => Promise.resolve()}
       listComments={listComments}
       currentUser={null}
@@ -89,7 +89,7 @@ test("renders the comments", async () => {
   );
 
   expect(listComments).toHaveBeenCalledTimes(1);
-  expect(listComments).toHaveBeenLastCalledWith("the-answer");
+  expect(listComments).toHaveBeenLastCalledWith({ slug: "the-answer" });
 
   await testing.wait(() => {
     rendered.getByText(comment.body);
@@ -100,9 +100,9 @@ test("does not render edit buttons with no current user", async () => {
   const rendered = testing.render(
     <Article
       slug="the-answer"
-      getArticle={() => Promise.resolve({ article })}
+      getArticle={() => Promise.resolve(article)}
       deleteArticle={() => Promise.resolve()}
-      listComments={() => Promise.resolve({ comments: [] })}
+      listComments={() => Promise.resolve([])}
       currentUser={null}
     />
   );
@@ -119,9 +119,9 @@ test("does not render edit buttons with non-author current user", async () => {
   const rendered = testing.render(
     <Article
       slug="the-answer"
-      getArticle={() => Promise.resolve({ article })}
+      getArticle={() => Promise.resolve(article)}
       deleteArticle={() => Promise.resolve()}
-      listComments={() => Promise.resolve({ comments: [] })}
+      listComments={() => Promise.resolve([])}
       currentUser={user}
     />
   );
@@ -140,19 +140,17 @@ test("renders edit buttons with author current user", async () => {
       slug="the-answer"
       getArticle={() =>
         Promise.resolve({
-          article: {
-            ...article,
-            author: {
-              username: user.username,
-              bio: user.bio,
-              image: user.image,
-              following: false
-            }
+          ...article,
+          author: {
+            username: user.username,
+            bio: user.bio,
+            image: user.image,
+            following: false
           }
         })
       }
       deleteArticle={() => Promise.resolve()}
-      listComments={() => Promise.resolve({ comments: [] })}
+      listComments={() => Promise.resolve([])}
       currentUser={user}
     />
   );
@@ -171,19 +169,17 @@ test("deletes article", async () => {
       slug="the-answer"
       getArticle={() =>
         Promise.resolve({
-          article: {
-            ...article,
-            author: {
-              username: user.username,
-              bio: user.bio,
-              image: user.image,
-              following: false
-            }
+          ...article,
+          author: {
+            username: user.username,
+            bio: user.bio,
+            image: user.image,
+            following: false
           }
         })
       }
       deleteArticle={deleteArticle}
-      listComments={() => Promise.resolve({ comments: [] })}
+      listComments={() => Promise.resolve([])}
       currentUser={user}
     />
   );

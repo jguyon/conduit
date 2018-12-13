@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import cn from "classnames";
-import * as api from "../api";
+import type { Profile } from "../api";
 
 type ProfileImageProps =
   | {|
@@ -11,7 +11,7 @@ type ProfileImageProps =
   | {|
       placeholder?: false,
       alt: string,
-      src: string
+      src: null | string
     |};
 
 const ProfileImage = (props: ProfileImageProps) => (
@@ -27,7 +27,7 @@ const ProfileImage = (props: ProfileImageProps) => (
     )}
     alt={props.placeholder ? "profile" : props.alt}
     src={
-      props.placeholder || props.src === ""
+      props.placeholder || !props.src
         ? "https://static.productionready.io/images/smiley-cyrus.jpg"
         : props.src
     }
@@ -40,7 +40,7 @@ type BannerProps =
     |}
   | {|
       placeholder?: false,
-      profile: api.Profile
+      profile: Profile
     |};
 
 const Banner = (props: BannerProps) => {

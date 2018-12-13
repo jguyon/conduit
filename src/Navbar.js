@@ -3,10 +3,10 @@
 import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
-import * as api from "./api";
+import type { User } from "./api";
 
 type NavbarLinksProps = {|
-  currentUser: ?api.User
+  currentUser: ?User
 |};
 
 const NavbarLinks = ({ currentUser }: NavbarLinksProps) => (
@@ -64,7 +64,7 @@ type NavbarProps =
     |}
   | {|
       placeholder?: false,
-      currentUser: ?api.User
+      currentUser: ?User
     |};
 
 const Navbar = (props: NavbarProps) => (

@@ -1,87 +1,23 @@
 // @flow
 
-export type User = {|
+const ENDPOINT = "https://conduit.productionready.io/api";
+
+export type User = {
   email: string,
   token: string,
   username: string,
   bio: null | string,
-  image: string
-|};
+  image: null | string
+};
 
-export type Login =
-  | {|
-      isOk: true,
-      user: User
-    |}
-  | {|
-      isOk: false
-    |};
-
-export type LoginOpts = {|
-  email: string,
-  password: string
-|};
-
-export type Register =
-  | {|
-      isOk: true,
-      user: User
-    |}
-  | {|
-      isOk: false,
-      errors: {|
-        username?: string[],
-        email?: string[],
-        password?: string[]
-      |}
-    |};
-
-export type RegisterOpts = {|
-  username: string,
-  email: string,
-  password: string
-|};
-
-export type GetCurrentUser = {|
-  user: User
-|};
-
-export type UpdateCurrentUserOpts = {|
-  username?: string,
-  email?: string,
-  password?: string,
-  image?: null | string,
-  bio?: null | string
-|};
-
-export type UpdateCurrentUser =
-  | {|
-      isOk: true,
-      user: User
-    |}
-  | {|
-      isOk: false,
-      errors: {|
-        username?: string[],
-        email?: string[],
-        password?: string[],
-        image?: string[],
-        bio?: string[]
-      |}
-    |};
-
-export type Profile = {|
+export type Profile = {
   username: string,
   bio: null | string,
-  image: string,
+  image: null | string,
   following: boolean
-|};
+};
 
-export type GetProfile = {|
-  profile: Profile
-|};
-
-export type Article = {|
+export type Article = {
   slug: string,
   title: string,
   description: string,
@@ -92,76 +28,41 @@ export type Article = {|
   favorited: boolean,
   favoritesCount: number,
   author: Profile
-|};
+};
 
-export type ListArticles = {|
-  articlesCount: number,
-  articles: Article[]
-|};
-
-type ListArticlesOpts = {|
-  page: number,
-  perPage: number,
-  tag?: string,
-  author?: string,
-  favorited?: string
-|};
-
-export type GetArticle = {|
-  article: Article
-|};
-
-export type CreateArticle =
-  | {|
-      isOk: true,
-      article: Article
-    |}
-  | {|
-      isOk: false,
-      errors: {|
-        title?: string[],
-        description?: string[],
-        body?: string[],
-        tagList?: string[]
-      |}
-    |};
-
-export type CreateArticleOpts = {|
-  title: string,
-  description: string,
-  body: string,
-  tagList: string[]
-|};
-
-export type UpdateArticle = CreateArticle;
-
-export type UpdateArticleOpts = CreateArticleOpts;
-
-export type ListTags = {|
-  tags: string[]
-|};
-
-export type Comment = {|
+export type Comment = {
   id: number,
   createdAt: string,
   updatedAt: string,
   body: string,
   author: Profile
+};
+
+type LoginUserOpts = {|
+  email: string,
+  password: string
 |};
 
-export type ListComments = {|
-  comments: Comment[]
+type LoginUserRespOk = {|
+  isOk: true,
+  user: User
 |};
 
-const ENDPOINT = "https://conduit.productionready.io/api";
+type LoginUserRespErr = {|
+  isOk: false
+|};
 
-export const loginUser = (opts: LoginOpts): Promise<Login> =>
+export type LoginUserResp = LoginUserRespOk | LoginUserRespErr;
+
+export type LoginUser = LoginUserOpts => Promise<LoginUserResp>;
+
+export const loginUser: LoginUser = fields =>
   fetch(`${ENDPOINT}/users/login`, {
     method: "POST",
-    headers: new Headers({
+    headers: {
       "content-type": "application/json"
-    }),
-    body: JSON.stringify({ user: opts })
+    },
+    body: JSON.stringify({ user: fields })
   }).then(response => {
     if (response.status === 200) {
       return response.json().then(({ user }) => ({
@@ -177,13 +78,37 @@ export const loginUser = (opts: LoginOpts): Promise<Login> =>
     }
   });
 
-export const registerUser = (opts: RegisterOpts): Promise<Register> =>
+type RegisterUserOpts = {|
+  username: string,
+  email: string,
+  password: string
+|};
+
+type RegisterUserRespOk = {|
+  isOk: true,
+  user: User
+|};
+
+type RegisterUserRespErr = {|
+  isOk: false,
+  errors: {
+    username?: string[],
+    email?: string[],
+    password?: string[]
+  }
+|};
+
+export type RegisterUserResp = RegisterUserRespOk | RegisterUserRespErr;
+
+export type RegisterUser = RegisterUserOpts => Promise<RegisterUserResp>;
+
+export const registerUser: RegisterUser = fields =>
   fetch(`${ENDPOINT}/users`, {
     method: "POST",
-    headers: new Headers({
+    headers: {
       "content-type": "application/json"
-    }),
-    body: JSON.stringify({ user: opts })
+    },
+    body: JSON.stringify({ user: fields })
   }).then(response => {
     if (response.status === 200) {
       return response.json().then(({ user }) => ({
@@ -200,30 +125,66 @@ export const registerUser = (opts: RegisterOpts): Promise<Register> =>
     }
   });
 
-export const getCurrentUser = (token: string): Promise<GetCurrentUser> =>
+type GetCurrentUserOpts = {|
+  token: string
+|};
+
+export type GetCurrentUser = GetCurrentUserOpts => Promise<User>;
+
+export const getCurrentUser: GetCurrentUser = ({ token }) =>
   fetch(`${ENDPOINT}/user`, {
-    headers: new Headers({
+    headers: {
       authorization: `Token ${token}`
-    })
+    }
   }).then(response => {
     if (response.status === 200) {
-      return response.json();
+      return response.json().then(({ user }) => user);
     } else {
       throw new Error(`expected status 200 but got ${response.status}`);
     }
   });
 
-export const updateCurrentUser = (
+type UpdateCurrentUserOpts = {|
   token: string,
-  opts: UpdateCurrentUserOpts
-): Promise<UpdateCurrentUser> =>
+  username?: string,
+  email?: string,
+  password?: string,
+  image?: null | string,
+  bio?: null | string
+|};
+
+type UpdateCurrentUserRespOk = {|
+  isOk: true,
+  user: User
+|};
+
+type UpdateCurrentUserRespErr = {|
+  isOk: false,
+  errors: {
+    username?: string[],
+    email?: string[],
+    password?: string[],
+    image?: string[],
+    bio?: string[]
+  }
+|};
+
+export type UpdateCurrentUserResp =
+  | UpdateCurrentUserRespOk
+  | UpdateCurrentUserRespErr;
+
+export type UpdateCurrentUser = UpdateCurrentUserOpts => Promise<
+  UpdateCurrentUserResp
+>;
+
+export const updateCurrentUser: UpdateCurrentUser = ({ token, ...fields }) =>
   fetch(`${ENDPOINT}/user`, {
     method: "PUT",
-    headers: new Headers({
+    headers: {
       "content-type": "application/json",
       authorization: `Token ${token}`
-    }),
-    body: JSON.stringify({ user: opts })
+    },
+    body: JSON.stringify({ user: fields })
   }).then(response => {
     if (response.status === 200) {
       return response.json().then(({ user }) => ({
@@ -240,13 +201,45 @@ export const updateCurrentUser = (
     }
   });
 
-export const listArticles = ({
+type GetProfileOpts = {|
+  username: string
+|};
+
+export type GetProfile = GetProfileOpts => Promise<Profile>;
+
+export const getProfile: GetProfile = ({ username }) =>
+  fetch(`${ENDPOINT}/profiles/${encodeURIComponent(username)}`).then(
+    response => {
+      if (response.status === 200) {
+        return response.json().then(({ profile }) => profile);
+      } else {
+        throw new Error(`expected status 200 but got ${response.status}`);
+      }
+    }
+  );
+
+type ListArticlesOpts = {|
+  page: number,
+  perPage: number,
+  tag?: string,
+  author?: string,
+  favorited?: string
+|};
+
+export type ListArticlesResp = {
+  articlesCount: number,
+  articles: Article[]
+};
+
+export type ListArticles = ListArticlesOpts => Promise<ListArticlesResp>;
+
+export const listArticles: ListArticles = ({
   page,
   perPage,
   tag,
   author,
   favorited
-}: ListArticlesOpts): Promise<ListArticles> =>
+}) =>
   fetch(
     `${ENDPOINT}/articles?limit=${perPage}&offset=${(page - 1) * perPage}${
       tag ? `&tag=${encodeURIComponent(tag)}` : ""
@@ -261,26 +254,56 @@ export const listArticles = ({
     }
   });
 
-export const getArticle = (slug: string): Promise<GetArticle> =>
+type GetArticleOpts = {|
+  slug: string
+|};
+
+export type GetArticle = GetArticleOpts => Promise<Article>;
+
+export const getArticle: GetArticle = ({ slug }) =>
   fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`).then(response => {
     if (response.status === 200) {
-      return response.json();
+      return response.json().then(({ article }) => article);
     } else {
       throw new Error(`expected status 200 but got ${response.status}`);
     }
   });
 
-export const createArticle = (
+type CreateArticleOpts = {|
   token: string,
-  opts: CreateArticleOpts
-): Promise<CreateArticle> =>
+  title: string,
+  description: string,
+  body: string,
+  tagList: string[]
+|};
+
+type CreateArticleRespOk = {|
+  isOk: true,
+  article: Article
+|};
+
+type CreateArticleRespErr = {|
+  isOk: false,
+  errors: {
+    title?: string[],
+    description?: string[],
+    body?: string[],
+    tagList?: string[]
+  }
+|};
+
+export type CreateArticleResp = CreateArticleRespOk | CreateArticleRespErr;
+
+export type CreateArticle = CreateArticleOpts => Promise<CreateArticleResp>;
+
+export const createArticle: CreateArticle = ({ token, ...fields }) =>
   fetch(`${ENDPOINT}/articles`, {
     method: "POST",
-    headers: new Headers({
+    headers: {
       "content-type": "application/json",
       authorization: `Token ${token}`
-    }),
-    body: JSON.stringify({ article: opts })
+    },
+    body: JSON.stringify({ article: fields })
   }).then(response => {
     if (response.status === 200) {
       return response.json().then(({ article }) => ({
@@ -297,18 +320,42 @@ export const createArticle = (
     }
   });
 
-export const updateArticle = (
+type UpdateArticleOpts = {|
   token: string,
   slug: string,
-  opts: UpdateArticleOpts
-): Promise<UpdateArticle> =>
+  title: string,
+  description: string,
+  body: string,
+  tagList: string[]
+|};
+
+type UpdateArticleRespOk = {|
+  isOk: true,
+  article: Article
+|};
+
+type UpdateArticleRespErr = {|
+  isOk: false,
+  errors: {
+    title?: string[],
+    description?: string[],
+    body?: string[],
+    tagList?: string[]
+  }
+|};
+
+export type UpdateArticleResp = UpdateArticleRespOk | UpdateArticleRespErr;
+
+export type UpdateArticle = UpdateArticleOpts => Promise<UpdateArticleResp>;
+
+export const updateArticle: UpdateArticle = ({ token, slug, ...fields }) =>
   fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`, {
     method: "PUT",
-    headers: new Headers({
+    headers: {
       "content-type": "application/json",
       authorization: `Token ${token}`
-    }),
-    body: JSON.stringify({ article: opts })
+    },
+    body: JSON.stringify({ article: fields })
   }).then(response => {
     if (response.status === 200) {
       return response.json().then(({ article }) => ({
@@ -325,45 +372,49 @@ export const updateArticle = (
     }
   });
 
-export const deleteArticle = (token: string, slug: string): Promise<void> =>
+type DeleteArticleOpts = {|
+  token: string,
+  slug: string
+|};
+
+export type DeleteArticle = DeleteArticleOpts => Promise<void>;
+
+export const deleteArticle: DeleteArticle = ({ token, slug }) =>
   fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`, {
     method: "DELETE",
-    headers: new Headers({
+    headers: {
       authorization: `Token ${token}`
-    })
+    }
   }).then(response => {
     if (response.status !== 200) {
       throw new Error(`expected status 200 but got ${response.status}`);
     }
   });
 
-export const listTags = (): Promise<ListTags> =>
+type ListCommentsOpts = {|
+  slug: string
+|};
+
+export type ListComments = ListCommentsOpts => Promise<Comment[]>;
+
+export const listComments: ListComments = ({ slug }) =>
+  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}/comments`).then(
+    response => {
+      if (response.status === 200) {
+        return response.json().then(({ comments }) => comments);
+      } else {
+        throw new Error(`expected status 200 but got ${response.status}`);
+      }
+    }
+  );
+
+export type ListTags = () => Promise<string[]>;
+
+export const listTags = () =>
   fetch(`${ENDPOINT}/tags`).then(response => {
     if (response.status === 200) {
-      return response.json();
+      return response.json().then(({ tags }) => tags);
     } else {
       throw new Error(`expected status 200 but got ${response.status}`);
     }
   });
-
-export const listComments = (slug: string): Promise<ListComments> =>
-  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}/comments`).then(
-    response => {
-      if (response.status === 200) {
-        return response.json();
-      } else {
-        throw new Error(`expected status 200 but got ${response.status}`);
-      }
-    }
-  );
-
-export const getProfile = (username: string): Promise<GetProfile> =>
-  fetch(`${ENDPOINT}/profiles/${encodeURIComponent(username)}`).then(
-    response => {
-      if (response.status === 200) {
-        return response.json();
-      } else {
-        throw new Error(`expected status 200 but got ${response.status}`);
-      }
-    }
-  );

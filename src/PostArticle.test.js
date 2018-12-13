@@ -11,7 +11,7 @@ const user: User = {
   token: "abcd",
   username: "johndoe",
   bio: null,
-  image: ""
+  image: null
 };
 
 const article: Article = {
@@ -78,7 +78,8 @@ describe("with type 'create'", () => {
     );
 
     expect(createArticle).toHaveBeenCalledTimes(1);
-    expect(createArticle).toHaveBeenLastCalledWith(user.token, {
+    expect(createArticle).toHaveBeenLastCalledWith({
+      token: user.token,
       title: "Some Article",
       description: "This is an article",
       body: "Lorem ipsum",
@@ -126,7 +127,8 @@ describe("with type 'create'", () => {
     testing.fireEvent.submit(rendered.getByTestId("post-article-form"));
 
     expect(createArticle).toHaveBeenCalledTimes(1);
-    expect(createArticle).toHaveBeenLastCalledWith(user.token, {
+    expect(createArticle).toHaveBeenLastCalledWith({
+      token: user.token,
       title: "Some Article",
       description: "This is an article",
       body: "Lorem ipsum",
@@ -152,7 +154,7 @@ describe("with type 'create'", () => {
 
 describe("with type 'update'", () => {
   test("loads article", async () => {
-    const getArticle = jest.fn(() => Promise.resolve({ article }));
+    const getArticle = jest.fn(() => Promise.resolve(article));
 
     const rendered = testing.render(
       <PostArticle
@@ -167,7 +169,7 @@ describe("with type 'update'", () => {
     );
 
     expect(getArticle).toHaveBeenCalledTimes(1);
-    expect(getArticle).toHaveBeenLastCalledWith(article.slug);
+    expect(getArticle).toHaveBeenLastCalledWith({ slug: article.slug });
 
     await testing.wait(() => {
       expect(rendered.getByTestId("post-article-title")).toHaveAttribute(
@@ -189,7 +191,7 @@ describe("with type 'update'", () => {
   });
 
   test("updates article with valid fields", async () => {
-    const getArticle = () => Promise.resolve({ article });
+    const getArticle = () => Promise.resolve(article);
 
     const updatedArticle = {
       ...article,
@@ -244,7 +246,9 @@ describe("with type 'update'", () => {
     );
 
     expect(updateArticle).toHaveBeenCalledTimes(1);
-    expect(updateArticle).toHaveBeenLastCalledWith(user.token, article.slug, {
+    expect(updateArticle).toHaveBeenLastCalledWith({
+      token: user.token,
+      slug: article.slug,
       title: updatedArticle.title,
       description: updatedArticle.description,
       body: updatedArticle.body,
@@ -253,7 +257,7 @@ describe("with type 'update'", () => {
   });
 
   test("displays errors with invalid fields", async () => {
-    const getArticle = () => Promise.resolve({ article });
+    const getArticle = () => Promise.resolve(article);
 
     const updateArticle = jest.fn(() =>
       Promise.resolve({
@@ -300,7 +304,9 @@ describe("with type 'update'", () => {
     testing.fireEvent.submit(rendered.getByTestId("post-article-form"));
 
     expect(updateArticle).toHaveBeenCalledTimes(1);
-    expect(updateArticle).toHaveBeenLastCalledWith(user.token, article.slug, {
+    expect(updateArticle).toHaveBeenLastCalledWith({
+      token: user.token,
+      slug: article.slug,
       title: "New Title",
       description: "This is a new description",
       body: "This is a new body",

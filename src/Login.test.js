@@ -11,7 +11,7 @@ const user: User = {
   token: "abcd",
   username: "johndoe",
   bio: null,
-  image: ""
+  image: null
 };
 
 beforeEach(() => {

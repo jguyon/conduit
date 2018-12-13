@@ -13,7 +13,7 @@ const user: User = {
   token: "abcd",
   username: "johndoe",
   bio: null,
-  image: ""
+  image: null
 };
 
 test("inits empty currentUser with no token", async () => {
@@ -77,7 +77,7 @@ test("inits empty currentUser with invalid token", async () => {
 
   expect(getToken).toHaveBeenCalledTimes(1);
   expect(getCurrentUser).toHaveBeenCalledTimes(1);
-  expect(getCurrentUser).toHaveBeenLastCalledWith("abcd");
+  expect(getCurrentUser).toHaveBeenLastCalledWith({ token: "abcd" });
 
   await expect(
     testing.wait(
@@ -90,7 +90,7 @@ test("inits empty currentUser with invalid token", async () => {
 });
 
 test("inits non-empty currentUser with valid token", async () => {
-  const getCurrentUser = jest.fn(() => Promise.resolve({ user }));
+  const getCurrentUser = jest.fn(() => Promise.resolve(user));
 
   const getToken = jest.fn(() => "abcd");
 
@@ -116,7 +116,7 @@ test("inits non-empty currentUser with valid token", async () => {
 
   expect(getToken).toHaveBeenCalledTimes(1);
   expect(getCurrentUser).toHaveBeenCalledTimes(1);
-  expect(getCurrentUser).toHaveBeenLastCalledWith("abcd");
+  expect(getCurrentUser).toHaveBeenLastCalledWith({ token: "abcd" });
   expect(rendered.container).toHaveTextContent("pending");
 
   await testing.wait(() => {
@@ -200,7 +200,7 @@ test("unsets current user", async () => {
 
   const rendered = testing.render(
     <CurrentUser
-      getCurrentUser={() => Promise.resolve({ user })}
+      getCurrentUser={() => Promise.resolve(user)}
       getToken={() => "abcd"}
       setToken={setToken}
       removeToken={removeToken}

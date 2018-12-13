@@ -7,10 +7,16 @@ import type { RequestData } from "../Request";
 import FullArticle from "./FullArticle";
 import Comment from "./Comment";
 import NotFound from "../NotFound";
-import * as api from "../api";
+import type {
+  User,
+  Comment as CommentObj,
+  GetArticle,
+  DeleteArticle,
+  ListComments
+} from "../api";
 
 type CommentListProps = {|
-  request: RequestData<api.ListComments>
+  request: RequestData<CommentObj[]>
 |};
 
 const CommentList = ({ request }: CommentListProps) => {
@@ -24,7 +30,7 @@ const CommentList = ({ request }: CommentListProps) => {
       );
 
     case "success":
-      const { comments } = request.data;
+      const comments = request.data;
 
       return (
         <div className={cn("container", "mv5", "mh-auto")}>
@@ -43,15 +49,15 @@ const CommentList = ({ request }: CommentListProps) => {
 
 type ArticleProps = {|
   slug: string,
-  currentUser: ?api.User,
-  getArticle: typeof api.getArticle,
-  deleteArticle: typeof api.deleteArticle,
-  listComments: typeof api.listComments
+  currentUser: ?User,
+  getArticle: GetArticle,
+  deleteArticle: DeleteArticle,
+  listComments: ListComments
 |};
 
 const Article = (props: ArticleProps) => {
-  const loadArticle = () => props.getArticle(props.slug);
-  const loadComments = () => props.listComments(props.slug);
+  const loadArticle = () => props.getArticle({ slug: props.slug });
+  const loadComments = () => props.listComments({ slug: props.slug });
 
   return (
     <Request load={loadArticle}>
@@ -66,7 +72,7 @@ const Article = (props: ArticleProps) => {
                 return <NotFound />;
 
               case "success":
-                const { article } = requestArticle.data;
+                const article = requestArticle.data;
 
                 return (
                   <>

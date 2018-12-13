@@ -3,19 +3,19 @@
 import * as React from "react";
 import * as testing from "react-testing-library";
 import "jest-dom/extend-expect";
-import * as api from "../api";
 import Profile from ".";
+import type { Profile as ProfileObj, Article, ListArticlesResp } from "../api";
 
 afterEach(testing.cleanup);
 
-const profile: api.Profile = {
+const profile: ProfileObj = {
   username: "johndoe",
   bio: null,
-  image: "",
+  image: null,
   following: false
 };
 
-const makeArticle = (name: string): api.Article => ({
+const makeArticle = (name: string): Article => ({
   slug: name,
   title: `Article ${name}`,
   description: `This is the description of article ${name}`,
@@ -28,17 +28,17 @@ const makeArticle = (name: string): api.Article => ({
   author: {
     username: `user-${name}`,
     bio: null,
-    image: "",
+    image: null,
     following: false
   }
 });
 
-const makeArticleList = (...names: string[]): api.ListArticles => ({
+const makeArticleList = (...names: string[]): ListArticlesResp => ({
   articlesCount: names.length,
   articles: names.map(makeArticle)
 });
 
-const makePaginatedList = (page: number): api.ListArticles => {
+const makePaginatedList = (page: number): ListArticlesResp => {
   if (page === 1) {
     return {
       articlesCount: 12,
@@ -66,7 +66,7 @@ const makePaginatedList = (page: number): api.ListArticles => {
 };
 
 test("renders the profile", async () => {
-  const getProfile = jest.fn(() => Promise.resolve({ profile }));
+  const getProfile = jest.fn(() => Promise.resolve(profile));
 
   const rendered = testing.render(
     <Profile
@@ -77,7 +77,7 @@ test("renders the profile", async () => {
   );
 
   expect(getProfile).toHaveBeenCalledTimes(1);
-  expect(getProfile).toHaveBeenLastCalledWith("johndoe");
+  expect(getProfile).toHaveBeenLastCalledWith({ username: "johndoe" });
 
   await testing.wait(() => {
     rendered.getByText("johndoe");
@@ -92,7 +92,7 @@ test("renders authored feed", async () => {
   const rendered = testing.render(
     <Profile
       username="johndoe"
-      getProfile={() => Promise.resolve({ profile })}
+      getProfile={() => Promise.resolve(profile)}
       listArticles={listArticles}
     />
   );
@@ -118,7 +118,7 @@ test("supports changing pages on authored feed", async () => {
   const rendered = testing.render(
     <Profile
       username="johndoe"
-      getProfile={() => Promise.resolve({ profile })}
+      getProfile={() => Promise.resolve(profile)}
       listArticles={listArticles}
     />
   );
@@ -176,7 +176,7 @@ test("supports switching to favorited feed", async () => {
   const rendered = testing.render(
     <Profile
       username="johndoe"
-      getProfile={() => Promise.resolve({ profile })}
+      getProfile={() => Promise.resolve(profile)}
       listArticles={listArticles}
     />
   );
@@ -217,7 +217,7 @@ test("supports changing pages on favorited feed", async () => {
   const rendered = testing.render(
     <Profile
       username="johndoe"
-      getProfile={() => Promise.resolve({ profile })}
+      getProfile={() => Promise.resolve(profile)}
       listArticles={listArticles}
     />
   );
@@ -277,7 +277,7 @@ test("supports switching back to authored feed", async () => {
   const rendered = testing.render(
     <Profile
       username="johndoe"
-      getProfile={() => Promise.resolve({ profile })}
+      getProfile={() => Promise.resolve(profile)}
       listArticles={listArticles}
     />
   );

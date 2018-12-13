@@ -3,12 +3,12 @@
 import * as React from "react";
 import { navigate } from "@reach/router";
 import cn from "classnames";
-import * as api from "../api";
+import type { User, Article, DeleteArticle as DeleteArticleFn } from "../api";
 
 type DeleteArticleProps = {|
-  deleteArticle: typeof api.deleteArticle,
-  article: api.Article,
-  currentUser: api.User,
+  deleteArticle: DeleteArticleFn,
+  article: Article,
+  currentUser: User,
   className?: string
 |};
 
@@ -29,7 +29,10 @@ class DeleteArticle extends React.Component<
       this.setState({ pending: true });
 
       this.props
-        .deleteArticle(this.props.currentUser.token, this.props.article.slug)
+        .deleteArticle({
+          token: this.props.currentUser.token,
+          slug: this.props.article.slug
+        })
         .then(() => navigate("/"), () => this.setState({ pending: false }));
     }
   };

@@ -7,7 +7,7 @@ import cn from "classnames";
 import DeleteArticle from "./DeleteArticle";
 import ArticleInfo from "../ArticleInfo";
 import Separator from "../Separator";
-import * as api from "../api";
+import type { User, Article, DeleteArticle as DeleteArticleFn } from "../api";
 
 const RendererHr = (props: {}) => (
   <hr {...props} className={cn("light-gray", "bt", "bl-0", "br-0", "bb-0")} />
@@ -31,9 +31,9 @@ type FullArticleProps =
     |}
   | {|
       placeholder?: false,
-      deleteArticle: typeof api.deleteArticle,
-      article: api.Article,
-      currentUser: ?api.User
+      deleteArticle: DeleteArticleFn,
+      article: Article,
+      currentUser: ?User
     |};
 
 const FullArticle = (props: FullArticleProps) => {

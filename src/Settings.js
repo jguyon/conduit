@@ -5,12 +5,12 @@ import { navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "./Form";
 import Separator from "./Separator";
-import * as api from "./api";
+import type { User, UpdateCurrentUser } from "./api";
 
 type SettingsProps = {|
-  updateCurrentUser: typeof api.updateCurrentUser,
-  currentUser: api.User,
-  setCurrentUser: api.User => void,
+  updateCurrentUser: UpdateCurrentUser,
+  currentUser: User,
+  setCurrentUser: User => void,
   unsetCurrentUser: () => void
 |};
 
@@ -118,7 +118,8 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
     });
 
     this.props
-      .updateCurrentUser(this.props.currentUser.token, {
+      .updateCurrentUser({
+        token: this.props.currentUser.token,
         username: this.state.username,
         email: this.state.email,
         password: this.state.password ? this.state.password : undefined,

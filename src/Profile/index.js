@@ -10,11 +10,11 @@ import ArticlePreview from "../ArticlePreview";
 import Separator from "../Separator";
 import Pagination from "../Pagination";
 import NotFound from "../NotFound";
-import * as api from "../api";
+import type { ListArticles, ListArticlesResp, GetProfile } from "../api";
 
 type ProfileArticlesProps = {|
   username: string,
-  listArticles: typeof api.listArticles
+  listArticles: ListArticles
 |};
 
 type ProfileArticlesState = {|
@@ -150,7 +150,7 @@ class ProfileArticles extends React.Component<
     );
   }
 
-  renderArticles(request: RequestData<api.ListArticles>) {
+  renderArticles(request: RequestData<ListArticlesResp>) {
     switch (request.status) {
       case "pending":
         return (
@@ -207,14 +207,16 @@ class ProfileArticles extends React.Component<
 
 type ProfileProps = {|
   username: string,
-  getProfile: typeof api.getProfile,
-  listArticles: typeof api.listArticles
+  getProfile: GetProfile,
+  listArticles: ListArticles
 |};
 
 class Profile extends React.PureComponent<ProfileProps> {
   render() {
     return (
-      <Request load={() => this.props.getProfile(this.props.username)}>
+      <Request
+        load={() => this.props.getProfile({ username: this.props.username })}
+      >
         {request => {
           switch (request.status) {
             case "pending":
@@ -232,7 +234,7 @@ class Profile extends React.PureComponent<ProfileProps> {
               return <NotFound />;
 
             case "success":
-              const { profile } = request.data;
+              const profile = request.data;
 
               return (
                 <>

@@ -4,11 +4,11 @@ import * as React from "react";
 import { Link, navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, Submit } from "./Form";
-import * as api from "./api";
+import type { User, RegisterUser } from "./api";
 
 type RegisterProps = {|
-  registerUser: typeof api.registerUser,
-  setCurrentUser: api.User => void
+  registerUser: RegisterUser,
+  setCurrentUser: User => void
 |};
 
 type RegisterState = {|

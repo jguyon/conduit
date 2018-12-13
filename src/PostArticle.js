@@ -6,7 +6,13 @@ import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "./Form";
 import Request from "./Request";
 import NotFound from "./NotFound";
-import * as api from "./api";
+import type {
+  User,
+  Article,
+  GetArticle,
+  CreateArticle,
+  UpdateArticle
+} from "./api";
 
 type PostArticlePageProps = {|
   header: string,
@@ -131,16 +137,16 @@ type PostArticleFields = {|
 type PostArticleResult =
   | {|
       isOk: true,
-      article: api.Article
+      article: Article
     |}
   | {|
       isOk: false,
-      errors: {|
+      errors: {
         title?: string[],
         description?: string[],
         body?: string[],
         tagList?: string[]
-      |}
+      }
     |};
 
 type PostArticleFormProps = {|
@@ -336,14 +342,14 @@ class PostArticleForm extends React.Component<
 type PostArticleProps =
   | {|
       type: "create",
-      createArticle: typeof api.createArticle,
-      currentUser: api.User
+      createArticle: CreateArticle,
+      currentUser: User
     |}
   | {|
       type: "update",
-      getArticle: typeof api.getArticle,
-      updateArticle: typeof api.updateArticle,
-      currentUser: api.User,
+      getArticle: GetArticle,
+      updateArticle: UpdateArticle,
+      currentUser: User,
       slug: string
     |};
 
@@ -357,7 +363,7 @@ const PostArticle = (props: PostArticleProps) => {
       return (
         <PostArticleForm
           title="New Article"
-          postArticle={fields => createArticle(token, fields)}
+          postArticle={fields => createArticle({ ...fields, token })}
           initialFields={{
             title: "",
             description: "",
@@ -371,7 +377,7 @@ const PostArticle = (props: PostArticleProps) => {
       const { getArticle, updateArticle, slug } = props;
 
       return (
-        <Request load={() => getArticle(slug)}>
+        <Request load={() => getArticle({ slug })}>
           {request => {
             switch (request.status) {
               case "pending":
@@ -381,12 +387,14 @@ const PostArticle = (props: PostArticleProps) => {
                 return <NotFound />;
 
               case "success":
-                const { article } = request.data;
+                const article = request.data;
 
                 return (
                   <PostArticleForm
                     title="Edit Article"
-                    postArticle={fields => updateArticle(token, slug, fields)}
+                    postArticle={fields =>
+                      updateArticle({ ...fields, token, slug })
+                    }
                     initialFields={{
                       title: article.title,
                       description: article.description,

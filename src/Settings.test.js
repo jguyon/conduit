@@ -11,7 +11,7 @@ const user: User = {
   token: "abcd",
   username: "johndoe",
   bio: null,
-  image: ""
+  image: null
 };
 
 beforeEach(() => {
@@ -74,7 +74,8 @@ test("updates current user with valid fields", async () => {
   );
 
   expect(updateCurrentUser).toHaveBeenCalledTimes(1);
-  expect(updateCurrentUser).toHaveBeenLastCalledWith("abcd", {
+  expect(updateCurrentUser).toHaveBeenLastCalledWith({
+    token: "abcd",
     username: "newjohndoe",
     email: "newjohn@doe.com",
     password: "newpassword",
@@ -134,7 +135,8 @@ test("displays errors with invalid fields", async () => {
   testing.fireEvent.submit(rendered.getByTestId("settings-form"));
 
   expect(updateCurrentUser).toHaveBeenCalledTimes(1);
-  expect(updateCurrentUser).toHaveBeenLastCalledWith("abcd", {
+  expect(updateCurrentUser).toHaveBeenLastCalledWith({
+    token: "abcd",
     username: "newjohndoe",
     email: "newjohn@doe.com",
     password: "newpassword",
