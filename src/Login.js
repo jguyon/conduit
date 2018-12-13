@@ -102,8 +102,8 @@ class Login extends React.Component<LoginProps, LoginState> {
               {this.state.error === "credentials"
                 ? "Invalid email or password"
                 : this.state.error === "network"
-                  ? "An error occurred"
-                  : null}
+                ? "An error occurred"
+                : null}
             </GlobalError>
 
             <TextInput

@@ -18,5 +18,5 @@
 }
 
 .button:focus {
-  outline: 1px dotted #AAA;
+  outline: 1px dotted #aaa;
 }

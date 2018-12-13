@@ -7,7 +7,13 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "flow": "flow"
+    "flow": "flow",
+    "prettier": "run-s prettier:json prettier:markdown prettier:html prettier:css prettier:js",
+    "prettier:json": "prettier --write --parser=json-stringify package.json 'public/*.json'",
+    "prettier:markdown": "prettier --write --parser=markdown README.md",
+    "prettier:html": "prettier --write --parser=html 'public/*.html'",
+    "prettier:css": "prettier --write --parser=css 'src/**/*.css'",
+    "prettier:js": "prettier --write --parser=flow 'src/**/*.js'"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -30,6 +36,8 @@
   "devDependencies": {
     "flow-bin": "^0.86.0",
     "jest-dom": "^2.1.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.15.3",
     "react-testing-library": "^5.2.3"
   }
 }

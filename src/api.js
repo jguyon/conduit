@@ -173,9 +173,7 @@ export type UpdateCurrentUserResp =
   | UpdateCurrentUserRespOk
   | UpdateCurrentUserRespErr;
 
-export type UpdateCurrentUser = UpdateCurrentUserOpts => Promise<
-  UpdateCurrentUserResp
->;
+export type UpdateCurrentUser = UpdateCurrentUserOpts => Promise<UpdateCurrentUserResp>;
 
 export const updateCurrentUser: UpdateCurrentUser = ({ token, ...fields }) =>
   fetch(`${ENDPOINT}/user`, {
