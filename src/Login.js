@@ -4,11 +4,10 @@ import * as React from "react";
 import { Link, navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, Submit } from "./Form";
-import type { User, LoginUser } from "./api";
+import * as api from "./api";
 
 type LoginProps = {|
-  loginUser: LoginUser,
-  setCurrentUser: User => void
+  setCurrentUser: api.User => void
 |};
 
 type LoginState = {|
@@ -48,7 +47,7 @@ class Login extends React.Component<LoginProps, LoginState> {
       error: null
     });
 
-    this.props
+    api
       .loginUser({
         email: this.state.email,
         password: this.state.password
