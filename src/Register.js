@@ -4,11 +4,10 @@ import * as React from "react";
 import { Link, navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, Submit } from "./Form";
-import type { User, RegisterUser } from "./api";
+import * as api from "./api";
 
 type RegisterProps = {|
-  registerUser: RegisterUser,
-  setCurrentUser: User => void
+  setCurrentUser: api.User => void
 |};
 
 type RegisterState = {|
@@ -86,7 +85,7 @@ class Register extends React.Component<RegisterProps, RegisterState> {
       error: { type: "none" }
     });
 
-    this.props
+    api
       .registerUser({
         username: this.state.username,
         email: this.state.email,

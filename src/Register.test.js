@@ -4,9 +4,11 @@ import * as React from "react";
 import * as testing from "react-testing-library";
 import "jest-dom/extend-expect";
 import Register from "./Register";
-import type { User } from "./api";
+import * as api from "./api";
 
-const user: User = {
+const registerUser = jest.spyOn(api, "registerUser");
+
+const user: api.User = {
   email: "john@doe.com",
   token: "abcd",
   username: "johndoe",
@@ -18,21 +20,22 @@ beforeEach(() => {
   window.history.pushState(null, "", "/register");
 });
 
-afterEach(testing.cleanup);
+afterEach(() => {
+  testing.cleanup();
+  registerUser.mockReset();
+});
 
 test("sets current user with valid fields", async () => {
   const setCurrentUser = jest.fn(() => {});
 
-  const registerUser = jest.fn(() =>
+  registerUser.mockReturnValueOnce(
     Promise.resolve({
       isOk: true,
       user
     })
   );
 
-  const rendered = testing.render(
-    <Register registerUser={registerUser} setCurrentUser={setCurrentUser} />
-  );
+  const rendered = testing.render(<Register setCurrentUser={setCurrentUser} />);
 
   testing.fireEvent.change(rendered.getByTestId("sign-up-username"), {
     target: { value: "johndoe" }
@@ -64,7 +67,7 @@ test("sets current user with valid fields", async () => {
 test("displays errors with invalid fields", async () => {
   const setCurrentUser = jest.fn(() => {});
 
-  const registerUser = jest.fn(() =>
+  registerUser.mockReturnValueOnce(
     Promise.resolve({
       isOk: false,
       errors: {
@@ -75,9 +78,7 @@ test("displays errors with invalid fields", async () => {
     })
   );
 
-  const rendered = testing.render(
-    <Register registerUser={registerUser} setCurrentUser={setCurrentUser} />
-  );
+  const rendered = testing.render(<Register setCurrentUser={setCurrentUser} />);
 
   testing.fireEvent.change(rendered.getByTestId("sign-up-username"), {
     target: { value: "johndoe" }

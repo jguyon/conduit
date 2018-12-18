@@ -89,12 +89,7 @@ const App = () => (
                   />
                   <Route
                     path="/register"
-                    render={
-                      <Register
-                        registerUser={api.registerUser}
-                        setCurrentUser={setCurrentUser}
-                      />
-                    }
+                    render={<Register setCurrentUser={setCurrentUser} />}
                   />
                   {currentUser ? (
                     <Route
