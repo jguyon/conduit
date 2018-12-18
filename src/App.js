@@ -90,11 +90,7 @@ const App = () => (
                     <Route
                       path="/editor"
                       render={
-                        <PostArticle
-                          type="create"
-                          createArticle={api.createArticle}
-                          currentUser={currentUser}
-                        />
+                        <PostArticle type="create" currentUser={currentUser} />
                       }
                     />
                   ) : null}
@@ -106,8 +102,6 @@ const App = () => (
                           key={slug}
                           type="update"
                           slug={slug}
-                          getArticle={api.getArticle}
-                          updateArticle={api.updateArticle}
                           currentUser={currentUser}
                         />
                       )}

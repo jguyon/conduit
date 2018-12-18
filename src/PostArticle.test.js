@@ -4,9 +4,13 @@ import * as React from "react";
 import * as testing from "react-testing-library";
 import "jest-dom/extend-expect";
 import PostArticle from "./PostArticle";
-import type { User, Article } from "./api";
+import * as api from "./api";
 
-const user: User = {
+const getArticle = jest.spyOn(api, "getArticle");
+const createArticle = jest.spyOn(api, "createArticle");
+const updateArticle = jest.spyOn(api, "updateArticle");
+
+const user: api.User = {
   email: "john@doe.com",
   token: "abcd",
   username: "johndoe",
@@ -14,7 +18,7 @@ const user: User = {
   image: null
 };
 
-const article: Article = {
+const article: api.Article = {
   title: "Some Article",
   slug: "some-article",
   description: "This is an article",
@@ -36,11 +40,16 @@ beforeEach(() => {
   window.history.pushState(null, "", "/editor");
 });
 
-afterEach(testing.cleanup);
+afterEach(() => {
+  testing.cleanup();
+  getArticle.mockReset();
+  createArticle.mockReset();
+  updateArticle.mockReset();
+});
 
 describe("with type 'create'", () => {
   test("creates article with valid fields", async () => {
-    const createArticle = jest.fn(() =>
+    createArticle.mockReturnValue(
       Promise.resolve({
         isOk: true,
         article
@@ -48,11 +57,7 @@ describe("with type 'create'", () => {
     );
 
     const rendered = testing.render(
-      <PostArticle
-        type="create"
-        createArticle={createArticle}
-        currentUser={user}
-      />
+      <PostArticle type="create" currentUser={user} />
     );
 
     testing.fireEvent.change(rendered.getByTestId("post-article-title"), {
@@ -88,7 +93,7 @@ describe("with type 'create'", () => {
   });
 
   test("displays errors with invalid fields", async () => {
-    const createArticle = jest.fn(() =>
+    createArticle.mockReturnValue(
       Promise.resolve({
         isOk: false,
         errors: {
@@ -101,11 +106,7 @@ describe("with type 'create'", () => {
     );
 
     const rendered = testing.render(
-      <PostArticle
-        type="create"
-        createArticle={createArticle}
-        currentUser={user}
-      />
+      <PostArticle type="create" currentUser={user} />
     );
 
     testing.fireEvent.change(rendered.getByTestId("post-article-title"), {
@@ -154,18 +155,10 @@ describe("with type 'create'", () => {
 
 describe("with type 'update'", () => {
   test("loads article", async () => {
-    const getArticle = jest.fn(() => Promise.resolve(article));
+    getArticle.mockReturnValue(Promise.resolve(article));
 
     const rendered = testing.render(
-      <PostArticle
-        type="update"
-        currentUser={user}
-        slug={article.slug}
-        getArticle={getArticle}
-        updateArticle={() =>
-          Promise.reject(new Error("updateArticle should not be called"))
-        }
-      />
+      <PostArticle type="update" currentUser={user} slug={article.slug} />
     );
 
     expect(getArticle).toHaveBeenCalledTimes(1);
@@ -191,7 +184,7 @@ describe("with type 'update'", () => {
   });
 
   test("updates article with valid fields", async () => {
-    const getArticle = () => Promise.resolve(article);
+    getArticle.mockReturnValue(Promise.resolve(article));
 
     const updatedArticle = {
       ...article,
@@ -202,7 +195,7 @@ describe("with type 'update'", () => {
       tagList: ["new", "tags"]
     };
 
-    const updateArticle = jest.fn(() =>
+    updateArticle.mockReturnValue(
       Promise.resolve({
         isOk: true,
         article: updatedArticle
@@ -210,13 +203,7 @@ describe("with type 'update'", () => {
     );
 
     const rendered = testing.render(
-      <PostArticle
-        type="update"
-        slug={article.slug}
-        currentUser={user}
-        getArticle={getArticle}
-        updateArticle={updateArticle}
-      />
+      <PostArticle type="update" slug={article.slug} currentUser={user} />
     );
 
     await testing.wait(() => {
@@ -257,9 +244,9 @@ describe("with type 'update'", () => {
   });
 
   test("displays errors with invalid fields", async () => {
-    const getArticle = () => Promise.resolve(article);
+    getArticle.mockReturnValue(Promise.resolve(article));
 
-    const updateArticle = jest.fn(() =>
+    updateArticle.mockReturnValue(
       Promise.resolve({
         isOk: false,
         errors: {
@@ -272,13 +259,7 @@ describe("with type 'update'", () => {
     );
 
     const rendered = testing.render(
-      <PostArticle
-        type="update"
-        slug={article.slug}
-        currentUser={user}
-        getArticle={getArticle}
-        updateArticle={updateArticle}
-      />
+      <PostArticle type="update" slug={article.slug} currentUser={user} />
     );
 
     await testing.wait(() => {

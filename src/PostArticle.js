@@ -6,13 +6,7 @@ import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "./Form";
 import Request from "./Request";
 import NotFound from "./NotFound";
-import type {
-  User,
-  Article,
-  GetArticle,
-  CreateArticle,
-  UpdateArticle
-} from "./api";
+import * as api from "./api";
 
 type PostArticlePageProps = {|
   header: string,
@@ -137,7 +131,7 @@ type PostArticleFields = {|
 type PostArticleResult =
   | {|
       isOk: true,
-      article: Article
+      article: api.Article
     |}
   | {|
       isOk: false,
@@ -342,14 +336,11 @@ class PostArticleForm extends React.Component<
 type PostArticleProps =
   | {|
       type: "create",
-      createArticle: CreateArticle,
-      currentUser: User
+      currentUser: api.User
     |}
   | {|
       type: "update",
-      getArticle: GetArticle,
-      updateArticle: UpdateArticle,
-      currentUser: User,
+      currentUser: api.User,
       slug: string
     |};
 
@@ -358,12 +349,10 @@ const PostArticle = (props: PostArticleProps) => {
 
   switch (props.type) {
     case "create":
-      const { createArticle } = props;
-
       return (
         <PostArticleForm
           title="New Article"
-          postArticle={fields => createArticle({ ...fields, token })}
+          postArticle={fields => api.createArticle({ ...fields, token })}
           initialFields={{
             title: "",
             description: "",
@@ -374,10 +363,10 @@ const PostArticle = (props: PostArticleProps) => {
       );
 
     case "update":
-      const { getArticle, updateArticle, slug } = props;
+      const { slug } = props;
 
       return (
-        <Request load={() => getArticle({ slug })}>
+        <Request load={() => api.getArticle({ slug })}>
           {request => {
             switch (request.status) {
               case "pending":
@@ -393,7 +382,7 @@ const PostArticle = (props: PostArticleProps) => {
                   <PostArticleForm
                     title="Edit Article"
                     postArticle={fields =>
-                      updateArticle({ ...fields, token, slug })
+                      api.updateArticle({ ...fields, token, slug })
                     }
                     initialFields={{
                       title: article.title,
