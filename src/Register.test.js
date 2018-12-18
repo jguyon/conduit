@@ -28,7 +28,7 @@ afterEach(() => {
 test("sets current user with valid fields", async () => {
   const setCurrentUser = jest.fn(() => {});
 
-  registerUser.mockReturnValueOnce(
+  registerUser.mockReturnValue(
     Promise.resolve({
       isOk: true,
       user
@@ -67,7 +67,7 @@ test("sets current user with valid fields", async () => {
 test("displays errors with invalid fields", async () => {
   const setCurrentUser = jest.fn(() => {});
 
-  registerUser.mockReturnValueOnce(
+  registerUser.mockReturnValue(
     Promise.resolve({
       isOk: false,
       errors: {

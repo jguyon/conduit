@@ -36,7 +36,7 @@ test("updates current user with valid fields", async () => {
     bio: "newbio"
   };
 
-  updateCurrentUser.mockReturnValueOnce(
+  updateCurrentUser.mockReturnValue(
     Promise.resolve({
       isOk: true,
       user: updatedUser
@@ -94,7 +94,7 @@ test("updates current user with valid fields", async () => {
 test("displays errors with invalid fields", async () => {
   const setCurrentUser = jest.fn(() => {});
 
-  updateCurrentUser.mockReturnValueOnce(
+  updateCurrentUser.mockReturnValue(
     Promise.resolve({
       isOk: false,
       errors: {
