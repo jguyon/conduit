@@ -54,9 +54,7 @@ type LoginUserRespErr = {|
 
 export type LoginUserResp = LoginUserRespOk | LoginUserRespErr;
 
-export type LoginUser = LoginUserOpts => Promise<LoginUserResp>;
-
-export const loginUser: LoginUser = fields =>
+export const loginUser = (fields: LoginUserOpts): Promise<LoginUserResp> =>
   fetch(`${ENDPOINT}/users/login`, {
     method: "POST",
     headers: {
@@ -100,9 +98,9 @@ type RegisterUserRespErr = {|
 
 export type RegisterUserResp = RegisterUserRespOk | RegisterUserRespErr;
 
-export type RegisterUser = RegisterUserOpts => Promise<RegisterUserResp>;
-
-export const registerUser: RegisterUser = fields =>
+export const registerUser = (
+  fields: RegisterUserOpts
+): Promise<RegisterUserResp> =>
   fetch(`${ENDPOINT}/users`, {
     method: "POST",
     headers: {
@@ -129,9 +127,7 @@ type GetCurrentUserOpts = {|
   token: string
 |};
 
-export type GetCurrentUser = GetCurrentUserOpts => Promise<User>;
-
-export const getCurrentUser: GetCurrentUser = ({ token }) =>
+export const getCurrentUser = ({ token }: GetCurrentUserOpts): Promise<User> =>
   fetch(`${ENDPOINT}/user`, {
     headers: {
       authorization: `Token ${token}`
@@ -173,9 +169,10 @@ export type UpdateCurrentUserResp =
   | UpdateCurrentUserRespOk
   | UpdateCurrentUserRespErr;
 
-export type UpdateCurrentUser = UpdateCurrentUserOpts => Promise<UpdateCurrentUserResp>;
-
-export const updateCurrentUser: UpdateCurrentUser = ({ token, ...fields }) =>
+export const updateCurrentUser = ({
+  token,
+  ...fields
+}: UpdateCurrentUserOpts): Promise<UpdateCurrentUserResp> =>
   fetch(`${ENDPOINT}/user`, {
     method: "PUT",
     headers: {
@@ -203,9 +200,7 @@ type GetProfileOpts = {|
   username: string
 |};
 
-export type GetProfile = GetProfileOpts => Promise<Profile>;
-
-export const getProfile: GetProfile = ({ username }) =>
+export const getProfile = ({ username }: GetProfileOpts): Promise<Profile> =>
   fetch(`${ENDPOINT}/profiles/${encodeURIComponent(username)}`).then(
     response => {
       if (response.status === 200) {
@@ -229,15 +224,13 @@ export type ListArticlesResp = {
   articles: Article[]
 };
 
-export type ListArticles = ListArticlesOpts => Promise<ListArticlesResp>;
-
-export const listArticles: ListArticles = ({
+export const listArticles = ({
   page,
   perPage,
   tag,
   author,
   favorited
-}) =>
+}: ListArticlesOpts): Promise<ListArticlesResp> =>
   fetch(
     `${ENDPOINT}/articles?limit=${perPage}&offset=${(page - 1) * perPage}${
       tag ? `&tag=${encodeURIComponent(tag)}` : ""
@@ -256,9 +249,7 @@ type GetArticleOpts = {|
   slug: string
 |};
 
-export type GetArticle = GetArticleOpts => Promise<Article>;
-
-export const getArticle: GetArticle = ({ slug }) =>
+export const getArticle = ({ slug }: GetArticleOpts): Promise<Article> =>
   fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`).then(response => {
     if (response.status === 200) {
       return response.json().then(({ article }) => article);
@@ -292,9 +283,10 @@ type CreateArticleRespErr = {|
 
 export type CreateArticleResp = CreateArticleRespOk | CreateArticleRespErr;
 
-export type CreateArticle = CreateArticleOpts => Promise<CreateArticleResp>;
-
-export const createArticle: CreateArticle = ({ token, ...fields }) =>
+export const createArticle = ({
+  token,
+  ...fields
+}: CreateArticleOpts): Promise<CreateArticleResp> =>
   fetch(`${ENDPOINT}/articles`, {
     method: "POST",
     headers: {
@@ -344,9 +336,11 @@ type UpdateArticleRespErr = {|
 
 export type UpdateArticleResp = UpdateArticleRespOk | UpdateArticleRespErr;
 
-export type UpdateArticle = UpdateArticleOpts => Promise<UpdateArticleResp>;
-
-export const updateArticle: UpdateArticle = ({ token, slug, ...fields }) =>
+export const updateArticle = ({
+  token,
+  slug,
+  ...fields
+}: UpdateArticleOpts): Promise<UpdateArticleResp> =>
   fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`, {
     method: "PUT",
     headers: {
@@ -375,9 +369,10 @@ type DeleteArticleOpts = {|
   slug: string
 |};
 
-export type DeleteArticle = DeleteArticleOpts => Promise<void>;
-
-export const deleteArticle: DeleteArticle = ({ token, slug }) =>
+export const deleteArticle = ({
+  token,
+  slug
+}: DeleteArticleOpts): Promise<void> =>
   fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`, {
     method: "DELETE",
     headers: {
@@ -393,9 +388,7 @@ type ListCommentsOpts = {|
   slug: string
 |};
 
-export type ListComments = ListCommentsOpts => Promise<Comment[]>;
-
-export const listComments: ListComments = ({ slug }) =>
+export const listComments = ({ slug }: ListCommentsOpts): Promise<Comment[]> =>
   fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}/comments`).then(
     response => {
       if (response.status === 200) {
@@ -406,9 +399,7 @@ export const listComments: ListComments = ({ slug }) =>
     }
   );
 
-export type ListTags = () => Promise<string[]>;
-
-export const listTags = () =>
+export const listTags = (): Promise<string[]> =>
   fetch(`${ENDPOINT}/tags`).then(response => {
     if (response.status === 200) {
       return response.json().then(({ tags }) => tags);
