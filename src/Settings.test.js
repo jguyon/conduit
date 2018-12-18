@@ -4,9 +4,11 @@ import * as React from "react";
 import * as testing from "react-testing-library";
 import "jest-dom/extend-expect";
 import Settings from "./Settings";
-import type { User } from "./api";
+import * as api from "./api";
 
-const user: User = {
+const updateCurrentUser = jest.spyOn(api, "updateCurrentUser");
+
+const user: api.User = {
   email: "john@doe.com",
   token: "abcd",
   username: "johndoe",
@@ -18,7 +20,10 @@ beforeEach(() => {
   window.history.pushState(null, "", "/settings");
 });
 
-afterEach(testing.cleanup);
+afterEach(() => {
+  testing.cleanup();
+  updateCurrentUser.mockReset();
+});
 
 test("updates current user with valid fields", async () => {
   const setCurrentUser = jest.fn(() => {});
@@ -31,7 +36,7 @@ test("updates current user with valid fields", async () => {
     bio: "newbio"
   };
 
-  const updateCurrentUser = jest.fn(() =>
+  updateCurrentUser.mockReturnValueOnce(
     Promise.resolve({
       isOk: true,
       user: updatedUser
@@ -40,7 +45,6 @@ test("updates current user with valid fields", async () => {
 
   const rendered = testing.render(
     <Settings
-      updateCurrentUser={updateCurrentUser}
       currentUser={user}
       setCurrentUser={setCurrentUser}
       unsetCurrentUser={() => {}}
@@ -90,7 +94,7 @@ test("updates current user with valid fields", async () => {
 test("displays errors with invalid fields", async () => {
   const setCurrentUser = jest.fn(() => {});
 
-  const updateCurrentUser = jest.fn(() =>
+  updateCurrentUser.mockReturnValueOnce(
     Promise.resolve({
       isOk: false,
       errors: {
@@ -105,7 +109,6 @@ test("displays errors with invalid fields", async () => {
 
   const rendered = testing.render(
     <Settings
-      updateCurrentUser={updateCurrentUser}
       currentUser={user}
       setCurrentUser={setCurrentUser}
       unsetCurrentUser={() => {}}
@@ -170,9 +173,6 @@ test("logs out user", async () => {
 
   const rendered = testing.render(
     <Settings
-      updateCurrentUser={() =>
-        Promise.reject(new Error("updateCurrentUser should not be called"))
-      }
       currentUser={user}
       setCurrentUser={() => {}}
       unsetCurrentUser={unsetCurrentUser}

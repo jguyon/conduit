@@ -128,7 +128,6 @@ const App = () => (
                       path="/settings"
                       render={
                         <Settings
-                          updateCurrentUser={api.updateCurrentUser}
                           currentUser={currentUser}
                           setCurrentUser={setCurrentUser}
                           unsetCurrentUser={setCurrentUser}
