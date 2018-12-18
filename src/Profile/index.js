@@ -10,11 +10,10 @@ import ArticlePreview from "../ArticlePreview";
 import Separator from "../Separator";
 import Pagination from "../Pagination";
 import NotFound from "../NotFound";
-import type { ListArticles, ListArticlesResp, GetProfile } from "../api";
+import * as api from "../api";
 
 type ProfileArticlesProps = {|
-  username: string,
-  listArticles: ListArticles
+  username: string
 |};
 
 type ProfileArticlesState = {|
@@ -47,13 +46,13 @@ class ProfileArticles extends React.Component<
 
     switch (route) {
       case "authored":
-        return this.props.listArticles({
+        return api.listArticles({
           ...opts,
           author: this.props.username
         });
 
       case "favorited":
-        return this.props.listArticles({
+        return api.listArticles({
           ...opts,
           favorited: this.props.username
         });
@@ -100,7 +99,6 @@ class ProfileArticles extends React.Component<
 
     return (
       nextProps.username !== prevProps.username ||
-      nextProps.listArticles !== prevProps.listArticles ||
       nextState.page !== prevState.page ||
       nextState.route !== prevState.route
     );
@@ -150,7 +148,7 @@ class ProfileArticles extends React.Component<
     );
   }
 
-  renderArticles(request: RequestData<ListArticlesResp>) {
+  renderArticles(request: RequestData<api.ListArticlesResp>) {
     switch (request.status) {
       case "pending":
         return (
@@ -206,27 +204,20 @@ class ProfileArticles extends React.Component<
 }
 
 type ProfileProps = {|
-  username: string,
-  getProfile: GetProfile,
-  listArticles: ListArticles
+  username: string
 |};
 
 class Profile extends React.PureComponent<ProfileProps> {
   render() {
     return (
-      <Request
-        load={() => this.props.getProfile({ username: this.props.username })}
-      >
+      <Request load={() => api.getProfile({ username: this.props.username })}>
         {request => {
           switch (request.status) {
             case "pending":
               return (
                 <>
                   <Banner placeholder />
-                  <ProfileArticles
-                    username={this.props.username}
-                    listArticles={this.props.listArticles}
-                  />
+                  <ProfileArticles username={this.props.username} />
                 </>
               );
 
@@ -239,10 +230,7 @@ class Profile extends React.PureComponent<ProfileProps> {
               return (
                 <>
                   <Banner profile={profile} />
-                  <ProfileArticles
-                    username={this.props.username}
-                    listArticles={this.props.listArticles}
-                  />
+                  <ProfileArticles username={this.props.username} />
                 </>
               );
 

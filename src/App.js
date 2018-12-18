@@ -70,12 +70,7 @@ const App = () => (
                   <Route
                     path="/profile/:username"
                     render={({ username }) => (
-                      <Profile
-                        key={username}
-                        getProfile={api.getProfile}
-                        listArticles={api.listArticles}
-                        username={username}
-                      />
+                      <Profile key={username} username={username} />
                     )}
                   />
                   <Route

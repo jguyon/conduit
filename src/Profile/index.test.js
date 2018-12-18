@@ -4,18 +4,25 @@ import * as React from "react";
 import * as testing from "react-testing-library";
 import "jest-dom/extend-expect";
 import Profile from ".";
-import type { Profile as ProfileObj, Article, ListArticlesResp } from "../api";
+import * as api from "../api";
 
-afterEach(testing.cleanup);
+const getProfile = jest.spyOn(api, "getProfile");
+const listArticles = jest.spyOn(api, "listArticles");
 
-const profile: ProfileObj = {
+afterEach(() => {
+  testing.cleanup();
+  getProfile.mockReset();
+  listArticles.mockReset();
+});
+
+const profile: api.Profile = {
   username: "johndoe",
   bio: null,
   image: null,
   following: false
 };
 
-const makeArticle = (name: string): Article => ({
+const makeArticle = (name: string): api.Article => ({
   slug: name,
   title: `Article ${name}`,
   description: `This is the description of article ${name}`,
@@ -33,12 +40,12 @@ const makeArticle = (name: string): Article => ({
   }
 });
 
-const makeArticleList = (...names: string[]): ListArticlesResp => ({
+const makeArticleList = (...names: string[]): api.ListArticlesResp => ({
   articlesCount: names.length,
   articles: names.map(makeArticle)
 });
 
-const makePaginatedList = (page: number): ListArticlesResp => {
+const makePaginatedList = (page: number): api.ListArticlesResp => {
   if (page === 1) {
     return {
       articlesCount: 12,
@@ -66,15 +73,10 @@ const makePaginatedList = (page: number): ListArticlesResp => {
 };
 
 test("renders the profile", async () => {
-  const getProfile = jest.fn(() => Promise.resolve(profile));
+  getProfile.mockReturnValue(Promise.resolve(profile));
+  listArticles.mockReturnValue(Promise.resolve(makeArticleList()));
 
-  const rendered = testing.render(
-    <Profile
-      username="johndoe"
-      getProfile={getProfile}
-      listArticles={() => Promise.resolve(makeArticleList())}
-    />
-  );
+  const rendered = testing.render(<Profile username="johndoe" />);
 
   expect(getProfile).toHaveBeenCalledTimes(1);
   expect(getProfile).toHaveBeenLastCalledWith({ username: "johndoe" });
@@ -85,17 +87,10 @@ test("renders the profile", async () => {
 });
 
 test("renders authored feed", async () => {
-  const listArticles = jest.fn(() =>
-    Promise.resolve(makeArticleList("one", "two"))
-  );
+  getProfile.mockReturnValue(Promise.resolve(profile));
+  listArticles.mockReturnValue(Promise.resolve(makeArticleList("one", "two")));
 
-  const rendered = testing.render(
-    <Profile
-      username="johndoe"
-      getProfile={() => Promise.resolve(profile)}
-      listArticles={listArticles}
-    />
-  );
+  const rendered = testing.render(<Profile username="johndoe" />);
 
   expect(listArticles).toHaveBeenCalledTimes(1);
   expect(listArticles).toHaveBeenLastCalledWith({
@@ -111,17 +106,12 @@ test("renders authored feed", async () => {
 });
 
 test("supports changing pages on authored feed", async () => {
-  const listArticles = jest.fn(({ page }) =>
+  getProfile.mockReturnValue(Promise.resolve(profile));
+  listArticles.mockImplementation(({ page }) =>
     Promise.resolve(makePaginatedList(page))
   );
 
-  const rendered = testing.render(
-    <Profile
-      username="johndoe"
-      getProfile={() => Promise.resolve(profile)}
-      listArticles={listArticles}
-    />
-  );
+  const rendered = testing.render(<Profile username="johndoe" />);
 
   expect(listArticles).toHaveBeenCalledTimes(1);
   expect(listArticles).toHaveBeenLastCalledWith({
@@ -165,7 +155,8 @@ test("supports changing pages on authored feed", async () => {
 });
 
 test("supports switching to favorited feed", async () => {
-  const listArticles = jest.fn(({ page, author }) => {
+  getProfile.mockReturnValue(Promise.resolve(profile));
+  listArticles.mockImplementation(({ page, author }) => {
     if (author) {
       return Promise.resolve(makePaginatedList(page));
     } else {
@@ -173,13 +164,7 @@ test("supports switching to favorited feed", async () => {
     }
   });
 
-  const rendered = testing.render(
-    <Profile
-      username="johndoe"
-      getProfile={() => Promise.resolve(profile)}
-      listArticles={listArticles}
-    />
-  );
+  const rendered = testing.render(<Profile username="johndoe" />);
 
   await testing.wait(() => {
     rendered.getByTestId("article-one");
@@ -206,7 +191,8 @@ test("supports switching to favorited feed", async () => {
 });
 
 test("supports changing pages on favorited feed", async () => {
-  const listArticles = jest.fn(({ author, page }) => {
+  getProfile.mockReturnValue(Promise.resolve(profile));
+  listArticles.mockImplementation(({ author, page }) => {
     if (author) {
       return Promise.resolve(makeArticleList());
     } else {
@@ -214,13 +200,7 @@ test("supports changing pages on favorited feed", async () => {
     }
   });
 
-  const rendered = testing.render(
-    <Profile
-      username="johndoe"
-      getProfile={() => Promise.resolve(profile)}
-      listArticles={listArticles}
-    />
-  );
+  const rendered = testing.render(<Profile username="johndoe" />);
 
   testing.fireEvent.click(rendered.getByTestId("favorited-feed"));
 
@@ -266,7 +246,8 @@ test("supports changing pages on favorited feed", async () => {
 });
 
 test("supports switching back to authored feed", async () => {
-  const listArticles = jest.fn(({ author, page }) => {
+  getProfile.mockReturnValue(Promise.resolve(profile));
+  listArticles.mockImplementation(({ author, page }) => {
     if (author) {
       return Promise.resolve(makeArticleList("authored"));
     } else {
@@ -274,13 +255,7 @@ test("supports switching back to authored feed", async () => {
     }
   });
 
-  const rendered = testing.render(
-    <Profile
-      username="johndoe"
-      getProfile={() => Promise.resolve(profile)}
-      listArticles={listArticles}
-    />
-  );
+  const rendered = testing.render(<Profile username="johndoe" />);
 
   testing.fireEvent.click(rendered.getByTestId("favorited-feed"));
 
