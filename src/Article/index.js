@@ -7,16 +7,10 @@ import type { RequestData } from "../Request";
 import FullArticle from "./FullArticle";
 import Comment from "./Comment";
 import NotFound from "../NotFound";
-import type {
-  User,
-  Comment as CommentObj,
-  GetArticle,
-  DeleteArticle,
-  ListComments
-} from "../api";
+import * as api from "../api";
 
 type CommentListProps = {|
-  request: RequestData<CommentObj[]>
+  request: RequestData<api.Comment[]>
 |};
 
 const CommentList = ({ request }: CommentListProps) => {
@@ -49,15 +43,12 @@ const CommentList = ({ request }: CommentListProps) => {
 
 type ArticleProps = {|
   slug: string,
-  currentUser: ?User,
-  getArticle: GetArticle,
-  deleteArticle: DeleteArticle,
-  listComments: ListComments
+  currentUser: ?api.User
 |};
 
 const Article = (props: ArticleProps) => {
-  const loadArticle = () => props.getArticle({ slug: props.slug });
-  const loadComments = () => props.listComments({ slug: props.slug });
+  const loadArticle = () => api.getArticle({ slug: props.slug });
+  const loadComments = () => api.listComments({ slug: props.slug });
 
   return (
     <Request load={loadArticle}>
@@ -77,7 +68,6 @@ const Article = (props: ArticleProps) => {
                 return (
                   <>
                     <FullArticle
-                      deleteArticle={props.deleteArticle}
                       article={article}
                       currentUser={props.currentUser}
                     />

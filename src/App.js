@@ -50,13 +50,7 @@ const App = () => (
                   <Route
                     path="/article/:slug"
                     render={({ slug }) => (
-                      <Article
-                        getArticle={api.getArticle}
-                        deleteArticle={api.deleteArticle}
-                        listComments={api.listComments}
-                        slug={slug}
-                        currentUser={currentUser}
-                      />
+                      <Article slug={slug} currentUser={currentUser} />
                     )}
                   />
                   <Route

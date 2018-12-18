@@ -4,13 +4,13 @@ import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
 import PrettyDate from "../PrettyDate";
-import type { Comment as CommentObj } from "../api";
+import * as api from "../api";
 
-const authorProfilePath = (comment: CommentObj) =>
+const authorProfilePath = (comment: api.Comment) =>
   `/profile/${encodeURIComponent(comment.author.username)}`;
 
 type CommentProps = {|
-  comment: CommentObj
+  comment: api.Comment
 |};
 
 const Comment = ({ comment }: CommentProps) => (
