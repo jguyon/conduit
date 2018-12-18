@@ -14,15 +14,14 @@ export type CurrentUserData =
     |};
 
 type CurrentUserProps = {|
-  getToken: () => ?string,
-  setToken: string => void,
-  removeToken: () => void,
   children: CurrentUserData => React.Node
 |};
 
 type CurrentUserState = {|
   data: CurrentUserData
 |};
+
+const USER_TOKEN_KEY = "userToken";
 
 class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
   state = {
@@ -40,9 +39,9 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
 
         if (data.status === "ready") {
           if (data.currentUser) {
-            this.props.setToken(data.currentUser.token);
+            localStorage.setItem(USER_TOKEN_KEY, data.currentUser.token);
           } else {
-            this.props.removeToken();
+            localStorage.removeItem(USER_TOKEN_KEY);
           }
         }
       }
@@ -50,7 +49,7 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
   };
 
   componentDidMount() {
-    const token = this.props.getToken();
+    const token = localStorage.getItem(USER_TOKEN_KEY);
 
     if (token) {
       api.getCurrentUser({ token }).then(

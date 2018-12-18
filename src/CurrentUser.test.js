@@ -6,10 +6,13 @@ import "jest-dom/extend-expect";
 import CurrentUser from "./CurrentUser";
 import * as api from "./api";
 
+const USER_TOKEN_KEY = "userToken";
+
 const getCurrentUser = jest.spyOn(api, "getCurrentUser");
 
 afterEach(() => {
   testing.cleanup();
+  localStorage.clear();
   getCurrentUser.mockReset();
 });
 
@@ -22,10 +25,8 @@ const user: api.User = {
 };
 
 test("inits empty currentUser with no token", async () => {
-  const getToken = jest.fn(() => null);
-
   const rendered = testing.render(
-    <CurrentUser getToken={getToken} setToken={() => {}} removeToken={() => {}}>
+    <CurrentUser>
       {data => {
         switch (data.status) {
           case "pending":
@@ -39,18 +40,16 @@ test("inits empty currentUser with no token", async () => {
     </CurrentUser>
   );
 
-  expect(getToken).toHaveBeenCalledTimes(1);
   expect(getCurrentUser).not.toHaveBeenCalled();
   expect(rendered.container).toHaveTextContent("no user");
 });
 
 test("inits empty currentUser with invalid token", async () => {
   getCurrentUser.mockReturnValue(Promise.reject(new Error("invalid token")));
-
-  const getToken = jest.fn(() => "abcd");
+  localStorage.setItem(USER_TOKEN_KEY, "abcd");
 
   const rendered = testing.render(
-    <CurrentUser getToken={getToken} setToken={() => {}} removeToken={() => {}}>
+    <CurrentUser>
       {data => {
         switch (data.status) {
           case "pending":
@@ -64,7 +63,6 @@ test("inits empty currentUser with invalid token", async () => {
     </CurrentUser>
   );
 
-  expect(getToken).toHaveBeenCalledTimes(1);
   expect(getCurrentUser).toHaveBeenCalledTimes(1);
   expect(getCurrentUser).toHaveBeenLastCalledWith({ token: "abcd" });
 
@@ -80,11 +78,10 @@ test("inits empty currentUser with invalid token", async () => {
 
 test("inits non-empty currentUser with valid token", async () => {
   getCurrentUser.mockReturnValue(Promise.resolve(user));
-
-  const getToken = jest.fn(() => "abcd");
+  localStorage.setItem(USER_TOKEN_KEY, "abcd");
 
   const rendered = testing.render(
-    <CurrentUser getToken={getToken} setToken={() => {}} removeToken={() => {}}>
+    <CurrentUser>
       {data => {
         switch (data.status) {
           case "pending":
@@ -98,7 +95,6 @@ test("inits non-empty currentUser with valid token", async () => {
     </CurrentUser>
   );
 
-  expect(getToken).toHaveBeenCalledTimes(1);
   expect(getCurrentUser).toHaveBeenCalledTimes(1);
   expect(getCurrentUser).toHaveBeenLastCalledWith({ token: "abcd" });
   expect(rendered.container).toHaveTextContent("pending");
@@ -124,15 +120,8 @@ test("sets current user", async () => {
     }
   }
 
-  const setToken = jest.fn(() => {});
-  const removeToken = jest.fn(() => {});
-
   const rendered = testing.render(
-    <CurrentUser
-      getToken={() => null}
-      setToken={setToken}
-      removeToken={removeToken}
-    >
+    <CurrentUser>
       {data => {
         switch (data.status) {
           case "pending":
@@ -155,13 +144,12 @@ test("sets current user", async () => {
     expect(rendered.container).toHaveTextContent(user.username);
   });
 
-  expect(setToken).toHaveBeenCalledTimes(1);
-  expect(setToken).toHaveBeenLastCalledWith("abcd");
-  expect(removeToken).not.toHaveBeenCalled();
+  expect(localStorage.getItem(USER_TOKEN_KEY)).toBe("abcd");
 });
 
 test("unsets current user", async () => {
   getCurrentUser.mockReturnValue(Promise.resolve(user));
+  localStorage.setItem(USER_TOKEN_KEY, "abcd");
 
   class Username extends React.Component<{|
     currentUser: ?api.User,
@@ -178,15 +166,8 @@ test("unsets current user", async () => {
     }
   }
 
-  const setToken = jest.fn(() => {});
-  const removeToken = jest.fn(() => {});
-
   const rendered = testing.render(
-    <CurrentUser
-      getToken={() => "abcd"}
-      setToken={setToken}
-      removeToken={removeToken}
-    >
+    <CurrentUser>
       {data => {
         switch (data.status) {
           case "pending":
@@ -213,6 +194,5 @@ test("unsets current user", async () => {
     expect(rendered.container).toHaveTextContent("no user");
   });
 
-  expect(setToken).not.toHaveBeenCalled();
-  expect(removeToken).toHaveBeenCalledTimes(1);
+  expect(localStorage.getItem(USER_TOKEN_KEY)).toBe(null);
 });

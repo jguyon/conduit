@@ -21,11 +21,7 @@ const Route = ({ render, ...props }: RouteProps) =>
   typeof render === "function" ? render(props) : render;
 
 const App = () => (
-  <CurrentUser
-    getToken={() => localStorage.getItem("userToken")}
-    setToken={token => localStorage.setItem("userToken", token)}
-    removeToken={() => localStorage.removeItem("userToken")}
-  >
+  <CurrentUser>
     {data => {
       switch (data.status) {
         case "pending":
