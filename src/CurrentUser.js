@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from "react";
-import type { User, GetCurrentUser } from "./api";
+import * as api from "./api";
 
 export type CurrentUserData =
   | {|
@@ -9,12 +9,11 @@ export type CurrentUserData =
     |}
   | {|
       status: "ready",
-      currentUser: ?User,
-      setCurrentUser: (?User) => void
+      currentUser: ?api.User,
+      setCurrentUser: (?api.User) => void
     |};
 
 type CurrentUserProps = {|
-  getCurrentUser: GetCurrentUser,
   getToken: () => ?string,
   setToken: string => void,
   removeToken: () => void,
@@ -30,7 +29,7 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
     data: { status: "pending" }
   };
 
-  setCurrentUser = (user: ?User) => {
+  setCurrentUser = (user: ?api.User) => {
     this.setState(
       ({ data }) =>
         data.status === "ready"
@@ -54,7 +53,7 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
     const token = this.props.getToken();
 
     if (token) {
-      this.props.getCurrentUser({ token }).then(
+      api.getCurrentUser({ token }).then(
         user => {
           this.setState({
             data: {

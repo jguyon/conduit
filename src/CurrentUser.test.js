@@ -4,11 +4,16 @@ import * as React from "react";
 import * as testing from "react-testing-library";
 import "jest-dom/extend-expect";
 import CurrentUser from "./CurrentUser";
-import type { User } from "./api";
+import * as api from "./api";
 
-afterEach(testing.cleanup);
+const getCurrentUser = jest.spyOn(api, "getCurrentUser");
 
-const user: User = {
+afterEach(() => {
+  testing.cleanup();
+  getCurrentUser.mockReset();
+});
+
+const user: api.User = {
   email: "john@doe.com",
   token: "abcd",
   username: "johndoe",
@@ -17,19 +22,10 @@ const user: User = {
 };
 
 test("inits empty currentUser with no token", async () => {
-  const getCurrentUser = jest.fn(() =>
-    Promise.reject(new Error("getCurrentUser should not be called"))
-  );
-
   const getToken = jest.fn(() => null);
 
   const rendered = testing.render(
-    <CurrentUser
-      getCurrentUser={getCurrentUser}
-      getToken={getToken}
-      setToken={() => {}}
-      removeToken={() => {}}
-    >
+    <CurrentUser getToken={getToken} setToken={() => {}} removeToken={() => {}}>
       {data => {
         switch (data.status) {
           case "pending":
@@ -49,19 +45,12 @@ test("inits empty currentUser with no token", async () => {
 });
 
 test("inits empty currentUser with invalid token", async () => {
-  const getCurrentUser = jest.fn(() =>
-    Promise.reject(new Error("invalid token"))
-  );
+  getCurrentUser.mockReturnValue(Promise.reject(new Error("invalid token")));
 
   const getToken = jest.fn(() => "abcd");
 
   const rendered = testing.render(
-    <CurrentUser
-      getCurrentUser={getCurrentUser}
-      getToken={getToken}
-      setToken={() => {}}
-      removeToken={() => {}}
-    >
+    <CurrentUser getToken={getToken} setToken={() => {}} removeToken={() => {}}>
       {data => {
         switch (data.status) {
           case "pending":
@@ -90,17 +79,12 @@ test("inits empty currentUser with invalid token", async () => {
 });
 
 test("inits non-empty currentUser with valid token", async () => {
-  const getCurrentUser = jest.fn(() => Promise.resolve(user));
+  getCurrentUser.mockReturnValue(Promise.resolve(user));
 
   const getToken = jest.fn(() => "abcd");
 
   const rendered = testing.render(
-    <CurrentUser
-      getCurrentUser={getCurrentUser}
-      getToken={getToken}
-      setToken={() => {}}
-      removeToken={() => {}}
-    >
+    <CurrentUser getToken={getToken} setToken={() => {}} removeToken={() => {}}>
       {data => {
         switch (data.status) {
           case "pending":
@@ -126,8 +110,8 @@ test("inits non-empty currentUser with valid token", async () => {
 
 test("sets current user", async () => {
   class Username extends React.Component<{|
-    currentUser: ?User,
-    setCurrentUser: User => void
+    currentUser: ?api.User,
+    setCurrentUser: api.User => void
   |}> {
     componentDidMount() {
       setTimeout(() => this.props.setCurrentUser(user), 10);
@@ -145,9 +129,6 @@ test("sets current user", async () => {
 
   const rendered = testing.render(
     <CurrentUser
-      getCurrentUser={() =>
-        Promise.reject(new Error("getCurrentUser should not be called"))
-      }
       getToken={() => null}
       setToken={setToken}
       removeToken={removeToken}
@@ -180,8 +161,10 @@ test("sets current user", async () => {
 });
 
 test("unsets current user", async () => {
+  getCurrentUser.mockReturnValue(Promise.resolve(user));
+
   class Username extends React.Component<{|
-    currentUser: ?User,
+    currentUser: ?api.User,
     unsetCurrentUser: () => void
   |}> {
     componentDidMount() {
@@ -200,7 +183,6 @@ test("unsets current user", async () => {
 
   const rendered = testing.render(
     <CurrentUser
-      getCurrentUser={() => Promise.resolve(user)}
       getToken={() => "abcd"}
       setToken={setToken}
       removeToken={removeToken}

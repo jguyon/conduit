@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Router } from "@reach/router";
-import * as api from "./api";
 import CurrentUser from "./CurrentUser";
 import Navbar from "./Navbar";
 import Home from "./Home";
@@ -23,7 +22,6 @@ const Route = ({ render, ...props }: RouteProps) =>
 
 const App = () => (
   <CurrentUser
-    getCurrentUser={api.getCurrentUser}
     getToken={() => localStorage.getItem("userToken")}
     setToken={token => localStorage.setItem("userToken", token)}
     removeToken={() => localStorage.removeItem("userToken")}
