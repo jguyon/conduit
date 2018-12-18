@@ -46,15 +46,7 @@ const App = () => (
 
               <main>
                 <Router>
-                  <Route
-                    path="/"
-                    render={
-                      <Home
-                        listArticles={api.listArticles}
-                        listTags={api.listTags}
-                      />
-                    }
-                  />
+                  <Route path="/" render={<Home />} />
                   <Route
                     path="/article/:slug"
                     render={({ slug }) => (

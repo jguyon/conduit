@@ -4,11 +4,18 @@ import * as React from "react";
 import * as testing from "react-testing-library";
 import "jest-dom/extend-expect";
 import Home from ".";
-import type { ListArticlesResp, Article } from "../api";
+import * as api from "../api";
 
-afterEach(testing.cleanup);
+const listArticles = jest.spyOn(api, "listArticles");
+const listTags = jest.spyOn(api, "listTags");
 
-const makeArticle = (name: string): Article => ({
+afterEach(() => {
+  testing.cleanup();
+  listArticles.mockReset();
+  listTags.mockReset();
+});
+
+const makeArticle = (name: string): api.Article => ({
   slug: name,
   title: `Article ${name}`,
   description: `This is the description of article ${name}`,
@@ -26,12 +33,12 @@ const makeArticle = (name: string): Article => ({
   }
 });
 
-const makeArticleList = (...names: string[]): ListArticlesResp => ({
+const makeArticleList = (...names: string[]): api.ListArticlesResp => ({
   articlesCount: names.length,
   articles: names.map(makeArticle)
 });
 
-const makePaginatedList = (page: number): ListArticlesResp => {
+const makePaginatedList = (page: number): api.ListArticlesResp => {
   if (page === 1) {
     return {
       articlesCount: 12,
@@ -59,13 +66,10 @@ const makePaginatedList = (page: number): ListArticlesResp => {
 };
 
 test("renders global feed", async () => {
-  const listArticles = jest.fn(() =>
-    Promise.resolve(makeArticleList("one", "two"))
-  );
+  listArticles.mockReturnValue(Promise.resolve(makeArticleList("one", "two")));
+  listTags.mockReturnValue(Promise.resolve([]));
 
-  const rendered = testing.render(
-    <Home listArticles={listArticles} listTags={() => Promise.resolve([])} />
-  );
+  const rendered = testing.render(<Home />);
 
   expect(listArticles).toHaveBeenCalledTimes(1);
   expect(listArticles).toHaveBeenLastCalledWith({
@@ -80,14 +84,10 @@ test("renders global feed", async () => {
 });
 
 test("renders popular tags", async () => {
-  const listTags = jest.fn(() => Promise.resolve(["one", "two"]));
+  listArticles.mockReturnValue(Promise.resolve(makeArticleList()));
+  listTags.mockReturnValue(Promise.resolve(["one", "two"]));
 
-  const rendered = testing.render(
-    <Home
-      listArticles={() => Promise.resolve(makeArticleList())}
-      listTags={listTags}
-    />
-  );
+  const rendered = testing.render(<Home />);
 
   expect(listTags).toHaveBeenCalledTimes(1);
   expect(listTags).toHaveBeenLastCalledWith();
@@ -99,13 +99,12 @@ test("renders popular tags", async () => {
 });
 
 test("supports changing pages on global feed", async () => {
-  const listArticles = jest.fn(({ page }) =>
+  listArticles.mockImplementation(({ page }) =>
     Promise.resolve(makePaginatedList(page))
   );
+  listTags.mockReturnValue(Promise.resolve([]));
 
-  const rendered = testing.render(
-    <Home listArticles={listArticles} listTags={() => Promise.resolve([])} />
-  );
+  const rendered = testing.render(<Home />);
 
   expect(listArticles).toHaveBeenCalledTimes(1);
   expect(listArticles).toHaveBeenLastCalledWith({
@@ -146,20 +145,16 @@ test("supports changing pages on global feed", async () => {
 });
 
 test("supports switching to tag feed", async () => {
-  const listArticles = jest.fn(({ tag, page }) => {
+  listArticles.mockImplementation(({ tag, page }) => {
     if (tag) {
       return Promise.resolve(makeArticleList("tagged"));
     } else {
       return Promise.resolve(makePaginatedList(page));
     }
   });
+  listTags.mockReturnValue(Promise.resolve(["one"]));
 
-  const rendered = testing.render(
-    <Home
-      listArticles={listArticles}
-      listTags={() => Promise.resolve(["one"])}
-    />
-  );
+  const rendered = testing.render(<Home />);
 
   await testing.wait(() => {
     rendered.getByTestId("article-one");
@@ -190,20 +185,16 @@ test("supports switching to tag feed", async () => {
 });
 
 test("supports changing pages on tag feed", async () => {
-  const listArticles = jest.fn(({ page, tag }) => {
+  listArticles.mockImplementation(({ page, tag }) => {
     if (tag) {
       return Promise.resolve(makePaginatedList(page));
     } else {
       return Promise.resolve(makeArticleList());
     }
   });
+  listTags.mockReturnValue(Promise.resolve(["one"]));
 
-  const rendered = testing.render(
-    <Home
-      listArticles={listArticles}
-      listTags={() => Promise.resolve(["one"])}
-    />
-  );
+  const rendered = testing.render(<Home />);
 
   const tag = await testing.waitForElement(() =>
     rendered.getByTestId("tag-one")
@@ -253,20 +244,16 @@ test("supports changing pages on tag feed", async () => {
 });
 
 test("supports switching back to global feed", async () => {
-  const listArticles = jest.fn(({ page, tag }) => {
+  listArticles.mockImplementation(({ page, tag }) => {
     if (tag) {
       return Promise.resolve(makePaginatedList(page));
     } else {
       return Promise.resolve(makeArticleList("untagged"));
     }
   });
+  listTags.mockReturnValue(Promise.resolve(["one"]));
 
-  const rendered = testing.render(
-    <Home
-      listArticles={listArticles}
-      listTags={() => Promise.resolve(["one"])}
-    />
-  );
+  const rendered = testing.render(<Home />);
 
   const tag = await testing.waitForElement(() =>
     rendered.getByTestId("tag-one")

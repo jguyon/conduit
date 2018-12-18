@@ -10,12 +10,9 @@ import { Tabs, TabItem } from "../Tabs";
 import Pagination from "../Pagination";
 import ArticlePreview from "../ArticlePreview";
 import Separator from "../Separator";
-import type { ListArticles, ListArticlesResp, ListTags } from "../api";
+import * as api from "../api";
 
-type HomeProps = {|
-  listArticles: ListArticles,
-  listTags: ListTags
-|};
+type HomeProps = {||};
 
 type HomeState = {|
   page: number,
@@ -49,10 +46,10 @@ class Home extends React.Component<HomeProps, HomeState> {
 
     switch (route.type) {
       case "global":
-        return this.props.listArticles(opts);
+        return api.listArticles(opts);
 
       case "tag":
-        return this.props.listArticles({
+        return api.listArticles({
           ...opts,
           tag: route.tag
         });
@@ -112,7 +109,7 @@ class Home extends React.Component<HomeProps, HomeState> {
 
           <div className={cn("fl", "pl3", "w-30")}>
             <Tags>
-              <Request load={this.props.listTags}>{this.renderTags}</Request>
+              <Request load={api.listTags}>{this.renderTags}</Request>
             </Tags>
           </div>
         </div>
@@ -138,7 +135,7 @@ class Home extends React.Component<HomeProps, HomeState> {
     );
   }
 
-  renderArticles = (request: RequestData<ListArticlesResp>) => {
+  renderArticles = (request: RequestData<api.ListArticlesResp>) => {
     switch (request.status) {
       case "pending":
         return (
