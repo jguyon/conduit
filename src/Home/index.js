@@ -12,12 +12,18 @@ import ArticlePreview from "../ArticlePreview";
 import Separator from "../Separator";
 import * as api from "../api";
 
-type HomeProps = {||};
+type HomeProps = {|
+  currentUser: ?api.User
+|};
 
 type HomeState = {|
   page: number,
   route:
     | {| type: "global" |}
+    | {|
+        type: "my",
+        token: string
+      |}
     | {|
         type: "tag",
         tag: string
@@ -29,7 +35,9 @@ class Home extends React.Component<HomeProps, HomeState> {
 
   state = {
     page: 1,
-    route: { type: "global" }
+    route: this.props.currentUser
+      ? { type: "my", token: this.props.currentUser.token }
+      : { type: "global" }
   };
 
   setPage = (page: number) => {
@@ -48,6 +56,12 @@ class Home extends React.Component<HomeProps, HomeState> {
       case "global":
         return api.listArticles(opts);
 
+      case "my":
+        return api.listFeedArticles({
+          ...opts,
+          token: route.token
+        });
+
       case "tag":
         return api.listArticles({
           ...opts,
@@ -64,6 +78,18 @@ class Home extends React.Component<HomeProps, HomeState> {
       page: 1,
       route: { type: "global" }
     });
+  };
+
+  handleMyFeedClick = () => {
+    if (this.props.currentUser) {
+      this.setState({
+        page: 1,
+        route: {
+          type: "my",
+          token: this.props.currentUser.token
+        }
+      });
+    }
   };
 
   handleTagClick(tag: string) {
@@ -118,16 +144,27 @@ class Home extends React.Component<HomeProps, HomeState> {
   }
 
   renderTabs() {
+    const { currentUser } = this.props;
     const { route } = this.state;
 
     return (
       <Tabs className={cn("mb4")}>
+        {currentUser ? (
+          <TabItem
+            data-testid="my-feed"
+            current={route.type === "my"}
+            onClick={this.handleMyFeedClick}
+          >
+            Your Feed
+          </TabItem>
+        ) : null}
+
         <TabItem
           data-testid="global-feed"
           current={route.type === "global"}
           onClick={this.handleGlobalFeedClick}
         >
-          Global feed
+          Global Feed
         </TabItem>
 
         {route.type === "tag" ? <TabItem current>#{route.tag}</TabItem> : null}

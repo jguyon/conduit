@@ -245,6 +245,37 @@ export const listArticles = ({
     }
   });
 
+type ListFeedArticlesOpts = {|
+  token: string,
+  page: number,
+  perPage: number
+|};
+
+export type ListFeedArticlesResp = {
+  articlesCount: number,
+  articles: Article[]
+};
+
+export const listFeedArticles = ({
+  token,
+  page,
+  perPage
+}: ListFeedArticlesOpts): Promise<ListFeedArticlesResp> =>
+  fetch(
+    `${ENDPOINT}/articles/feed?limit=${perPage}&offset=${(page - 1) * perPage}`,
+    {
+      headers: {
+        authorization: `Token ${token}`
+      }
+    }
+  ).then(response => {
+    if (response.status === 200) {
+      return response.json();
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
+
 type GetArticleOpts = {|
   slug: string
 |};

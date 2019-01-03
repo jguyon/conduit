@@ -40,7 +40,7 @@ const App = () => (
 
               <main>
                 <Router>
-                  <Route path="/" render={<Home />} />
+                  <Route path="/" render={<Home currentUser={currentUser} />} />
                   <Route
                     path="/article/:slug"
                     render={({ slug }) => (
