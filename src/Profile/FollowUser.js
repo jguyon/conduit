@@ -15,7 +15,10 @@ type FollowUserState = {|
   following: boolean
 |};
 
-class FollowUser extends React.Component<FollowUserProps, FollowUserState> {
+export class FollowUser extends React.Component<
+  FollowUserProps,
+  FollowUserState
+> {
   state = {
     loading: false,
     following: this.props.profile.following
@@ -92,8 +95,6 @@ class FollowUser extends React.Component<FollowUserProps, FollowUserState> {
     );
   }
 }
-
-export default FollowUser;
 
 export const FollowUserPlaceholder = () => (
   <div className={cn("f6", "ba", "b--transparent", "pv1", "ph2")}>&nbsp;</div>

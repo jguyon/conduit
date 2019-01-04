@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import cn from "classnames";
-import FollowUser, { FollowUserPlaceholder } from "./FollowUser";
+import { FollowUser, FollowUserPlaceholder } from "./FollowUser";
 import type { Profile, User } from "../api";
 
 type ProfileImageProps =
