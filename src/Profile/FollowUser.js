@@ -74,6 +74,7 @@ class FollowUser extends React.Component<FollowUserProps, FollowUserState> {
         type="button"
         onClick={this.handleClick}
         disabled={loading}
+        data-testid="follow-user"
         className={cn(
           "f6",
           "button-reset",
