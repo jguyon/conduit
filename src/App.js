@@ -50,7 +50,11 @@ const App = () => (
                   <Route
                     path="/profile/:username"
                     render={({ username }) => (
-                      <Profile key={username} username={username} />
+                      <Profile
+                        key={username}
+                        username={username}
+                        currentUser={currentUser}
+                      />
                     )}
                   />
                   <Route

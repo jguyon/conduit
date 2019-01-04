@@ -204,43 +204,47 @@ class ProfileArticles extends React.Component<
 }
 
 type ProfileProps = {|
-  username: string
+  username: string,
+  currentUser: ?api.User
 |};
 
-class Profile extends React.PureComponent<ProfileProps> {
-  render() {
-    return (
-      <Request load={() => api.getProfile({ username: this.props.username })}>
-        {request => {
-          switch (request.status) {
-            case "pending":
-              return (
-                <>
-                  <Banner placeholder />
-                  <ProfileArticles username={this.props.username} />
-                </>
-              );
+const Profile = (props: ProfileProps) => (
+  <Request
+    load={() =>
+      api.getProfile({
+        username: props.username,
+        token: props.currentUser ? props.currentUser.token : undefined
+      })
+    }
+  >
+    {request => {
+      switch (request.status) {
+        case "pending":
+          return (
+            <>
+              <Banner placeholder />
+              <ProfileArticles username={props.username} />
+            </>
+          );
 
-            case "error":
-              return <NotFound />;
+        case "error":
+          return <NotFound />;
 
-            case "success":
-              const profile = request.data;
+        case "success":
+          const profile = request.data;
 
-              return (
-                <>
-                  <Banner profile={profile} />
-                  <ProfileArticles username={this.props.username} />
-                </>
-              );
+          return (
+            <>
+              <Banner profile={profile} currentUser={props.currentUser} />
+              <ProfileArticles username={props.username} />
+            </>
+          );
 
-            default:
-              throw new Error("invalid status");
-          }
-        }}
-      </Request>
-    );
-  }
-}
+        default:
+          throw new Error("invalid status");
+      }
+    }}
+  </Request>
+);
 
 export default Profile;

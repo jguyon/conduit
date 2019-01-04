@@ -197,19 +197,62 @@ export const updateCurrentUser = ({
   });
 
 type GetProfileOpts = {|
-  username: string
+  username: string,
+  token?: string
 |};
 
-export const getProfile = ({ username }: GetProfileOpts): Promise<Profile> =>
-  fetch(`${ENDPOINT}/profiles/${encodeURIComponent(username)}`).then(
-    response => {
-      if (response.status === 200) {
-        return response.json().then(({ profile }) => profile);
-      } else {
-        throw new Error(`expected status 200 but got ${response.status}`);
-      }
+export const getProfile = ({
+  username,
+  token
+}: GetProfileOpts): Promise<Profile> =>
+  fetch(`${ENDPOINT}/profiles/${encodeURIComponent(username)}`, {
+    headers: token ? { authorization: `Token ${token}` } : {}
+  }).then(response => {
+    if (response.status === 200) {
+      return response.json().then(({ profile }) => profile);
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
     }
-  );
+  });
+
+type FollowUserOpts = {|
+  username: string,
+  token: string
+|};
+
+export const followUser = ({
+  username,
+  token
+}: FollowUserOpts): Promise<void> =>
+  fetch(`${ENDPOINT}/profiles/${encodeURIComponent(username)}/follow`, {
+    method: "POST",
+    headers: {
+      authorization: `Token ${token}`
+    }
+  }).then(response => {
+    if (response.status === 200) {
+      return;
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
+
+export const unfollowUser = ({
+  username,
+  token
+}: FollowUserOpts): Promise<void> =>
+  fetch(`${ENDPOINT}/profiles/${encodeURIComponent(username)}/follow`, {
+    method: "DELETE",
+    headers: {
+      authorization: `Token ${token}`
+    }
+  }).then(response => {
+    if (response.status === 200) {
+      return;
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
 
 type ListArticlesOpts = {|
   page: number,

@@ -76,7 +76,9 @@ test("renders the profile", async () => {
   getProfile.mockReturnValue(Promise.resolve(profile));
   listArticles.mockReturnValue(Promise.resolve(makeArticleList()));
 
-  const rendered = testing.render(<Profile username="johndoe" />);
+  const rendered = testing.render(
+    <Profile username="johndoe" currentUser={null} />
+  );
 
   expect(getProfile).toHaveBeenCalledTimes(1);
   expect(getProfile).toHaveBeenLastCalledWith({ username: "johndoe" });
@@ -90,7 +92,9 @@ test("renders authored feed", async () => {
   getProfile.mockReturnValue(Promise.resolve(profile));
   listArticles.mockReturnValue(Promise.resolve(makeArticleList("one", "two")));
 
-  const rendered = testing.render(<Profile username="johndoe" />);
+  const rendered = testing.render(
+    <Profile username="johndoe" currentUser={null} />
+  );
 
   expect(listArticles).toHaveBeenCalledTimes(1);
   expect(listArticles).toHaveBeenLastCalledWith({
@@ -111,7 +115,9 @@ test("supports changing pages on authored feed", async () => {
     Promise.resolve(makePaginatedList(page))
   );
 
-  const rendered = testing.render(<Profile username="johndoe" />);
+  const rendered = testing.render(
+    <Profile username="johndoe" currentUser={null} />
+  );
 
   expect(listArticles).toHaveBeenCalledTimes(1);
   expect(listArticles).toHaveBeenLastCalledWith({
@@ -164,7 +170,9 @@ test("supports switching to favorited feed", async () => {
     }
   });
 
-  const rendered = testing.render(<Profile username="johndoe" />);
+  const rendered = testing.render(
+    <Profile username="johndoe" currentUser={null} />
+  );
 
   await testing.wait(() => {
     rendered.getByTestId("article-one");
@@ -200,7 +208,9 @@ test("supports changing pages on favorited feed", async () => {
     }
   });
 
-  const rendered = testing.render(<Profile username="johndoe" />);
+  const rendered = testing.render(
+    <Profile username="johndoe" currentUser={null} />
+  );
 
   testing.fireEvent.click(rendered.getByTestId("favorited-feed"));
 
@@ -255,7 +265,9 @@ test("supports switching back to authored feed", async () => {
     }
   });
 
-  const rendered = testing.render(<Profile username="johndoe" />);
+  const rendered = testing.render(
+    <Profile username="johndoe" currentUser={null} />
+  );
 
   testing.fireEvent.click(rendered.getByTestId("favorited-feed"));
 

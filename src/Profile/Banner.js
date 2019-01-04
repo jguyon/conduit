@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import cn from "classnames";
-import type { Profile } from "../api";
+import FollowUser, { FollowUserPlaceholder } from "./FollowUser";
+import type { Profile, User } from "../api";
 
 type ProfileImageProps =
   | {|
@@ -40,7 +41,8 @@ type BannerProps =
     |}
   | {|
       placeholder?: false,
-      profile: Profile
+      profile: Profile,
+      currentUser: ?User
     |};
 
 const Banner = (props: BannerProps) => {
@@ -57,15 +59,17 @@ const Banner = (props: BannerProps) => {
           </div>
 
           <div
-            className={cn("f5", "bg-light-silver", "mt2", "w-20", "mh-auto")}
+            className={cn("f5", "bg-light-silver", "mv2", "w-20", "mh-auto")}
           >
             &nbsp;
           </div>
+
+          <FollowUserPlaceholder />
         </div>
       </div>
     );
   } else {
-    const { profile } = props;
+    const { profile, currentUser } = props;
 
     return (
       <header
@@ -78,11 +82,13 @@ const Banner = (props: BannerProps) => {
             {profile.username}
           </h1>
 
-          <h2 className={cn("f5", "normal", "light-silver", "mt2", "mb0")}>
+          <h2 className={cn("f5", "normal", "light-silver", "mv2")}>
             {profile.bio === null || profile.bio.trim() === ""
               ? "I'm new here, be gentle!"
               : profile.bio}
           </h2>
+
+          <FollowUser currentUser={currentUser} profile={profile} />
         </div>
       </header>
     );
