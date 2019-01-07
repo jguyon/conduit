@@ -4,6 +4,7 @@ import * as React from "react";
 import { Link } from "@reach/router";
 import Markdown from "react-markdown";
 import cn from "classnames";
+import FavoriteArticle from "./FavoriteArticle";
 import DeleteArticle from "./DeleteArticle";
 import ArticleInfo from "../ArticleInfo";
 import Separator from "../Separator";
@@ -101,7 +102,13 @@ const FullArticle = (props: FullArticleProps) => {
                     className={cn("ml2")}
                   />
                 </>
-              ) : null}
+              ) : (
+                <FavoriteArticle
+                  className={cn("ml4")}
+                  currentUser={currentUser}
+                  article={article}
+                />
+              )}
             </div>
           </div>
         </header>

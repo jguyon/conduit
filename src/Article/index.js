@@ -47,7 +47,11 @@ type ArticleProps = {|
 |};
 
 const Article = (props: ArticleProps) => {
-  const loadArticle = () => api.getArticle({ slug: props.slug });
+  const loadArticle = () =>
+    api.getArticle({
+      token: props.currentUser ? props.currentUser.token : undefined,
+      slug: props.slug
+    });
   const loadComments = () => api.listComments({ slug: props.slug });
 
   return (

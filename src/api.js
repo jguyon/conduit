@@ -320,11 +320,14 @@ export const listFeedArticles = ({
   });
 
 type GetArticleOpts = {|
+  token?: string,
   slug: string
 |};
 
-export const getArticle = ({ slug }: GetArticleOpts): Promise<Article> =>
-  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`).then(response => {
+export const getArticle = ({ token, slug }: GetArticleOpts): Promise<Article> =>
+  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}`, {
+    headers: token ? { authorization: `Token ${token}` } : {}
+  }).then(response => {
     if (response.status === 200) {
       return response.json().then(({ article }) => article);
     } else {
@@ -472,6 +475,45 @@ export const listComments = ({ slug }: ListCommentsOpts): Promise<Comment[]> =>
       }
     }
   );
+
+type FavoriteArticleOpts = {|
+  token: string,
+  slug: string
+|};
+
+export const favoriteArticle = ({
+  token,
+  slug
+}: FavoriteArticleOpts): Promise<void> =>
+  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}/favorite`, {
+    method: "POST",
+    headers: {
+      authorization: `Token ${token}`
+    }
+  }).then(response => {
+    if (response.status === 200) {
+      return;
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
+
+export const unfavoriteArticle = ({
+  token,
+  slug
+}: FavoriteArticleOpts): Promise<void> =>
+  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}/favorite`, {
+    method: "DELETE",
+    headers: {
+      authorization: `Token ${token}`
+    }
+  }).then(response => {
+    if (response.status === 200) {
+      return;
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
 
 export const listTags = (): Promise<string[]> =>
   fetch(`${ENDPOINT}/tags`).then(response => {
