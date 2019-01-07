@@ -13,7 +13,8 @@ type FavoriteArticleProps = {|
 
 type FavoriteArticleState = {|
   loading: boolean,
-  favorited: boolean
+  favorited: boolean,
+  favoritesCount: number
 |};
 
 class FavoriteArticle extends React.Component<
@@ -22,7 +23,8 @@ class FavoriteArticle extends React.Component<
 > {
   state = {
     loading: false,
-    favorited: this.props.article.favorited
+    favorited: this.props.article.favorited,
+    favoritesCount: this.props.article.favoritesCount
   };
 
   handleClick = () => {
@@ -40,10 +42,15 @@ class FavoriteArticle extends React.Component<
             })
             .then(
               () =>
-                this.setState({
-                  loading: false,
-                  favorited: false
-                }),
+                this.setState(({ favorited, favoritesCount }) =>
+                  favorited
+                    ? {
+                        loading: false,
+                        favorited: false,
+                        favoritesCount: favoritesCount - 1
+                      }
+                    : undefined
+                ),
               () => this.setState({ loading: false })
             );
         } else {
@@ -54,10 +61,15 @@ class FavoriteArticle extends React.Component<
             })
             .then(
               () =>
-                this.setState({
-                  loading: false,
-                  favorited: true
-                }),
+                this.setState(({ favorited, favoritesCount }) =>
+                  favorited
+                    ? undefined
+                    : {
+                        loading: false,
+                        favorited: true,
+                        favoritesCount: favoritesCount + 1
+                      }
+                ),
               () => this.setState({ loading: false })
             );
         }
@@ -68,11 +80,8 @@ class FavoriteArticle extends React.Component<
   };
 
   render() {
-    const {
-      className,
-      article: { favoritesCount }
-    } = this.props;
-    const { loading, favorited } = this.state;
+    const { className } = this.props;
+    const { loading, favorited, favoritesCount } = this.state;
 
     return (
       <button
@@ -94,7 +103,8 @@ class FavoriteArticle extends React.Component<
           loading ? "o-20" : ["pointer", "dim"]
         )}
       >
-        Favorite Article ({favorited ? favoritesCount + 1 : favoritesCount})
+        {favorited ? "Unfavorite Article" : "Favorite Article"} (
+        {favoritesCount})
       </button>
     );
   }

@@ -7,6 +7,8 @@ import Article from ".";
 import * as api from "../api";
 
 const getArticle = jest.spyOn(api, "getArticle");
+const favoriteArticle = jest.spyOn(api, "favoriteArticle");
+const unfavoriteArticle = jest.spyOn(api, "unfavoriteArticle");
 const deleteArticle = jest.spyOn(api, "deleteArticle");
 const listComments = jest.spyOn(api, "listComments");
 
@@ -18,6 +20,8 @@ afterEach(() => {
   testing.cleanup();
   getArticle.mockReset();
   deleteArticle.mockReset();
+  favoriteArticle.mockReset();
+  unfavoriteArticle.mockReset();
   listComments.mockReset();
 });
 
@@ -125,6 +129,7 @@ test("does not render edit buttons with non-author current user", async () => {
 
   expect(rendered.queryByText(EDIT_BUTTON_TEXT)).toEqual(null);
   expect(rendered.queryByText(DELETE_BUTTON_TEXT)).toEqual(null);
+  rendered.getByTestId("favorite-article");
 });
 
 test("renders edit buttons with author current user", async () => {
@@ -148,6 +153,93 @@ test("renders edit buttons with author current user", async () => {
   await testing.wait(() => {
     rendered.getByText(EDIT_BUTTON_TEXT);
     rendered.getByText(DELETE_BUTTON_TEXT);
+    expect(rendered.queryByTestId("favorite-article")).toEqual(null);
+  });
+});
+
+test("does not favorite article while logged out", async () => {
+  getArticle.mockReturnValue(Promise.resolve(article));
+  listComments.mockReturnValue(Promise.resolve([]));
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={null} />
+  );
+
+  const favorite = await testing.waitForElement(() =>
+    rendered.getByTestId("favorite-article")
+  );
+
+  testing.fireEvent.click(favorite);
+
+  await testing.wait(() => {
+    expect(window.location.pathname).toBe("/login");
+  });
+
+  expect(favoriteArticle).not.toHaveBeenCalled();
+  expect(unfavoriteArticle).not.toHaveBeenCalled();
+});
+
+test("favorites article while logged in", async () => {
+  getArticle.mockReturnValue(Promise.resolve({ ...article, favorited: false }));
+  listComments.mockReturnValue(Promise.resolve([]));
+  favoriteArticle.mockReturnValue(Promise.resolve());
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={user} />
+  );
+
+  const favorite = await testing.waitForElement(() =>
+    rendered.getByTestId("favorite-article")
+  );
+
+  expect(favorite).toHaveTextContent(
+    `Favorite Article (${article.favoritesCount})`
+  );
+
+  testing.fireEvent.click(favorite);
+
+  expect(favoriteArticle).toHaveBeenCalledTimes(1);
+  expect(favoriteArticle).toHaveBeenLastCalledWith({
+    slug: article.slug,
+    token: user.token
+  });
+
+  await testing.wait(() => {
+    expect(favorite).toHaveTextContent(
+      `Unfavorite Article (${article.favoritesCount + 1})`
+    );
+  });
+});
+
+test("unfavorites article while logged in", async () => {
+  getArticle.mockReturnValue(Promise.resolve({ ...article, favorited: true }));
+  listComments.mockReturnValue(Promise.resolve([]));
+  unfavoriteArticle.mockReturnValue(Promise.resolve());
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={user} />
+  );
+
+  const favorite = await testing.waitForElement(() =>
+    rendered.getByTestId("favorite-article")
+  );
+
+  expect(favorite).toHaveTextContent(
+    `Unfavorite Article (${article.favoritesCount})`
+  );
+
+  testing.fireEvent.click(favorite);
+
+  expect(unfavoriteArticle).toHaveBeenCalledTimes(1);
+  expect(unfavoriteArticle).toHaveBeenLastCalledWith({
+    slug: article.slug,
+    token: user.token
+  });
+
+  await testing.wait(() => {
+    expect(favorite).toHaveTextContent(
+      `Favorite Article (${article.favoritesCount - 1})`
+    );
   });
 });
 
