@@ -476,6 +476,54 @@ export const listComments = ({ slug }: ListCommentsOpts): Promise<Comment[]> =>
     }
   );
 
+type AddCommentOpts = {|
+  token: string,
+  slug: string,
+  body: string
+|};
+
+type AddCommentRespOk = {|
+  isOk: true,
+  comment: Comment
+|};
+
+type AddCommentRespErr = {|
+  isOk: false,
+  errors: {
+    body?: string[]
+  }
+|};
+
+export type AddCommentResp = AddCommentRespOk | AddCommentRespErr;
+
+export const addComment = ({
+  token,
+  slug,
+  ...fields
+}: AddCommentOpts): Promise<AddCommentResp> =>
+  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}/comments`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Token ${token}`
+    },
+    body: JSON.stringify({ comment: fields })
+  }).then(response => {
+    if (response.status === 200) {
+      return response.json().then(({ comment }) => ({
+        isOk: true,
+        comment
+      }));
+    } else if (response.status === 422) {
+      return response.json().then(({ errors }) => ({
+        isOk: false,
+        errors
+      }));
+    } else {
+      throw new Error(`expected status 200 or 422 but got ${response.status}`);
+    }
+  });
+
 type FavoriteArticleOpts = {|
   token: string,
   slug: string

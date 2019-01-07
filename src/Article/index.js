@@ -5,41 +5,9 @@ import cn from "classnames";
 import Request from "../Request";
 import type { RequestData } from "../Request";
 import FullArticle from "./FullArticle";
-import Comment from "./Comment";
+import CommentList from "./CommentList";
 import NotFound from "../NotFound";
 import * as api from "../api";
-
-type CommentListProps = {|
-  request: RequestData<api.Comment[]>
-|};
-
-const CommentList = ({ request }: CommentListProps) => {
-  switch (request.status) {
-    case "pending":
-      return null;
-
-    case "error":
-      return (
-        <div className={cn("tc", "red", "mv5")}>Error loading comments!</div>
-      );
-
-    case "success":
-      const comments = request.data;
-
-      return (
-        <div className={cn("container", "mv5", "mh-auto")}>
-          <div className={cn("w-60", "mh-auto")}>
-            {comments.map(comment => (
-              <Comment key={comment.id} comment={comment} />
-            ))}
-          </div>
-        </div>
-      );
-
-    default:
-      throw new Error("invalid status");
-  }
-};
 
 type ArticleProps = {|
   slug: string,
@@ -52,39 +20,46 @@ const Article = (props: ArticleProps) => {
       token: props.currentUser ? props.currentUser.token : undefined,
       slug: props.slug
     });
-  const loadComments = () => api.listComments({ slug: props.slug });
 
   return (
     <Request load={loadArticle}>
-      {requestArticle => (
-        <Request load={loadComments}>
-          {requestComments => {
-            switch (requestArticle.status) {
-              case "pending":
-                return <FullArticle placeholder />;
+      {request => {
+        switch (request.status) {
+          case "pending":
+            return (
+              <>
+                <FullArticle placeholder />
+                <CommentList
+                  hidden
+                  currentUser={props.currentUser}
+                  slug={props.slug}
+                />
+              </>
+            );
 
-              case "error":
-                return <NotFound />;
+          case "error":
+            return <NotFound />;
 
-              case "success":
-                const article = requestArticle.data;
+          case "success":
+            const article = request.data;
 
-                return (
-                  <>
-                    <FullArticle
-                      article={article}
-                      currentUser={props.currentUser}
-                    />
-                    <CommentList request={requestComments} />
-                  </>
-                );
+            return (
+              <>
+                <FullArticle
+                  article={article}
+                  currentUser={props.currentUser}
+                />
+                <CommentList
+                  currentUser={props.currentUser}
+                  slug={props.slug}
+                />
+              </>
+            );
 
-              default:
-                throw new Error("invalid status");
-            }
-          }}
-        </Request>
-      )}
+          default:
+            throw new Error("invalid status");
+        }
+      }}
     </Request>
   );
 };

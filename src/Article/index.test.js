@@ -11,6 +11,7 @@ const favoriteArticle = jest.spyOn(api, "favoriteArticle");
 const unfavoriteArticle = jest.spyOn(api, "unfavoriteArticle");
 const deleteArticle = jest.spyOn(api, "deleteArticle");
 const listComments = jest.spyOn(api, "listComments");
+const addComment = jest.spyOn(api, "addComment");
 
 beforeEach(() => {
   window.history.pushState(null, "", "/article/the-answer");
@@ -23,6 +24,7 @@ afterEach(() => {
   favoriteArticle.mockReset();
   unfavoriteArticle.mockReset();
   listComments.mockReset();
+  addComment.mockReset();
 });
 
 const article: api.Article = {
@@ -270,4 +272,65 @@ test("deletes article", async () => {
 
   expect(deleteArticle).toHaveBeenCalledTimes(1);
   await testing.wait(() => expect(window.location.pathname).toBe("/"));
+});
+
+test("does not display comment form when not logged in", async () => {
+  getArticle.mockReturnValue(Promise.resolve(article));
+  listComments.mockReturnValue(Promise.resolve([comment]));
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={null} />
+  );
+
+  await testing.wait(() => {
+    rendered.getByText(comment.body);
+  });
+
+  expect(rendered.queryByTestId("add-comment")).toEqual(null);
+});
+
+test("adds comment when logged in", async () => {
+  getArticle.mockReturnValue(Promise.resolve(article));
+  listComments.mockReturnValue(Promise.resolve([comment]));
+  addComment.mockImplementation(
+    ({ body }): Promise<api.Comment> =>
+      Promise.resolve({
+        id: 42,
+        createdAt: new Date().toJSON(),
+        updatedAt: new Date().toJSON(),
+        body,
+        author: {
+          username: user.username,
+          image: user.image,
+          bio: user.bio,
+          following: false
+        }
+      })
+  );
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={user} />
+  );
+
+  const { form, input } = await testing.waitForElement(() => ({
+    form: rendered.getByTestId("add-comment"),
+    input: rendered.getByTestId("add-comment-body")
+  }));
+
+  testing.fireEvent.change(input, {
+    target: { value: "Hello, World!" }
+  });
+
+  testing.fireEvent.submit(form);
+
+  expect(addComment).toHaveBeenCalledTimes(1);
+  expect(addComment).toHaveBeenLastCalledWith({
+    token: user.token,
+    slug: article.slug,
+    body: "Hello, World!"
+  });
+
+  await testing.wait(() => {
+    rendered.getByText("Hello, World!");
+  });
 });

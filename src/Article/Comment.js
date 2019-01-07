@@ -25,9 +25,9 @@ const Comment = ({ comment }: CommentProps) => (
           className={cn("br-100", "h1", "w1", "dib", "overflow-hidden")}
           alt={comment.author.username}
           src={
-            comment.author.image === ""
-              ? "https://static.productionready.io/images/smiley-cyrus.jpg"
-              : comment.author.image
+            comment.author.image
+              ? comment.author.image
+              : "https://static.productionready.io/images/smiley-cyrus.jpg"
           }
         />
       </Link>
