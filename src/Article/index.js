@@ -1,9 +1,7 @@
 // @flow
 
 import * as React from "react";
-import cn from "classnames";
 import Request from "../Request";
-import type { RequestData } from "../Request";
 import FullArticle from "./FullArticle";
 import CommentList from "./CommentList";
 import NotFound from "../NotFound";
