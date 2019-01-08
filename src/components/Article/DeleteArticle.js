@@ -3,6 +3,7 @@
 import * as React from "react";
 import { navigate } from "@reach/router";
 import cn from "classnames";
+import { makeCancelable, CanceledError } from "../../lib/makeCancelable";
 import * as api from "../../lib/api";
 
 type DeleteArticleProps = {|
@@ -23,18 +24,43 @@ class DeleteArticle extends React.Component<
     pending: false
   };
 
-  handleClick = () => {
-    if (!this.state.pending) {
-      this.setState({ pending: true });
+  cancelClick: ?() => void = null;
 
-      api
-        .deleteArticle({
-          token: this.props.currentUser.token,
-          slug: this.props.article.slug
-        })
-        .then(() => navigate("/"), () => this.setState({ pending: false }));
+  handleClick = () => {
+    if (this.cancelClick) {
+      this.cancelClick();
     }
+
+    this.setState({ pending: true });
+
+    const [promise, cancel] = makeCancelable(
+      api.deleteArticle({
+        token: this.props.currentUser.token,
+        slug: this.props.article.slug
+      })
+    );
+
+    this.cancelClick = cancel;
+
+    promise.then(
+      () => {
+        this.cancelClick = null;
+        navigate("/");
+      },
+      error => {
+        if (!(error instanceof CanceledError)) {
+          this.cancelClick = null;
+          this.setState({ pending: false });
+        }
+      }
+    );
   };
+
+  componentWillUnmount() {
+    if (this.cancelClick) {
+      this.cancelClick();
+    }
+  }
 
   render() {
     return (

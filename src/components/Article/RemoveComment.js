@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import cn from "classnames";
+import { makeCancelable, CanceledError } from "../../lib/makeCancelable";
 import * as api from "../../lib/api";
 
 type RemoveCommentProps = {|
@@ -23,22 +24,44 @@ class RemoveComment extends React.Component<
     removing: false
   };
 
-  handleClick = () => {
-    if (!this.state.removing) {
-      this.setState({ removing: true });
+  cancelClick: ?() => void = null;
 
-      api
-        .deleteComment({
-          token: this.props.currentUser.token,
-          slug: this.props.slug,
-          commentId: this.props.comment.id
-        })
-        .then(
-          () => this.props.onRemoveComment(this.props.comment.id),
-          () => this.setState({ removing: false })
-        );
+  handleClick = () => {
+    if (this.cancelClick) {
+      this.cancelClick();
     }
+
+    this.setState({ removing: true });
+
+    const [promise, cancel] = makeCancelable(
+      api.deleteComment({
+        token: this.props.currentUser.token,
+        slug: this.props.slug,
+        commentId: this.props.comment.id
+      })
+    );
+
+    this.cancelClick = cancel;
+
+    promise.then(
+      () => {
+        this.cancelClick = null;
+        this.props.onRemoveComment(this.props.comment.id);
+      },
+      error => {
+        if (!(error instanceof CanceledError)) {
+          this.cancelClick = null;
+          this.setState({ removing: false });
+        }
+      }
+    );
   };
+
+  componentWillUnmount() {
+    if (this.cancelClick) {
+      this.cancelClick();
+    }
+  }
 
   render() {
     const { comment } = this.props;

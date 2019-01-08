@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import cn from "classnames";
+import { makeCancelable, CanceledError } from "../../lib/makeCancelable";
 import * as api from "../../lib/api";
 
 type CommentFormProps = {|
@@ -52,54 +53,76 @@ class CommentForm extends React.PureComponent<
     });
   };
 
+  cancelSubmit: ?() => void = null;
+
   handleSubmit = (event: SyntheticEvent<*>) => {
     const { currentUser, slug } = this.props;
     const { body } = this.state;
 
     event.preventDefault();
 
+    if (this.cancelSubmit) {
+      this.cancelSubmit();
+    }
+
     this.setState({
       submitting: true,
       error: { type: "none" }
     });
 
-    api
-      .addComment({
+    const [promise, cancel] = makeCancelable(
+      api.addComment({
         token: currentUser.token,
         slug,
         body
       })
-      .then(
-        result => {
-          if (result.isOk) {
-            this.setState({
-              submitting: false,
-              error: { type: "none" },
-              body: ""
-            });
+    );
 
-            this.props.onAddComment(result.comment);
-          } else {
-            this.setState(
-              {
-                submitting: false,
-                error: {
-                  type: "fields",
-                  ...result.errors
-                }
-              },
-              () => this.focusFirstInvalidInput()
-            );
-          }
-        },
-        () => {
+    this.cancelSubmit = cancel;
+
+    promise.then(
+      result => {
+        this.cancelSubmit = null;
+
+        if (result.isOk) {
+          this.setState({
+            submitting: false,
+            error: { type: "none" },
+            body: ""
+          });
+
+          this.props.onAddComment(result.comment);
+        } else {
+          this.setState(
+            {
+              submitting: false,
+              error: {
+                type: "fields",
+                ...result.errors
+              }
+            },
+            () => this.focusFirstInvalidInput()
+          );
+        }
+      },
+      error => {
+        if (!(error instanceof CanceledError)) {
+          this.cancelSubmit = null;
+
           this.setState({
             submitting: false,
             error: { type: "network" }
           });
         }
-      );
+      }
+    );
   };
+
+  componentWillUnmount() {
+    if (this.cancelSubmit) {
+      this.cancelSubmit();
+    }
+  }
 
   render() {
     const submitDisabled =

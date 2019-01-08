@@ -3,6 +3,7 @@
 import * as React from "react";
 import cn from "classnames";
 import { navigate } from "@reach/router";
+import { makeCancelable, CanceledError } from "../../lib/makeCancelable";
 import * as api from "../../lib/api";
 
 type FavoriteArticleProps = {|
@@ -27,57 +28,91 @@ class FavoriteArticle extends React.Component<
     favoritesCount: this.props.article.favoritesCount
   };
 
+  cancelClick: ?() => void = null;
+
   handleClick = () => {
     const { currentUser, article } = this.props;
 
     if (currentUser) {
-      if (!this.state.loading) {
-        this.setState({ loading: true });
+      if (this.cancelClick) {
+        this.cancelClick();
+      }
 
-        if (this.state.favorited) {
-          api
-            .unfavoriteArticle({
-              token: currentUser.token,
-              slug: article.slug
-            })
-            .then(
-              () =>
-                this.setState(({ favorited, favoritesCount }) =>
-                  favorited
-                    ? {
-                        loading: false,
-                        favorited: false,
-                        favoritesCount: favoritesCount - 1
-                      }
-                    : undefined
-                ),
-              () => this.setState({ loading: false })
+      this.setState({ loading: true });
+
+      if (this.state.favorited) {
+        const [promise, cancel] = makeCancelable(
+          api.unfavoriteArticle({
+            token: currentUser.token,
+            slug: article.slug
+          })
+        );
+
+        this.cancelClick = cancel;
+
+        promise.then(
+          () => {
+            this.cancelClick = null;
+
+            this.setState(({ favorited, favoritesCount }) =>
+              favorited
+                ? {
+                    loading: false,
+                    favorited: false,
+                    favoritesCount: favoritesCount - 1
+                  }
+                : { loading: false }
             );
-        } else {
-          api
-            .favoriteArticle({
-              token: currentUser.token,
-              slug: article.slug
-            })
-            .then(
-              () =>
-                this.setState(({ favorited, favoritesCount }) =>
-                  favorited
-                    ? undefined
-                    : {
-                        loading: false,
-                        favorited: true,
-                        favoritesCount: favoritesCount + 1
-                      }
-                ),
-              () => this.setState({ loading: false })
+          },
+          error => {
+            if (!(error instanceof CanceledError)) {
+              this.cancelClick = null;
+              this.setState({ loading: false });
+            }
+          }
+        );
+      } else {
+        const [promise, cancel] = makeCancelable(
+          api.favoriteArticle({
+            token: currentUser.token,
+            slug: article.slug
+          })
+        );
+
+        this.cancelClick = cancel;
+
+        promise.then(
+          () => {
+            this.cancelClick = null;
+
+            this.setState(({ favorited, favoritesCount }) =>
+              favorited
+                ? { loading: false }
+                : {
+                    loading: false,
+                    favorited: true,
+                    favoritesCount: favoritesCount + 1
+                  }
             );
-        }
+          },
+          error => {
+            if (!(error instanceof CanceledError)) {
+              this.cancelClick = null;
+              this.setState({ loading: false });
+            }
+          }
+        );
       }
     } else {
       navigate("/login");
     }
   };
+
+  componentWillUnmount() {
+    if (this.cancelClick) {
+      this.cancelClick();
+    }
+  }
 
   render() {
     const { className } = this.props;
