@@ -5,6 +5,7 @@ import { navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "./Form";
 import Separator from "./Separator";
+import { makeCancelable, CanceledError } from "../lib/makeCancelable";
 import * as api from "../lib/api";
 
 type SettingsProps = {|
@@ -110,14 +111,20 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
     this.setState({ bio });
   };
 
+  cancelSubmit: ?() => void = null;
+
   handleSubmit = () => {
+    if (this.cancelSubmit) {
+      this.cancelSubmit();
+    }
+
     this.setState({
       submitting: true,
       error: { type: "none" }
     });
 
-    api
-      .updateCurrentUser({
+    const [promise, cancel] = makeCancelable(
+      api.updateCurrentUser({
         token: this.props.currentUser.token,
         username: this.state.username,
         email: this.state.email,
@@ -125,25 +132,34 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
         image: this.state.image ? this.state.image : null,
         bio: this.state.bio ? this.state.bio : null
       })
-      .then(
-        result => {
-          if (result.isOk) {
-            this.props.setCurrentUser(result.user);
-            navigate(`/profile/${encodeURIComponent(result.user.username)}`);
-          } else {
-            this.setState(
-              {
-                submitting: false,
-                error: {
-                  type: "fields",
-                  ...result.errors
-                }
-              },
-              () => this.focusFirstInvalidInput()
-            );
-          }
-        },
-        () => {
+    );
+
+    this.cancelSubmit = cancel;
+
+    promise.then(
+      result => {
+        this.cancelSubmit = null;
+
+        if (result.isOk) {
+          this.props.setCurrentUser(result.user);
+          navigate(`/profile/${encodeURIComponent(result.user.username)}`);
+        } else {
+          this.setState(
+            {
+              submitting: false,
+              error: {
+                type: "fields",
+                ...result.errors
+              }
+            },
+            () => this.focusFirstInvalidInput()
+          );
+        }
+      },
+      error => {
+        if (!(error instanceof CanceledError)) {
+          this.cancelSubmit = null;
+
           this.setState(
             {
               submitting: false,
@@ -152,13 +168,20 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
             () => this.focusFirstInvalidInput()
           );
         }
-      );
+      }
+    );
   };
 
   handleLogOutClick = () => {
     this.props.unsetCurrentUser();
     navigate("/");
   };
+
+  componentWillUnmount() {
+    if (this.cancelSubmit) {
+      this.cancelSubmit();
+    }
+  }
 
   render() {
     return (
