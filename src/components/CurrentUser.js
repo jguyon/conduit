@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from "react";
+import { makeCancelable, CanceledError } from "../lib/makeCancelable";
 import * as api from "../lib/api";
 
 export type CurrentUserData =
@@ -48,12 +49,20 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
     );
   };
 
+  cancelGetCurrentUser: ?() => void = null;
+
   componentDidMount() {
     const token = localStorage.getItem(USER_TOKEN_KEY);
 
     if (token) {
-      api.getCurrentUser({ token }).then(
+      const [promise, cancel] = makeCancelable(api.getCurrentUser({ token }));
+
+      this.cancelGetCurrentUser = cancel;
+
+      promise.then(
         user => {
+          this.cancelGetCurrentUser = null;
+
           this.setState({
             data: {
               status: "ready",
@@ -62,14 +71,18 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
             }
           });
         },
-        () => {
-          this.setState({
-            data: {
-              status: "ready",
-              currentUser: null,
-              setCurrentUser: this.setCurrentUser
-            }
-          });
+        error => {
+          if (!(error instanceof CanceledError)) {
+            this.cancelGetCurrentUser = null;
+
+            this.setState({
+              data: {
+                status: "ready",
+                currentUser: null,
+                setCurrentUser: this.setCurrentUser
+              }
+            });
+          }
         }
       );
     } else {
@@ -80,6 +93,12 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
           setCurrentUser: this.setCurrentUser
         }
       });
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.cancelGetCurrentUser) {
+      this.cancelGetCurrentUser();
     }
   }
 
