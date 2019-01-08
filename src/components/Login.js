@@ -4,6 +4,7 @@ import * as React from "react";
 import { Link, navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, Submit } from "./Form";
+import { makeCancelable, CanceledError } from "../lib/makeCancelable";
 import * as api from "../lib/api";
 
 type LoginProps = {|
@@ -41,33 +42,48 @@ class Login extends React.Component<LoginProps, LoginState> {
     this.setState({ password });
   };
 
+  cancelSubmit: ?() => void = null;
+
   handleSubmit = () => {
+    if (this.cancelSubmit) {
+      this.cancelSubmit();
+    }
+
     this.setState({
       submitting: true,
       error: null
     });
 
-    api
-      .loginUser({
+    const [promise, cancel] = makeCancelable(
+      api.loginUser({
         email: this.state.email,
         password: this.state.password
       })
-      .then(
-        result => {
-          if (result.isOk) {
-            this.props.setCurrentUser(result.user);
-            navigate("/");
-          } else {
-            this.setState(
-              {
-                submitting: false,
-                error: "credentials"
-              },
-              () => this.focusEmailInput()
-            );
-          }
-        },
-        () => {
+    );
+
+    this.cancelSubmit = cancel;
+
+    promise.then(
+      result => {
+        this.cancelSubmit = null;
+
+        if (result.isOk) {
+          this.props.setCurrentUser(result.user);
+          navigate("/");
+        } else {
+          this.setState(
+            {
+              submitting: false,
+              error: "credentials"
+            },
+            () => this.focusEmailInput()
+          );
+        }
+      },
+      error => {
+        if (!(error instanceof CanceledError)) {
+          this.cancelSubmit = null;
+
           this.setState(
             {
               submitting: false,
@@ -76,8 +92,15 @@ class Login extends React.Component<LoginProps, LoginState> {
             () => this.focusEmailInput()
           );
         }
-      );
+      }
+    );
   };
+
+  componentWillUnmount() {
+    if (this.cancelSubmit) {
+      this.cancelSubmit();
+    }
+  }
 
   render() {
     return (
