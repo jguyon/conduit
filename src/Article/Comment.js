@@ -4,6 +4,7 @@ import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
 import PrettyDate from "../PrettyDate";
+import RemoveComment from "./RemoveComment";
 import * as api from "../api";
 
 const authorProfilePath = (comment: api.Comment) =>
@@ -67,33 +68,12 @@ const Comment = ({
 
       {currentUser && currentUser.username === comment.author.username && (
         <div className={cn("flex-auto", "tr")}>
-          <button
-            type="button"
-            data-testid={`remove-comment-${comment.id}`}
-            onClick={() =>
-              api
-                .deleteComment({
-                  token: currentUser.token,
-                  slug,
-                  commentId: comment.id
-                })
-                .then(() => onRemoveComment(comment.id))
-            }
-            className={cn(
-              "button-reset",
-              "bg-transparent",
-              "bn",
-              "f5",
-              "pv0",
-              "ph1",
-              "pointer",
-              "dark-gray",
-              "o-70",
-              "glow"
-            )}
-          >
-            &times;
-          </button>
+          <RemoveComment
+            currentUser={currentUser}
+            slug={slug}
+            comment={comment}
+            onRemoveComment={onRemoveComment}
+          />
         </div>
       )}
     </div>
