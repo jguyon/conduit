@@ -6,6 +6,7 @@ import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "./Form";
 import Request from "./Request";
 import NotFound from "./NotFound";
+import { makeCancelable, CanceledError } from "../lib/makeCancelable";
 import * as api from "../lib/api";
 
 type PostArticlePageProps = {|
@@ -235,37 +236,52 @@ class PostArticleForm extends React.Component<
     this.setState({ tagList });
   };
 
+  cancelSubmit: ?() => void = null;
+
   handleSubmit = () => {
+    if (this.cancelSubmit) {
+      this.cancelSubmit();
+    }
+
     this.setState({
       submitting: true,
       error: { type: "none" }
     });
 
-    this.props
-      .postArticle({
+    const [promise, cancel] = makeCancelable(
+      this.props.postArticle({
         title: this.state.title,
         description: this.state.description,
         body: this.state.body,
         tagList: this.state.tagList.split(" ").filter(tag => tag !== "")
       })
-      .then(
-        result => {
-          if (result.isOk) {
-            navigate(`/article/${encodeURIComponent(result.article.slug)}`);
-          } else {
-            this.setState(
-              {
-                submitting: false,
-                error: {
-                  type: "fields",
-                  ...result.errors
-                }
-              },
-              () => this.focusFirstInvalidInput()
-            );
-          }
-        },
-        () => {
+    );
+
+    this.cancelSubmit = cancel;
+
+    promise.then(
+      result => {
+        this.cancelSubmit = null;
+
+        if (result.isOk) {
+          navigate(`/article/${encodeURIComponent(result.article.slug)}`);
+        } else {
+          this.setState(
+            {
+              submitting: false,
+              error: {
+                type: "fields",
+                ...result.errors
+              }
+            },
+            () => this.focusFirstInvalidInput()
+          );
+        }
+      },
+      error => {
+        if (!(error instanceof CanceledError)) {
+          this.cancelSubmit = null;
+
           this.setState(
             {
               submitting: false,
@@ -274,8 +290,15 @@ class PostArticleForm extends React.Component<
             () => this.focusFirstInvalidInput()
           );
         }
-      );
+      }
+    );
   };
+
+  componentWillUnmount() {
+    if (this.cancelSubmit) {
+      this.cancelSubmit();
+    }
+  }
 
   render() {
     return (
