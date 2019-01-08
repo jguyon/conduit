@@ -12,6 +12,7 @@ const unfavoriteArticle = jest.spyOn(api, "unfavoriteArticle");
 const deleteArticle = jest.spyOn(api, "deleteArticle");
 const listComments = jest.spyOn(api, "listComments");
 const addComment = jest.spyOn(api, "addComment");
+const deleteComment = jest.spyOn(api, "deleteComment");
 
 beforeEach(() => {
   window.history.pushState(null, "", "/article/the-answer");
@@ -25,6 +26,7 @@ afterEach(() => {
   unfavoriteArticle.mockReset();
   listComments.mockReset();
   addComment.mockReset();
+  deleteComment.mockReset();
 });
 
 const article: api.Article = {
@@ -64,6 +66,19 @@ const user: api.User = {
   username: "johndoe",
   bio: null,
   image: null
+};
+
+const ownComment: api.Comment = {
+  id: 2,
+  createdAt: new Date().toJSON(),
+  updatedAt: new Date().toJSON(),
+  body: "I'm awesome!",
+  author: {
+    username: user.username,
+    bio: user.bio,
+    image: user.image,
+    following: false
+  }
 };
 
 const EDIT_BUTTON_TEXT = "Edit Article";
@@ -292,20 +307,11 @@ test("does not display comment form when not logged in", async () => {
 test("adds comment when logged in", async () => {
   getArticle.mockReturnValue(Promise.resolve(article));
   listComments.mockReturnValue(Promise.resolve([comment]));
-  addComment.mockImplementation(
-    ({ body }): Promise<api.Comment> =>
-      Promise.resolve({
-        id: 42,
-        createdAt: new Date().toJSON(),
-        updatedAt: new Date().toJSON(),
-        body,
-        author: {
-          username: user.username,
-          image: user.image,
-          bio: user.bio,
-          following: false
-        }
-      })
+  addComment.mockReturnValue(
+    Promise.resolve({
+      isOk: true,
+      comment: ownComment
+    })
   );
 
   const rendered = testing.render(
@@ -318,7 +324,7 @@ test("adds comment when logged in", async () => {
   }));
 
   testing.fireEvent.change(input, {
-    target: { value: "Hello, World!" }
+    target: { value: ownComment.body }
   });
 
   testing.fireEvent.submit(form);
@@ -327,10 +333,114 @@ test("adds comment when logged in", async () => {
   expect(addComment).toHaveBeenLastCalledWith({
     token: user.token,
     slug: article.slug,
-    body: "Hello, World!"
+    body: ownComment.body
   });
 
   await testing.wait(() => {
-    rendered.getByText("Hello, World!");
+    expect(input).not.toHaveTextContent(ownComment.body);
+    rendered.getByText(ownComment.body);
+  });
+});
+
+test("cannot remove comments when not logged in", async () => {
+  getArticle.mockReturnValue(Promise.resolve(article));
+  listComments.mockReturnValue(Promise.resolve([comment]));
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={null} />
+  );
+
+  await testing.wait(() => {
+    rendered.getByText(comment.body);
+  });
+
+  expect(rendered.queryByTestId(`remove-comment-${comment.id}`)).toEqual(null);
+});
+
+test("cannot remove comments from other users", async () => {
+  getArticle.mockReturnValue(Promise.resolve(article));
+  listComments.mockReturnValue(Promise.resolve([comment]));
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={user} />
+  );
+
+  await testing.wait(() => {
+    rendered.getByText(comment.body);
+  });
+
+  expect(rendered.queryByTestId(`remove-comment-${comment.id}`)).toEqual(null);
+});
+
+test("removes own existing comment", async () => {
+  getArticle.mockReturnValue(Promise.resolve(article));
+  listComments.mockReturnValue(Promise.resolve([comment, ownComment]));
+  deleteComment.mockReturnValue(Promise.resolve());
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={user} />
+  );
+
+  const removeComment = await testing.waitForElement(() =>
+    rendered.getByTestId(`remove-comment-${ownComment.id}`)
+  );
+
+  testing.fireEvent.click(removeComment);
+
+  expect(deleteComment).toHaveBeenCalledTimes(1);
+  expect(deleteComment).toHaveBeenLastCalledWith({
+    token: user.token,
+    slug: article.slug,
+    commentId: ownComment.id
+  });
+
+  await testing.wait(() => {
+    expect(rendered.queryByText(ownComment.body)).toEqual(null);
+    rendered.getByText(comment.body);
+  });
+});
+
+test("removes own added comment", async () => {
+  getArticle.mockReturnValue(Promise.resolve(article));
+  listComments.mockReturnValue(Promise.resolve([comment]));
+  addComment.mockReturnValue(
+    Promise.resolve({
+      isOk: true,
+      comment: ownComment
+    })
+  );
+  deleteComment.mockReturnValue(Promise.resolve());
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={user} />
+  );
+
+  const { form, input } = await testing.waitForElement(() => ({
+    form: rendered.getByTestId("add-comment"),
+    input: rendered.getByTestId("add-comment-body")
+  }));
+
+  testing.fireEvent.change(input, {
+    target: { value: ownComment.body }
+  });
+
+  testing.fireEvent.submit(form);
+
+  const removeComment = await testing.waitForElement(() =>
+    rendered.getByTestId(`remove-comment-${ownComment.id}`)
+  );
+
+  testing.fireEvent.click(removeComment);
+
+  expect(deleteComment).toHaveBeenCalledTimes(1);
+  expect(deleteComment).toHaveBeenLastCalledWith({
+    token: user.token,
+    slug: article.slug,
+    commentId: ownComment.id
+  });
+
+  await testing.wait(() => {
+    expect(rendered.queryByText(ownComment.body)).toEqual(null);
+    rendered.getByText(comment.body);
   });
 });

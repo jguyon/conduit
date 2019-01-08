@@ -63,6 +63,7 @@ const Comment = ({ comment, onRemoveComment, currentUser }: CommentProps) => (
         <div className={cn("flex-auto", "tr")}>
           <button
             type="button"
+            data-testid={`remove-comment-${comment.id}`}
             onClick={() => onRemoveComment(comment.id)}
             className={cn(
               "button-reset",
