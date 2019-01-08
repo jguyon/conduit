@@ -11,11 +11,17 @@ const authorProfilePath = (comment: api.Comment) =>
 
 type CommentProps = {|
   currentUser: ?api.User,
+  slug: string,
   comment: api.Comment,
   onRemoveComment: number => void
 |};
 
-const Comment = ({ comment, onRemoveComment, currentUser }: CommentProps) => (
+const Comment = ({
+  comment,
+  slug,
+  onRemoveComment,
+  currentUser
+}: CommentProps) => (
   <article className={cn("light-gray", "mv2", "ba", "br1")}>
     <div className={cn("bb", "pa3")}>
       <span className={cn("dark-gray")}>{comment.body}</span>
@@ -64,7 +70,15 @@ const Comment = ({ comment, onRemoveComment, currentUser }: CommentProps) => (
           <button
             type="button"
             data-testid={`remove-comment-${comment.id}`}
-            onClick={() => onRemoveComment(comment.id)}
+            onClick={() =>
+              api
+                .deleteComment({
+                  token: currentUser.token,
+                  slug,
+                  commentId: comment.id
+                })
+                .then(() => onRemoveComment(comment.id))
+            }
             className={cn(
               "button-reset",
               "bg-transparent",

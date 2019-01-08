@@ -34,21 +34,9 @@ class CommentList extends React.Component<CommentListProps, CommentListState> {
   };
 
   handleRemoveComment = (commentId: number) => {
-    const { currentUser, slug } = this.props;
-
-    if (currentUser) {
-      api
-        .deleteComment({
-          token: currentUser.token,
-          slug,
-          commentId
-        })
-        .then(() => {
-          this.setState(({ removedComments }) => ({
-            removedComments: [...removedComments, commentId]
-          }));
-        });
-    }
+    this.setState(({ removedComments }) => ({
+      removedComments: [...removedComments, commentId]
+    }));
   };
 
   render() {
@@ -72,7 +60,6 @@ class CommentList extends React.Component<CommentListProps, CommentListState> {
 
             case "success":
               const comments = request.data;
-              const { currentUser } = this.props;
               const { addedComments, removedComments } = this.state;
 
               return (
@@ -108,7 +95,8 @@ class CommentList extends React.Component<CommentListProps, CommentListState> {
                       .map(comment => (
                         <Comment
                           key={comment.id}
-                          currentUser={currentUser}
+                          currentUser={this.props.currentUser}
+                          slug={this.props.slug}
                           comment={comment}
                           onRemoveComment={this.handleRemoveComment}
                         />
