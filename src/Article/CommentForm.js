@@ -22,7 +22,10 @@ type CommentFormState = {|
   body: string
 |};
 
-class CommentForm extends React.Component<CommentFormProps, CommentFormState> {
+class CommentForm extends React.PureComponent<
+  CommentFormProps,
+  CommentFormState
+> {
   state = {
     submitting: false,
     error: { type: "none" },

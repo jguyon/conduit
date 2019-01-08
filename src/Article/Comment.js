@@ -17,67 +17,68 @@ type CommentProps = {|
   onRemoveComment: number => void
 |};
 
-const Comment = ({
-  comment,
-  slug,
-  onRemoveComment,
-  currentUser
-}: CommentProps) => (
-  <article className={cn("light-gray", "mv2", "ba", "br1")}>
-    <div className={cn("bb", "pa3")}>
-      <span className={cn("dark-gray")}>{comment.body}</span>
-    </div>
+class Comment extends React.PureComponent<CommentProps> {
+  render() {
+    const { comment, slug, onRemoveComment, currentUser } = this.props;
 
-    <div
-      className={cn(
-        "bg-near-white",
-        "ph3",
-        "pv2",
-        "f6",
-        "flex",
-        "items-center"
-      )}
-    >
-      <Link
-        className={cn("mr2", "flex", "items-center")}
-        to={authorProfilePath(comment)}
-      >
-        <img
-          className={cn("br-100", "h1", "w1", "dib", "overflow-hidden")}
-          alt={comment.author.username}
-          src={
-            comment.author.image
-              ? comment.author.image
-              : "https://static.productionready.io/images/smiley-cyrus.jpg"
-          }
-        />
-      </Link>
-
-      <Link
-        className={cn("mr2", "link", "green", "underline-hover")}
-        to={authorProfilePath(comment)}
-      >
-        {comment.author.username}
-      </Link>
-
-      <PrettyDate
-        className={cn("moon-gray")}
-        pubdate="pubdate"
-        date={new Date(comment.createdAt)}
-      />
-
-      {currentUser && currentUser.username === comment.author.username && (
-        <div className={cn("flex-auto", "tr")}>
-          <RemoveComment
-            currentUser={currentUser}
-            slug={slug}
-            comment={comment}
-            onRemoveComment={onRemoveComment}
-          />
+    return (
+      <article className={cn("light-gray", "mv2", "ba", "br1")}>
+        <div className={cn("bb", "pa3")}>
+          <span className={cn("dark-gray")}>{comment.body}</span>
         </div>
-      )}
-    </div>
-  </article>
-);
+
+        <div
+          className={cn(
+            "bg-near-white",
+            "ph3",
+            "pv2",
+            "f6",
+            "flex",
+            "items-center"
+          )}
+        >
+          <Link
+            className={cn("mr2", "flex", "items-center")}
+            to={authorProfilePath(comment)}
+          >
+            <img
+              className={cn("br-100", "h1", "w1", "dib", "overflow-hidden")}
+              alt={comment.author.username}
+              src={
+                comment.author.image
+                  ? comment.author.image
+                  : "https://static.productionready.io/images/smiley-cyrus.jpg"
+              }
+            />
+          </Link>
+
+          <Link
+            className={cn("mr2", "link", "green", "underline-hover")}
+            to={authorProfilePath(comment)}
+          >
+            {comment.author.username}
+          </Link>
+
+          <PrettyDate
+            className={cn("moon-gray")}
+            pubdate="pubdate"
+            date={new Date(comment.createdAt)}
+          />
+
+          {currentUser && currentUser.username === comment.author.username && (
+            <div className={cn("flex-auto", "tr")}>
+              <RemoveComment
+                currentUser={currentUser}
+                slug={slug}
+                comment={comment}
+                onRemoveComment={onRemoveComment}
+              />
+            </div>
+          )}
+        </div>
+      </article>
+    );
+  }
+}
 
 export default Comment;
