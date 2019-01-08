@@ -3,6 +3,7 @@
 import * as React from "react";
 import cn from "classnames";
 import { navigate } from "@reach/router";
+import { makeCancelable, CanceledError } from "../../lib/makeCancelable";
 import * as api from "../../lib/api";
 
 type FollowUserProps = {|
@@ -24,47 +25,87 @@ export class FollowUser extends React.Component<
     following: this.props.profile.following
   };
 
+  cancelClick: ?() => void = null;
+
   handleClick = () => {
     const { currentUser, profile } = this.props;
 
     if (currentUser) {
-      if (!this.state.loading) {
-        this.setState({ loading: true });
+      if (this.cancelClick) {
+        this.cancelClick();
+      }
 
-        if (this.state.following) {
-          api
-            .unfollowUser({
-              username: profile.username,
-              token: currentUser.token
-            })
-            .then(
-              () =>
-                this.setState({
-                  loading: false,
-                  following: false
-                }),
-              () => this.setState({ loading: false })
-            );
-        } else {
-          api
-            .followUser({
-              username: profile.username,
-              token: currentUser.token
-            })
-            .then(
-              () =>
-                this.setState({
-                  loading: false,
-                  following: true
-                }),
-              () => this.setState({ loading: false })
-            );
-        }
+      this.setState({ loading: true });
+
+      if (this.state.following) {
+        const [promise, cancel] = makeCancelable(
+          api.unfollowUser({
+            username: profile.username,
+            token: currentUser.token
+          })
+        );
+
+        this.cancelClick = cancel;
+
+        promise.then(
+          () => {
+            this.cancelClick = null;
+
+            this.setState({
+              loading: false,
+              following: false
+            });
+          },
+          error => {
+            if (!(error instanceof CanceledError)) {
+              this.cancelClick = null;
+
+              this.setState({
+                loading: false
+              });
+            }
+          }
+        );
+      } else {
+        const [promise, cancel] = makeCancelable(
+          api.followUser({
+            username: profile.username,
+            token: currentUser.token
+          })
+        );
+
+        this.cancelClick = cancel;
+
+        promise.then(
+          () => {
+            this.cancelClick = null;
+
+            this.setState({
+              loading: false,
+              following: true
+            });
+          },
+          error => {
+            if (!(error instanceof CanceledError)) {
+              this.cancelClick = null;
+
+              this.setState({
+                loading: false
+              });
+            }
+          }
+        );
       }
     } else {
       navigate("/login");
     }
   };
+
+  componentWillUnmount() {
+    if (this.cancelClick) {
+      this.cancelClick();
+    }
+  }
 
   render() {
     const {
