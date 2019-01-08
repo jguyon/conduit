@@ -88,7 +88,11 @@ const Banner = (props: BannerProps) => {
               : profile.bio}
           </h2>
 
-          <FollowUser currentUser={currentUser} profile={profile} />
+          {currentUser && currentUser.username === profile.username ? (
+            <FollowUserPlaceholder />
+          ) : (
+            <FollowUser currentUser={currentUser} profile={profile} />
+          )}
         </div>
       </header>
     );
