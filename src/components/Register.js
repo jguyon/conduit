@@ -4,6 +4,7 @@ import * as React from "react";
 import { Link, navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, Submit } from "./Form";
+import { makeCancelable, CanceledError } from "../lib/makeCancelable";
 import * as api from "../lib/api";
 
 type RegisterProps = {|
@@ -79,37 +80,52 @@ class Register extends React.Component<RegisterProps, RegisterState> {
     this.setState({ password });
   };
 
+  cancelSubmit: ?() => void = null;
+
   handleSubmit = () => {
+    if (this.cancelSubmit) {
+      this.cancelSubmit();
+    }
+
     this.setState({
       submitting: true,
       error: { type: "none" }
     });
 
-    api
-      .registerUser({
+    const [promise, cancel] = makeCancelable(
+      api.registerUser({
         username: this.state.username,
         email: this.state.email,
         password: this.state.password
       })
-      .then(
-        result => {
-          if (result.isOk) {
-            this.props.setCurrentUser(result.user);
-            navigate("/");
-          } else {
-            this.setState(
-              {
-                submitting: false,
-                error: {
-                  type: "fields",
-                  ...result.errors
-                }
-              },
-              () => this.focusFirstInvalidInput()
-            );
-          }
-        },
-        () => {
+    );
+
+    this.cancelSubmit = cancel;
+
+    promise.then(
+      result => {
+        this.cancelSubmit = null;
+
+        if (result.isOk) {
+          this.props.setCurrentUser(result.user);
+          navigate("/");
+        } else {
+          this.setState(
+            {
+              submitting: false,
+              error: {
+                type: "fields",
+                ...result.errors
+              }
+            },
+            () => this.focusFirstInvalidInput()
+          );
+        }
+      },
+      error => {
+        if (!(error instanceof CanceledError)) {
+          this.cancelSubmit = null;
+
           this.setState(
             {
               submitting: false,
@@ -118,8 +134,15 @@ class Register extends React.Component<RegisterProps, RegisterState> {
             () => this.focusFirstInvalidInput()
           );
         }
-      );
+      }
+    );
   };
+
+  componentWillUnmount() {
+    if (this.cancelSubmit) {
+      this.cancelSubmit();
+    }
+  }
 
   render() {
     return (
