@@ -15,12 +15,14 @@ type CommentListProps = {|
 |};
 
 type CommentListState = {|
-  addedComments: api.Comment[]
+  addedComments: api.Comment[],
+  removedComments: number[]
 |};
 
 class CommentList extends React.Component<CommentListProps, CommentListState> {
   state = {
-    addedComments: []
+    addedComments: [],
+    removedComments: []
   };
 
   loadComments = () => api.listComments({ slug: this.props.slug });
@@ -29,6 +31,24 @@ class CommentList extends React.Component<CommentListProps, CommentListState> {
     this.setState(({ addedComments }) => ({
       addedComments: [comment, ...addedComments]
     }));
+  };
+
+  handleRemoveComment = (commentId: number) => {
+    const { currentUser, slug } = this.props;
+
+    if (currentUser) {
+      api
+        .deleteComment({
+          token: currentUser.token,
+          slug,
+          commentId
+        })
+        .then(() => {
+          this.setState(({ removedComments }) => ({
+            removedComments: [...removedComments, commentId]
+          }));
+        });
+    }
   };
 
   render() {
@@ -52,7 +72,8 @@ class CommentList extends React.Component<CommentListProps, CommentListState> {
 
             case "success":
               const comments = request.data;
-              const { addedComments } = this.state;
+              const { currentUser } = this.props;
+              const { addedComments, removedComments } = this.state;
 
               return (
                 <div className={cn("container", "mv5", "mh-auto")}>
@@ -82,12 +103,16 @@ class CommentList extends React.Component<CommentListProps, CommentListState> {
                       </div>
                     )}
 
-                    {addedComments.map(comment => (
-                      <Comment key={comment.id} comment={comment} />
-                    ))}
-                    {comments.map(comment => (
-                      <Comment key={comment.id} comment={comment} />
-                    ))}
+                    {[...addedComments, ...comments]
+                      .filter(({ id }) => !removedComments.includes(id))
+                      .map(comment => (
+                        <Comment
+                          key={comment.id}
+                          currentUser={currentUser}
+                          comment={comment}
+                          onRemoveComment={this.handleRemoveComment}
+                        />
+                      ))}
                   </div>
                 </div>
               );

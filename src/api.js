@@ -524,6 +524,33 @@ export const addComment = ({
     }
   });
 
+type DeleteCommentOpts = {|
+  token: string,
+  slug: string,
+  commentId: number
+|};
+
+export const deleteComment = ({
+  token,
+  slug,
+  commentId
+}: DeleteCommentOpts): Promise<void> =>
+  fetch(
+    `${ENDPOINT}/articles/${encodeURIComponent(slug)}/comments/${commentId}`,
+    {
+      method: "DELETE",
+      headers: {
+        authorization: `Token ${token}`
+      }
+    }
+  ).then(response => {
+    if (response.status === 200) {
+      return;
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
+    }
+  });
+
 type FavoriteArticleOpts = {|
   token: string,
   slug: string
