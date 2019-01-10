@@ -13,6 +13,9 @@ import PostArticle from "./PostArticle";
 import Settings from "./Settings";
 import NotFound from "./NotFound";
 
+// Simple pass-through component to avoid typing errors due to props that will
+// be given via a url fragment.
+
 type RouteProps = {
   render: React.Node | ((props: any) => React.Node)
 };
