@@ -45,11 +45,11 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
     bio: this.props.currentUser.bio ? this.props.currentUser.bio : ""
   };
 
-  imageInputRef = React.createRef<"input">();
-  usernameInputRef = React.createRef<"input">();
-  bioInputRef = React.createRef<"textarea">();
-  emailInputRef = React.createRef<"input">();
-  passwordInputRef = React.createRef<"input">();
+  imageInputRef = React.createRef<HTMLInputElement>();
+  usernameInputRef = React.createRef<HTMLInputElement>();
+  bioInputRef = React.createRef<HTMLTextAreaElement>();
+  emailInputRef = React.createRef<HTMLInputElement>();
+  passwordInputRef = React.createRef<HTMLInputElement>();
 
   focusFirstInvalidInput() {
     if (this.state.error.type === "fields") {

@@ -181,10 +181,10 @@ class PostArticleForm extends React.Component<
     tagList: this.props.initialFields.tagList.join(" ")
   };
 
-  titleInputRef = React.createRef<"input">();
-  descriptionInputRef = React.createRef<"input">();
-  bodyInputRef = React.createRef<"textarea">();
-  tagListInputRef = React.createRef<"input">();
+  titleInputRef = React.createRef<HTMLInputElement>();
+  descriptionInputRef = React.createRef<HTMLInputElement>();
+  bodyInputRef = React.createRef<HTMLTextAreaElement>();
+  tagListInputRef = React.createRef<HTMLInputElement>();
 
   focusFirstInvalidInput() {
     if (this.state.error.type === "fields") {

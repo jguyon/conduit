@@ -36,9 +36,9 @@ class Register extends React.Component<RegisterProps, RegisterState> {
     password: ""
   };
 
-  usernameInputRef = React.createRef<"input">();
-  emailInputRef = React.createRef<"input">();
-  passwordInputRef = React.createRef<"input">();
+  usernameInputRef = React.createRef<HTMLInputElement>();
+  emailInputRef = React.createRef<HTMLInputElement>();
+  passwordInputRef = React.createRef<HTMLInputElement>();
 
   focusFirstInvalidInput() {
     if (this.state.error.type === "fields") {

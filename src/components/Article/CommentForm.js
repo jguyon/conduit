@@ -33,7 +33,7 @@ class CommentForm extends React.PureComponent<
     body: ""
   };
 
-  bodyInputRef = React.createRef<"textarea">();
+  bodyInputRef = React.createRef<HTMLTextAreaElement>();
 
   focusFirstInvalidInput() {
     if (this.state.error.type === "fields") {

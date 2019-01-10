@@ -26,7 +26,7 @@ class Login extends React.Component<LoginProps, LoginState> {
     password: ""
   };
 
-  emailInputRef = React.createRef<"input">();
+  emailInputRef = React.createRef<HTMLInputElement>();
 
   focusEmailInput() {
     if (this.emailInputRef.current) {
