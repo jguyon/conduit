@@ -259,7 +259,8 @@ type ListArticlesOpts = {|
   perPage: number,
   tag?: string,
   author?: string,
-  favorited?: string
+  favorited?: string,
+  token?: string
 |};
 
 export type ListArticlesResp = {
@@ -272,14 +273,18 @@ export const listArticles = ({
   perPage,
   tag,
   author,
-  favorited
+  favorited,
+  token
 }: ListArticlesOpts): Promise<ListArticlesResp> =>
   fetch(
     `${ENDPOINT}/articles?limit=${perPage}&offset=${(page - 1) * perPage}${
       tag ? `&tag=${encodeURIComponent(tag)}` : ""
     }${author ? `&author=${encodeURIComponent(author)}` : ""}${
       favorited ? `&favorited=${encodeURIComponent(favorited)}` : ""
-    }`
+    }`,
+    {
+      headers: token ? { authorization: `Token ${token}` } : {}
+    }
   ).then(response => {
     if (response.status === 200) {
       return response.json();
