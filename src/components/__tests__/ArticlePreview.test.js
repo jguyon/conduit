@@ -121,3 +121,25 @@ test("unfavorites article while logged in", async () => {
     expect(favorite).toHaveTextContent(`+ ${article.favoritesCount - 1}`);
   });
 });
+
+test("cannot favorite article while logged in as author", async () => {
+  const rendered = testing.render(
+    <ArticlePreview
+      currentUser={user}
+      article={{
+        ...article,
+        author: {
+          username: user.username,
+          email: user.email,
+          image: user.image,
+          bio: user.bio,
+          following: false
+        }
+      }}
+    />
+  );
+
+  expect(rendered.queryByTestId(`favorite-article-${article.slug}`)).toEqual(
+    null
+  );
+});

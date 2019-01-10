@@ -85,7 +85,10 @@ const ArticlePreview = (props: ArticlePreviewProps) => {
           <ArticleInfo color="green" article={article} pubdate />
 
           <div className={cn("flex-auto", "tr")}>
-            <FavoriteArticle currentUser={currentUser} article={article} />
+            {(!currentUser ||
+              currentUser.username !== article.author.username) && (
+              <FavoriteArticle currentUser={currentUser} article={article} />
+            )}
           </div>
         </div>
 
