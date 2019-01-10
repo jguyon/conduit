@@ -7,6 +7,8 @@ import Article from "../Article";
 import * as api from "../../lib/api";
 
 const getArticle = jest.spyOn(api, "getArticle");
+const followUser = jest.spyOn(api, "followUser");
+const unfollowUser = jest.spyOn(api, "unfollowUser");
 const favoriteArticle = jest.spyOn(api, "favoriteArticle");
 const unfavoriteArticle = jest.spyOn(api, "unfavoriteArticle");
 const deleteArticle = jest.spyOn(api, "deleteArticle");
@@ -22,6 +24,8 @@ afterEach(() => {
   testing.cleanup();
   getArticle.mockReset();
   deleteArticle.mockReset();
+  followUser.mockReset();
+  unfollowUser.mockReset();
   favoriteArticle.mockReset();
   unfavoriteArticle.mockReset();
   listComments.mockReset();
@@ -171,6 +175,97 @@ test("renders edit buttons with author current user", async () => {
     rendered.getByText(EDIT_BUTTON_TEXT);
     rendered.getByText(DELETE_BUTTON_TEXT);
     expect(rendered.queryByTestId("favorite-article")).toEqual(null);
+  });
+});
+
+test("does not follow user white logged out", async () => {
+  getArticle.mockReturnValue(Promise.resolve(article));
+  listComments.mockReturnValue(Promise.resolve([]));
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={null} />
+  );
+
+  const follow = await testing.waitForElement(() =>
+    rendered.getByTestId("follow-user")
+  );
+
+  testing.fireEvent.click(follow);
+
+  await testing.wait(() => {
+    expect(window.location.pathname).toBe("/login");
+  });
+
+  expect(followUser).not.toHaveBeenCalled();
+  expect(unfollowUser).not.toHaveBeenCalled();
+});
+
+test("follows user while logged in", async () => {
+  getArticle.mockReturnValue(
+    Promise.resolve({
+      ...article,
+      author: { ...article.author, following: false }
+    })
+  );
+  listComments.mockReturnValue(Promise.resolve([]));
+  followUser.mockReturnValue(Promise.resolve());
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={user} />
+  );
+
+  const follow = await testing.waitForElement(() =>
+    rendered.getByTestId("follow-user")
+  );
+
+  expect(follow).toHaveTextContent(`Follow ${article.author.username}`);
+
+  testing.fireEvent.click(follow);
+
+  expect(followUser).toHaveBeenCalledTimes(1);
+  expect(followUser).toHaveBeenLastCalledWith({
+    username: article.author.username,
+    token: user.token
+  });
+
+  await testing.wait(() => {
+    expect(follow).toHaveTextContent(`Unfollow ${article.author.username}`);
+  });
+});
+
+test("unfollows user while logged in", async () => {
+  getArticle.mockReturnValue(
+    Promise.resolve({
+      ...article,
+      author: {
+        ...article.author,
+        following: true
+      }
+    })
+  );
+  listComments.mockReturnValue(Promise.resolve([]));
+  unfollowUser.mockReturnValue(Promise.resolve());
+
+  const rendered = testing.render(
+    <Article slug="the-answer" currentUser={user} />
+  );
+
+  const follow = await testing.waitForElement(() =>
+    rendered.getByTestId("follow-user")
+  );
+
+  expect(follow).toHaveTextContent(`Unfollow ${article.author.username}`);
+
+  testing.fireEvent.click(follow);
+
+  expect(unfollowUser).toHaveBeenCalledTimes(1);
+  expect(unfollowUser).toHaveBeenLastCalledWith({
+    username: article.author.username,
+    token: user.token
+  });
+
+  await testing.wait(() => {
+    expect(follow).toHaveTextContent(`Follow ${article.author.username}`);
   });
 });
 
