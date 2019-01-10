@@ -82,6 +82,11 @@ class Request<T> extends React.Component<RequestProps<T>, RequestState<T>> {
   componentDidUpdate(prevProps: RequestProps<T>) {
     const nextProps = this.props;
 
+    // This check ensures that we only reload the data if the load function
+    // has changed between renders.
+    // Users of this component should watch for this if their load function
+    // never changes between renders as it could cause data not to be reloaded
+    // when it needs to be.
     if (nextProps.load !== prevProps.load) {
       this.load();
     }
@@ -91,20 +96,6 @@ class Request<T> extends React.Component<RequestProps<T>, RequestState<T>> {
     if (this.cancel) {
       this.cancel();
     }
-  }
-
-  shouldComponentUpdate(
-    nextProps: RequestProps<T>,
-    nextState: RequestState<T>
-  ) {
-    const prevProps = this.props;
-    const prevState = this.state;
-
-    return (
-      prevProps.load !== nextProps.load ||
-      prevProps.children !== nextProps.children ||
-      prevState.request.status !== nextState.request.status
-    );
   }
 
   render() {
