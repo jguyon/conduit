@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import cn from "classnames";
+import FollowUser from "./FollowUser";
 import FavoriteArticle from "./FavoriteArticle";
 import EditArticle from "./EditArticle";
 import DeleteArticle from "./DeleteArticle";
@@ -49,6 +50,30 @@ export class FullArticle extends React.Component<
     article: this.props.article
   };
 
+  handleFollowUser = () => {
+    this.setState(({ article }) => ({
+      article: {
+        ...article,
+        author: {
+          ...article.author,
+          following: true
+        }
+      }
+    }));
+  };
+
+  handleUnfollowUser = () => {
+    this.setState(({ article }) => ({
+      article: {
+        ...article,
+        author: {
+          ...article.author,
+          following: false
+        }
+      }
+    }));
+  };
+
   handleFavoriteArticle = () => {
     this.setState(({ article }) => ({
       article: {
@@ -89,12 +114,22 @@ export class FullArticle extends React.Component<
           />
         </>
       ) : (
-        <FavoriteArticle
-          currentUser={currentUser}
-          article={article}
-          onFavoriteArticle={this.handleFavoriteArticle}
-          onUnfavoriteArticle={this.handleUnfavoriteArticle}
-        />
+        <>
+          <FollowUser
+            currentUser={currentUser}
+            user={article.author}
+            onFollowUser={this.handleFollowUser}
+            onUnfollowUser={this.handleUnfollowUser}
+          />
+
+          <FavoriteArticle
+            className={cn("ml2")}
+            currentUser={currentUser}
+            article={article}
+            onFavoriteArticle={this.handleFavoriteArticle}
+            onUnfavoriteArticle={this.handleUnfavoriteArticle}
+          />
+        </>
       );
 
     return (
