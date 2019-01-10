@@ -27,7 +27,10 @@ const Profile = (props: ProfileProps) => (
           return (
             <>
               <Banner placeholder />
-              <ArticleList username={props.username} />
+              <ArticleList
+                currentUser={props.currentUser}
+                username={props.username}
+              />
             </>
           );
 
@@ -40,7 +43,10 @@ const Profile = (props: ProfileProps) => (
           return (
             <>
               <Banner profile={profile} currentUser={props.currentUser} />
-              <ArticleList username={props.username} />
+              <ArticleList
+                currentUser={props.currentUser}
+                username={props.username}
+              />
             </>
           );
 

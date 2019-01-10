@@ -3,8 +3,9 @@
 import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
-import ArticleInfo from "./ArticleInfo";
-import type { Article } from "../lib/api";
+import ArticleInfo from "../ArticleInfo";
+import FavoriteArticle from "./FavoriteArticle";
+import type { Article, User } from "../../lib/api";
 
 type TagProps =
   | {|
@@ -39,6 +40,7 @@ type ArticlePreviewProps =
     }
   | {
       placeholder?: false,
+      currentUser: ?User,
       article: Article
     };
 
@@ -75,16 +77,17 @@ const ArticlePreview = (props: ArticlePreviewProps) => {
       </div>
     );
   } else {
-    const { placeholder, article, ...rest } = props;
+    const { placeholder, article, currentUser, ...rest } = props;
 
     return (
       <article {...rest}>
-        <ArticleInfo
-          color="green"
-          className={cn("mv3")}
-          article={article}
-          pubdate
-        />
+        <div className={cn("flex", "mv3")}>
+          <ArticleInfo color="green" article={article} pubdate />
+
+          <div className={cn("flex-auto", "tr")}>
+            <FavoriteArticle currentUser={currentUser} article={article} />
+          </div>
+        </div>
 
         <Link
           to={`/article/${article.slug}`}

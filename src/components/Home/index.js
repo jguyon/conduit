@@ -203,11 +203,13 @@ class Home extends React.Component<HomeProps, HomeState> {
         return <div className={cn("red")}>Error loading articles!</div>;
 
       case "success":
+        const { currentUser } = this.props;
         const { articles, articlesCount } = request.data;
 
         const articleElements = articles.map((article, i) => (
           <React.Fragment key={article.slug}>
             <ArticlePreview
+              currentUser={currentUser}
               article={article}
               data-testid={`article-${article.slug}`}
             />

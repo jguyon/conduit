@@ -11,6 +11,7 @@ import Pagination from "../Pagination";
 import * as api from "../../lib/api";
 
 type ArticleListProps = {|
+  currentUser: ?api.User,
   username: string
 |};
 
@@ -158,11 +159,13 @@ class ArticleList extends React.Component<ArticleListProps, ArticleListState> {
         return <div className={cn("red")}>Error loading articles!</div>;
 
       case "success":
+        const { currentUser } = this.props;
         const { articles, articlesCount } = request.data;
 
         const articleElements = articles.map((article, i) => (
           <React.Fragment key={article.slug}>
             <ArticlePreview
+              currentUser={currentUser}
               article={article}
               data-testid={`article-${article.slug}`}
             />
