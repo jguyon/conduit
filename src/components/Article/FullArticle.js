@@ -1,66 +1,101 @@
 // @flow
 
 import * as React from "react";
-import { Link } from "@reach/router";
-import Markdown from "react-markdown";
 import cn from "classnames";
 import FavoriteArticle from "./FavoriteArticle";
+import EditArticle from "./EditArticle";
 import DeleteArticle from "./DeleteArticle";
 import ArticleInfo from "../ArticleInfo";
+import ArticleBody from "./ArticleBody";
 import Separator from "../Separator";
 import * as api from "../../lib/api";
 
-const RendererHr = (props: {}) => (
-  <hr {...props} className={cn("light-gray", "bt", "bl-0", "br-0", "bb-0")} />
-);
-
-const RendererLink = ({ children, ...props }: { children?: React.Node }) => (
-  <a {...props} className={cn("link", "green", "underline-hover")}>
-    {children}
-  </a>
-);
-
-const renderers = {
-  thematicBreak: RendererHr,
-  link: RendererLink,
-  linkReference: RendererLink
-};
-
-type FullArticleProps =
-  | {|
-      placeholder: true
-    |}
-  | {|
-      placeholder?: false,
-      article: api.Article,
-      currentUser: ?api.User
-    |};
-
-const FullArticle = (props: FullArticleProps) => {
-  if (props.placeholder) {
-    return (
-      <div className={cn("bg-dark-gray", "pa4", "shadow-inset-2")}>
-        <div className={cn("container", "mh-auto")}>
-          <div
-            className={cn(
-              "f1",
-              "bg-white",
-              "mt0",
-              "mb3",
-              "shadow-1",
-              "w-40",
-              "o-20"
-            )}
-          >
-            &nbsp;
-          </div>
-
-          <ArticleInfo color="white" placeholder />
-        </div>
+export const FullArticlePlaceholder = () => (
+  <div className={cn("bg-dark-gray", "pa4", "shadow-inset-2")}>
+    <div className={cn("container", "mh-auto")}>
+      <div
+        className={cn(
+          "f1",
+          "bg-white",
+          "mt0",
+          "mb3",
+          "shadow-1",
+          "w-40",
+          "o-20"
+        )}
+      >
+        &nbsp;
       </div>
-    );
-  } else {
-    const { article, currentUser } = props;
+
+      <ArticleInfo color="white" placeholder />
+    </div>
+  </div>
+);
+
+type FullArticleProps = {|
+  article: api.Article,
+  currentUser: ?api.User
+|};
+
+type FullArticleState = {|
+  article: api.Article
+|};
+
+export class FullArticle extends React.Component<
+  FullArticleProps,
+  FullArticleState
+> {
+  state = {
+    article: this.props.article
+  };
+
+  handleFavoriteArticle = () => {
+    this.setState(({ article }) => ({
+      article: {
+        ...article,
+        favorited: true,
+        favoritesCount: article.favorited
+          ? article.favoritesCount
+          : article.favoritesCount + 1
+      }
+    }));
+  };
+
+  handleUnfavoriteArticle = () => {
+    this.setState(({ article }) => ({
+      article: {
+        ...article,
+        favorited: false,
+        favoritesCount: article.favorited
+          ? article.favoritesCount - 1
+          : article.favoritesCount
+      }
+    }));
+  };
+
+  render() {
+    const { currentUser } = this.props;
+    const { article } = this.state;
+
+    const buttons =
+      currentUser && article.author.username === currentUser.username ? (
+        <>
+          <EditArticle article={article} />
+
+          <DeleteArticle
+            article={article}
+            currentUser={currentUser}
+            className={cn("ml2")}
+          />
+        </>
+      ) : (
+        <FavoriteArticle
+          currentUser={currentUser}
+          article={article}
+          onFavoriteArticle={this.handleFavoriteArticle}
+          onUnfavoriteArticle={this.handleUnfavoriteArticle}
+        />
+      );
 
     return (
       <article>
@@ -73,49 +108,21 @@ const FullArticle = (props: FullArticleProps) => {
             </h1>
 
             <div className={cn("flex", "items-center")}>
-              <ArticleInfo color="white" article={article} pubdate />
+              <ArticleInfo
+                className={cn("mr4")}
+                color="white"
+                article={article}
+                pubdate
+              />
 
-              {currentUser &&
-              article.author.username === currentUser.username ? (
-                <>
-                  <Link
-                    to={`/editor/${encodeURIComponent(article.slug)}`}
-                    className={cn(
-                      "f6",
-                      "link",
-                      "moon-gray",
-                      "ba",
-                      "br2",
-                      "pointer",
-                      "dim",
-                      "pv1",
-                      "ph2",
-                      "ml4"
-                    )}
-                  >
-                    Edit Article
-                  </Link>
-
-                  <DeleteArticle
-                    article={article}
-                    currentUser={currentUser}
-                    className={cn("ml2")}
-                  />
-                </>
-              ) : (
-                <FavoriteArticle
-                  className={cn("ml4")}
-                  currentUser={currentUser}
-                  article={article}
-                />
-              )}
+              {buttons}
             </div>
           </div>
         </header>
 
         <div className={cn("container", "mh-auto", "mv4")}>
           <div className={cn("f4", "dark-gray", "mv4")}>
-            <Markdown source={article.body} renderers={renderers} />
+            <ArticleBody body={article.body} />
           </div>
 
           <div className={cn("mv4", "light-silver", "f6")}>
@@ -131,13 +138,18 @@ const FullArticle = (props: FullArticleProps) => {
 
           <Separator className={cn("mv4")} />
 
-          <div className={cn("flex", "justify-center", "mv4")}>
-            <ArticleInfo color="green" article={article} pubdate />
+          <div className={cn("flex", "justify-center", "items-center", "mv4")}>
+            <ArticleInfo
+              className={cn("mr4")}
+              color="green"
+              article={article}
+              pubdate
+            />
+
+            {buttons}
           </div>
         </div>
       </article>
     );
   }
-};
-
-export default FullArticle;
+}

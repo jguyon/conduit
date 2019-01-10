@@ -44,7 +44,11 @@ const App = () => (
                   <Route
                     path="/article/:slug"
                     render={({ slug }) => (
-                      <Article slug={slug} currentUser={currentUser} />
+                      <Article
+                        key={slug}
+                        slug={slug}
+                        currentUser={currentUser}
+                      />
                     )}
                   />
                   <Route

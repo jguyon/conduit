@@ -9,13 +9,13 @@ import * as api from "../../lib/api";
 type FavoriteArticleProps = {|
   currentUser: ?api.User,
   article: api.Article,
+  onFavoriteArticle: () => void,
+  onUnfavoriteArticle: () => void,
   className?: string
 |};
 
 type FavoriteArticleState = {|
-  loading: boolean,
-  favorited: boolean,
-  favoritesCount: number
+  loading: boolean
 |};
 
 class FavoriteArticle extends React.Component<
@@ -23,9 +23,7 @@ class FavoriteArticle extends React.Component<
   FavoriteArticleState
 > {
   state = {
-    loading: false,
-    favorited: this.props.article.favorited,
-    favoritesCount: this.props.article.favoritesCount
+    loading: false
   };
 
   cancelClick: ?() => void = null;
@@ -40,7 +38,7 @@ class FavoriteArticle extends React.Component<
 
       this.setState({ loading: true });
 
-      if (this.state.favorited) {
+      if (article.favorited) {
         const [promise, cancel] = makeCancelable(
           api.unfavoriteArticle({
             token: currentUser.token,
@@ -53,16 +51,8 @@ class FavoriteArticle extends React.Component<
         promise.then(
           () => {
             this.cancelClick = null;
-
-            this.setState(({ favorited, favoritesCount }) =>
-              favorited
-                ? {
-                    loading: false,
-                    favorited: false,
-                    favoritesCount: favoritesCount - 1
-                  }
-                : { loading: false }
-            );
+            this.setState({ loading: false });
+            this.props.onUnfavoriteArticle();
           },
           error => {
             if (!(error instanceof CanceledError)) {
@@ -84,16 +74,8 @@ class FavoriteArticle extends React.Component<
         promise.then(
           () => {
             this.cancelClick = null;
-
-            this.setState(({ favorited, favoritesCount }) =>
-              favorited
-                ? { loading: false }
-                : {
-                    loading: false,
-                    favorited: true,
-                    favoritesCount: favoritesCount + 1
-                  }
-            );
+            this.setState({ loading: false });
+            this.props.onFavoriteArticle();
           },
           error => {
             if (!(error instanceof CanceledError)) {
@@ -115,8 +97,11 @@ class FavoriteArticle extends React.Component<
   }
 
   render() {
-    const { className } = this.props;
-    const { loading, favorited, favoritesCount } = this.state;
+    const {
+      className,
+      article: { favorited, favoritesCount }
+    } = this.props;
+    const { loading } = this.state;
 
     return (
       <button

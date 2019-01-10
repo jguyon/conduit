@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Request from "../Request";
-import FullArticle from "./FullArticle";
+import { FullArticle, FullArticlePlaceholder } from "./FullArticle";
 import CommentList from "./CommentList";
 import NotFound from "../NotFound";
 import * as api from "../../lib/api";
@@ -26,7 +26,7 @@ const Article = (props: ArticleProps) => {
           case "pending":
             return (
               <>
-                <FullArticle placeholder />
+                <FullArticlePlaceholder />
                 <CommentList
                   hidden
                   currentUser={props.currentUser}
