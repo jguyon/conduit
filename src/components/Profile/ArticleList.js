@@ -33,11 +33,13 @@ class ArticleList extends React.Component<ArticleListProps, ArticleListState> {
   };
 
   loadArticles() {
+    const { currentUser } = this.props;
     const { page, route } = this.state;
 
     const opts = {
       page,
-      perPage: 10
+      perPage: 10,
+      token: currentUser ? currentUser.token : undefined
     };
 
     switch (route) {
