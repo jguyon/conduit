@@ -122,8 +122,9 @@ export class FollowUser extends React.Component<
         className={cn(
           "f6",
           "button-reset",
-          "bg-white",
-          "gray",
+          following
+            ? ["bg-light-silver", "b--light-silver", "white"]
+            : ["bg-transparent", "b--light-silver", "light-silver"],
           "ba",
           "br2",
           "pv1",
