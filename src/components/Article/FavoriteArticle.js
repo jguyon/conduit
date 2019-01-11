@@ -1,8 +1,8 @@
 // @flow
 
 import * as React from "react";
-import cn from "classnames";
 import { navigate } from "@reach/router";
+import Button from "../Button";
 import { makeCancelable, CanceledError } from "../../lib/makeCancelable";
 import * as api from "../../lib/api";
 
@@ -104,28 +104,18 @@ class FavoriteArticle extends React.Component<
     const { loading } = this.state;
 
     return (
-      <button
+      <Button
         type="button"
+        color="green"
         onClick={this.handleClick}
+        outline={!favorited}
         disabled={loading}
-        data-testid="favorite-article"
-        className={cn(
-          className,
-          "f6",
-          "button-reset",
-          favorited
-            ? ["bg-green", "b--green", "white"]
-            : ["bg-transparent", "b--green", "green"],
-          "ba",
-          "br2",
-          "pv1",
-          "ph2",
-          loading ? "o-20" : ["pointer", "dim"]
-        )}
+        testId="favorite-article"
+        className={className}
       >
         {favorited ? "Unfavorite Article" : "Favorite Article"} (
         {favoritesCount})
-      </button>
+      </Button>
     );
   }
 }

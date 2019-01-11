@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import cn from "classnames";
+import Button from "./Button";
 
 type FormProps = {|
   onSubmit?: () => void,
@@ -168,20 +169,8 @@ type SubmitProps = {|
 
 export const Submit = (props: SubmitProps) => (
   <div className={cn("tr", "mv4")}>
-    <input
-      type="submit"
-      value={props.text}
-      disabled={props.disabled}
-      className={cn(
-        "input-reset",
-        "bg-green",
-        "white",
-        "bn",
-        "br2",
-        "pv2",
-        "ph3",
-        props.disabled ? "o-50" : ["pointer", "dim"]
-      )}
-    />
+    <Button type="submit" color="green" big disabled={props.disabled}>
+      {props.text}
+    </Button>
   </div>
 );

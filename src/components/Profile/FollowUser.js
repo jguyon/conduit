@@ -3,6 +3,7 @@
 import * as React from "react";
 import cn from "classnames";
 import { navigate } from "@reach/router";
+import Button from "../Button";
 import { makeCancelable, CanceledError } from "../../lib/makeCancelable";
 import * as api from "../../lib/api";
 
@@ -114,26 +115,16 @@ export class FollowUser extends React.Component<
     const { loading, following } = this.state;
 
     return (
-      <button
+      <Button
         type="button"
+        color="light-silver"
+        outline={!following}
         onClick={this.handleClick}
         disabled={loading}
-        data-testid="follow-user"
-        className={cn(
-          "f6",
-          "button-reset",
-          following
-            ? ["bg-light-silver", "b--light-silver", "white"]
-            : ["bg-transparent", "b--light-silver", "light-silver"],
-          "ba",
-          "br2",
-          "pv1",
-          "ph2",
-          loading ? "o-20" : ["pointer", "dim"]
-        )}
+        testId="follow-user"
       >
-        {following ? `Unfollow ${username}` : `Follow ${username}`}
-      </button>
+        {following ? "Unfollow" : "Follow"} {username}
+      </Button>
     );
   }
 }

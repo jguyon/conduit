@@ -1,8 +1,8 @@
 // @flow
 
 import * as React from "react";
-import cn from "classnames";
 import { navigate } from "@reach/router";
+import Button from "../Button";
 import { makeCancelable, CanceledError } from "../../lib/makeCancelable";
 import * as api from "../../lib/api";
 
@@ -101,27 +101,17 @@ class FollowUser extends React.Component<FollowUserProps, FollowUserState> {
     const { loading } = this.state;
 
     return (
-      <button
+      <Button
         type="button"
+        color="light-silver"
         onClick={this.handleClick}
         disabled={loading}
-        data-testid="follow-user"
-        className={cn(
-          className,
-          "f6",
-          "button-reset",
-          following
-            ? ["bg-light-silver", "b--light-silver", "white"]
-            : ["bg-transparent", "b--light-silver", "light-silver"],
-          "ba",
-          "br2",
-          "pv1",
-          "ph2",
-          loading ? "o-20" : ["pointer", "dim"]
-        )}
+        outline={!following}
+        testId="follow-user"
+        className={className}
       >
         {following ? "Unfollow" : "Follow"} {username}
-      </button>
+      </Button>
     );
   }
 }

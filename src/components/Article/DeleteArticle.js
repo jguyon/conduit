@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { navigate } from "@reach/router";
-import cn from "classnames";
+import Button from "../Button";
 import { makeCancelable, CanceledError } from "../../lib/makeCancelable";
 import * as api from "../../lib/api";
 
@@ -64,26 +64,16 @@ class DeleteArticle extends React.Component<
 
   render() {
     return (
-      <button
+      <Button
         type="button"
+        color="light-red"
+        outline
         onClick={this.handleClick}
         disabled={this.state.pending}
-        className={cn(
-          this.props.className,
-          "f6",
-          "button-reset",
-          "bg-transparent",
-          "light-red",
-          "b--light-red",
-          "ba",
-          "br2",
-          "pv1",
-          "ph2",
-          this.state.pending ? "o-20" : ["pointer", "dim"]
-        )}
+        className={this.props.className}
       >
         Delete Article
-      </button>
+      </Button>
     );
   }
 }

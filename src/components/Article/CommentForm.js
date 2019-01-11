@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import cn from "classnames";
+import Button from "../Button";
 import { makeCancelable, CanceledError } from "../../lib/makeCancelable";
 import * as api from "../../lib/api";
 
@@ -174,21 +175,9 @@ class CommentForm extends React.PureComponent<
             />
 
             <div className={cn("flex-auto", "tr")}>
-              <input
-                type="submit"
-                value="Post Comment"
-                disabled={submitDisabled}
-                className={cn(
-                  "input-reset",
-                  "bg-green",
-                  "white",
-                  "bn",
-                  "br2",
-                  "pv1",
-                  "ph2",
-                  submitDisabled ? "o-50" : ["pointer", "dim"]
-                )}
-              />
+              <Button type="submit" color="green" disabled={submitDisabled}>
+                Post Comment
+              </Button>
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "./Form";
 import Separator from "./Separator";
+import Button from "./Button";
 import { makeCancelable, CanceledError } from "../lib/makeCancelable";
 import * as api from "../lib/api";
 
@@ -280,25 +281,16 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
 
           <Separator className={cn("mv4")} />
 
-          <button
+          <Button
             type="button"
-            data-testid="settings-log-out"
+            color="red"
+            outline
+            big
             onClick={this.handleLogOutClick}
-            className={cn(
-              "button-reset",
-              "bg-white",
-              "red",
-              "b--red",
-              "ba",
-              "br2",
-              "pv2",
-              "ph3",
-              "pointer",
-              "dim"
-            )}
+            testId="settings-log-out"
           >
             Or click here to log out
-          </button>
+          </Button>
         </div>
       </div>
     );
