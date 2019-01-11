@@ -3,6 +3,7 @@
 import * as React from "react";
 import cn from "classnames";
 import Banner from "../Banner";
+import PlaceholderText from "../PlaceholderText";
 import { FollowUser, FollowUserPlaceholder } from "./FollowUser";
 import type { Profile, User } from "../../lib/api";
 
@@ -25,7 +26,8 @@ const ProfileImage = (props: ProfileImageProps) => (
       "dib",
       "overflow-hidden",
       "shadow-1",
-      "mb3"
+      "mb3",
+      props.placeholder ? "o-20" : null
     )}
     alt={props.placeholder ? "profile" : props.alt}
     src={
@@ -46,46 +48,38 @@ type BannerProps =
       currentUser: ?User
     |};
 
-const ProfileBanner = (props: BannerProps) => {
-  if (props.placeholder) {
-    return (
-      <Banner bg="near-white" fg="dark-gray" className={cn("tc", "o-20")}>
-        <ProfileImage placeholder />
+const ProfileBanner = (props: BannerProps) => (
+  <Banner bg="near-white" fg="dark-gray" className={cn("tc")}>
+    {props.placeholder ? (
+      <ProfileImage placeholder />
+    ) : (
+      <ProfileImage alt={props.profile.username} src={props.profile.image} />
+    )}
 
-        <div className={cn("f4", "shadow-1", "bg-dark-gray", "w4", "mh-auto")}>
-          &nbsp;
-        </div>
+    <h1 className={cn("f4", "ma0", "text-shadow-1")}>
+      {props.placeholder ? (
+        <PlaceholderText className={cn("w4")} />
+      ) : (
+        props.profile.username
+      )}
+    </h1>
 
-        <div className={cn("f5", "bg-light-silver", "mv2", "w-20", "mh-auto")}>
-          &nbsp;
-        </div>
+    <h2 className={cn("f5", "normal", "light-silver", "mv2")}>
+      {props.placeholder ? (
+        <PlaceholderText className={cn("w5")} />
+      ) : (
+        props.profile.bio || "I'm new here, be gentle!"
+      )}
+    </h2>
 
-        <FollowUserPlaceholder />
-      </Banner>
-    );
-  } else {
-    const { profile, currentUser } = props;
-
-    return (
-      <Banner bg="near-white" fg="dark-gray" className={cn("tc")}>
-        <ProfileImage alt={profile.username} src={profile.image} />
-
-        <h1 className={cn("f4", "ma0", "text-shadow-1")}>{profile.username}</h1>
-
-        <h2 className={cn("f5", "normal", "light-silver", "mv2")}>
-          {profile.bio === null || profile.bio.trim() === ""
-            ? "I'm new here, be gentle!"
-            : profile.bio}
-        </h2>
-
-        {currentUser && currentUser.username === profile.username ? (
-          <FollowUserPlaceholder />
-        ) : (
-          <FollowUser currentUser={currentUser} profile={profile} />
-        )}
-      </Banner>
-    );
-  }
-};
+    {props.placeholder ||
+    (props.currentUser &&
+      props.currentUser.username === props.profile.username) ? (
+      <FollowUserPlaceholder />
+    ) : (
+      <FollowUser currentUser={props.currentUser} profile={props.profile} />
+    )}
+  </Banner>
+);
 
 export default ProfileBanner;

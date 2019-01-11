@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
+import PlaceholderText from "../PlaceholderText";
 import ArticleInfo from "../ArticleInfo";
 import FavoriteArticle from "./FavoriteArticle";
 import type { Article, User } from "../../lib/api";
@@ -22,7 +23,7 @@ const Tag = (props: TagProps) => (
     className={cn(
       "dib",
       "light-silver",
-      props.placeholder ? ["bg-light-silver", `w${props.size}`] : null,
+      props.placeholder ? ["bg-current", `w${props.size}`, "o-20"] : null,
       "br-pill",
       "ba",
       "pv1",
@@ -49,12 +50,18 @@ const ArticlePreview = (props: ArticlePreviewProps) => {
     const { placeholder, ...rest } = props;
 
     return (
-      <div {...rest}>
-        <ArticleInfo placeholder color="green" className={cn("mv3")} />
+      <article {...rest}>
+        <div className={cn("mv3")}>
+          <ArticleInfo placeholder color="green" />
+        </div>
 
-        <div className={cn("o-20")}>
-          <div className={cn("f4", "bg-dark-gray", "mv1", "w4")}>&nbsp;</div>
-          <div className={cn("f5", "bg-light-silver", "mv1", "w5")}>&nbsp;</div>
+        <div className={cn("moon-gray")}>
+          <h3 className={cn("f4", "dark-gray", "mv1")}>
+            <PlaceholderText className={cn("w4")} />
+          </h3>
+          <h4 className={cn("f5", "normal", "light-silver", "mv1")}>
+            <PlaceholderText className={cn("w5")} />
+          </h4>
 
           <div
             className={cn(
@@ -66,7 +73,9 @@ const ArticlePreview = (props: ArticlePreviewProps) => {
               "items-center"
             )}
           >
-            <div className={cn("bg-moon-gray", "w3")}>&nbsp;</div>
+            <div>
+              <PlaceholderText className={cn("w3")} />
+            </div>
 
             <div>
               <Tag placeholder size={2} />
@@ -74,7 +83,7 @@ const ArticlePreview = (props: ArticlePreviewProps) => {
             </div>
           </div>
         </div>
-      </div>
+      </article>
     );
   } else {
     const { placeholder, article, currentUser, ...rest } = props;

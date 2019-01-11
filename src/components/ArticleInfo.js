@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
+import PlaceholderText from "./PlaceholderText";
 import PrettyDate from "./PrettyDate";
 import type { Article } from "../lib/api";
 
@@ -18,7 +19,14 @@ type ProfileImageProps =
 
 const ProfileImage = (props: ProfileImageProps) => (
   <img
-    className={cn("br-100", "h2", "w2", "dib", "overflow-hidden")}
+    className={cn(
+      "br-100",
+      "h2",
+      "w2",
+      "dib",
+      "overflow-hidden",
+      props.placeholder ? "o-20" : null
+    )}
     alt={props.placeholder ? "profile" : props.alt}
     src={
       props.placeholder || !props.src
@@ -50,17 +58,17 @@ const ArticleInfo = (props: ArticleInfoProps) => {
     const { placeholder, color, className, ...rest } = props;
 
     return (
-      <div {...rest} className={cn(className, "flex", "o-20")}>
+      <div {...rest} className={cn(className, "flex")}>
         <div>
           <ProfileImage placeholder />
         </div>
 
         <div className={cn("ml2")}>
-          <span className={cn(`bg-${color}`, "dib", "w3")}>&nbsp;</span>
+          <PlaceholderText className={cn(color, "w3")} />
 
           <br />
 
-          <span className={cn("bg-moon-gray", "f6", "dib", "w4")}>&nbsp;</span>
+          <PlaceholderText className={cn("moon-gray", "f6", "w4")} />
         </div>
       </div>
     );

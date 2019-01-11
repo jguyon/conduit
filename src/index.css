@@ -20,3 +20,7 @@
 .button:focus {
   outline: 1px dotted #aaa;
 }
+
+.bg-current {
+  background-color: currentColor;
+}

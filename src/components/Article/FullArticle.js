@@ -3,6 +3,7 @@
 import * as React from "react";
 import cn from "classnames";
 import Banner from "../Banner";
+import PlaceholderText from "../PlaceholderText";
 import FollowUser from "./FollowUser";
 import FavoriteArticle from "./FavoriteArticle";
 import EditArticle from "./EditArticle";
@@ -14,11 +15,9 @@ import * as api from "../../lib/api";
 
 export const FullArticlePlaceholder = () => (
   <Banner bg="dark-gray" fg="white">
-    <div
-      className={cn("f1", "bg-white", "mt0", "mb3", "shadow-1", "w-40", "o-20")}
-    >
-      &nbsp;
-    </div>
+    <h1 className={cn("f1", "mt0", "mb3", "text-shadow-1")}>
+      <PlaceholderText className={cn("w-40")} />
+    </h1>
 
     <ArticleInfo color="white" placeholder />
   </Banner>
