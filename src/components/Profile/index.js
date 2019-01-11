@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Request from "../Request";
-import Banner from "./Banner";
+import ProfileBanner from "./ProfileBanner";
 import ArticleList from "./ArticleList";
 import NotFound from "../NotFound";
 import * as api from "../../lib/api";
@@ -26,7 +26,7 @@ const Profile = (props: ProfileProps) => (
         case "pending":
           return (
             <>
-              <Banner placeholder />
+              <ProfileBanner placeholder />
               <ArticleList
                 currentUser={props.currentUser}
                 username={props.username}
@@ -42,7 +42,10 @@ const Profile = (props: ProfileProps) => (
 
           return (
             <>
-              <Banner profile={profile} currentUser={props.currentUser} />
+              <ProfileBanner
+                profile={profile}
+                currentUser={props.currentUser}
+              />
               <ArticleList
                 currentUser={props.currentUser}
                 username={props.username}

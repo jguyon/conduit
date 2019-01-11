@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import cn from "classnames";
+import Banner from "../Banner";
 import FollowUser from "./FollowUser";
 import FavoriteArticle from "./FavoriteArticle";
 import EditArticle from "./EditArticle";
@@ -12,25 +13,15 @@ import Separator from "../Separator";
 import * as api from "../../lib/api";
 
 export const FullArticlePlaceholder = () => (
-  <div className={cn("bg-dark-gray", "pa4", "shadow-inset-2")}>
-    <div className={cn("container", "mh-auto")}>
-      <div
-        className={cn(
-          "f1",
-          "bg-white",
-          "mt0",
-          "mb3",
-          "shadow-1",
-          "w-40",
-          "o-20"
-        )}
-      >
-        &nbsp;
-      </div>
-
-      <ArticleInfo color="white" placeholder />
+  <Banner bg="dark-gray" fg="white">
+    <div
+      className={cn("f1", "bg-white", "mt0", "mb3", "shadow-1", "w-40", "o-20")}
+    >
+      &nbsp;
     </div>
-  </div>
+
+    <ArticleInfo color="white" placeholder />
+  </Banner>
 );
 
 type FullArticleProps = {|
@@ -134,26 +125,22 @@ export class FullArticle extends React.Component<
 
     return (
       <article>
-        <header
-          className={cn("bg-dark-gray", "white", "pa4", "shadow-inset-2")}
-        >
-          <div className={cn("container", "mh-auto")}>
-            <h1 className={cn("f1", "mt0", "mb3", "text-shadow-1")}>
-              {article.title}
-            </h1>
+        <Banner bg="dark-gray" fg="white">
+          <h1 className={cn("f1", "mt0", "mb3", "text-shadow-1")}>
+            {article.title}
+          </h1>
 
-            <div className={cn("flex", "items-center")}>
-              <ArticleInfo
-                className={cn("mr4")}
-                color="white"
-                article={article}
-                pubdate
-              />
+          <div className={cn("flex", "items-center")}>
+            <ArticleInfo
+              className={cn("mr4")}
+              color="white"
+              article={article}
+              pubdate
+            />
 
-              {buttons}
-            </div>
+            {buttons}
           </div>
-        </header>
+        </Banner>
 
         <div className={cn("container", "mh-auto", "mv4")}>
           <div className={cn("f4", "dark-gray", "mv4")}>

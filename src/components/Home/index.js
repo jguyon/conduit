@@ -4,7 +4,7 @@ import * as React from "react";
 import cn from "classnames";
 import Request from "../Request";
 import type { RequestData } from "../Request";
-import Banner from "./Banner";
+import HomeBanner from "./HomeBanner";
 import { Tags, TagItem } from "./Tags";
 import { Tabs, TabItem } from "../Tabs";
 import Pagination from "../Pagination";
@@ -119,7 +119,7 @@ class Home extends React.Component<HomeProps, HomeState> {
   render() {
     return (
       <>
-        <Banner />
+        <HomeBanner />
 
         <div
           tabIndex="-1"
