@@ -4,7 +4,11 @@ import * as React from "react";
 import { Link, navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, Submit } from "../form";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
 type RegisterProps = {|
@@ -80,12 +84,10 @@ class Register extends React.Component<RegisterProps, RegisterState> {
     this.setState({ password });
   };
 
-  cancelSubmit: ?() => void = null;
+  cancelSubmit = noopCancel;
 
   handleSubmit = () => {
-    if (this.cancelSubmit) {
-      this.cancelSubmit();
-    }
+    this.cancelSubmit();
 
     this.setState({
       submitting: true,
@@ -104,8 +106,6 @@ class Register extends React.Component<RegisterProps, RegisterState> {
 
     promise.then(
       result => {
-        this.cancelSubmit = null;
-
         if (result.isOk) {
           this.props.setCurrentUser(result.user);
           navigate("/");
@@ -124,8 +124,6 @@ class Register extends React.Component<RegisterProps, RegisterState> {
       },
       error => {
         if (!(error instanceof CanceledError)) {
-          this.cancelSubmit = null;
-
           this.setState(
             {
               submitting: false,

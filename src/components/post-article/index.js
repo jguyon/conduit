@@ -6,7 +6,11 @@ import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "../form";
 import Request from "../request";
 import NotFound from "../not-found";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
 type PostArticlePageProps = {|
@@ -236,12 +240,10 @@ class PostArticleForm extends React.Component<
     this.setState({ tagList });
   };
 
-  cancelSubmit: ?() => void = null;
+  cancelSubmit = noopCancel;
 
   handleSubmit = () => {
-    if (this.cancelSubmit) {
-      this.cancelSubmit();
-    }
+    this.cancelSubmit();
 
     this.setState({
       submitting: true,
@@ -261,8 +263,6 @@ class PostArticleForm extends React.Component<
 
     promise.then(
       result => {
-        this.cancelSubmit = null;
-
         if (result.isOk) {
           navigate(`/article/${encodeURIComponent(result.article.slug)}`);
         } else {
@@ -280,8 +280,6 @@ class PostArticleForm extends React.Component<
       },
       error => {
         if (!(error instanceof CanceledError)) {
-          this.cancelSubmit = null;
-
           this.setState(
             {
               submitting: false,
@@ -295,9 +293,7 @@ class PostArticleForm extends React.Component<
   };
 
   componentWillUnmount() {
-    if (this.cancelSubmit) {
-      this.cancelSubmit();
-    }
+    this.cancelSubmit();
   }
 
   render() {

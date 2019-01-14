@@ -4,7 +4,11 @@ import * as React from "react";
 import cn from "classnames";
 import { navigate } from "@reach/router";
 import Button from "../button";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
 type FollowUserProps = {|
@@ -26,15 +30,13 @@ export class FollowUser extends React.Component<
     following: this.props.profile.following
   };
 
-  cancelClick: ?() => void = null;
+  cancelClick = noopCancel;
 
   handleClick = () => {
     const { currentUser, profile } = this.props;
 
     if (currentUser) {
-      if (this.cancelClick) {
-        this.cancelClick();
-      }
+      this.cancelClick();
 
       this.setState({ loading: true });
 
@@ -50,8 +52,6 @@ export class FollowUser extends React.Component<
 
         promise.then(
           () => {
-            this.cancelClick = null;
-
             this.setState({
               loading: false,
               following: false
@@ -59,8 +59,6 @@ export class FollowUser extends React.Component<
           },
           error => {
             if (!(error instanceof CanceledError)) {
-              this.cancelClick = null;
-
               this.setState({
                 loading: false
               });
@@ -79,8 +77,6 @@ export class FollowUser extends React.Component<
 
         promise.then(
           () => {
-            this.cancelClick = null;
-
             this.setState({
               loading: false,
               following: true
@@ -88,8 +84,6 @@ export class FollowUser extends React.Component<
           },
           error => {
             if (!(error instanceof CanceledError)) {
-              this.cancelClick = null;
-
               this.setState({
                 loading: false
               });
@@ -103,9 +97,7 @@ export class FollowUser extends React.Component<
   };
 
   componentWillUnmount() {
-    if (this.cancelClick) {
-      this.cancelClick();
-    }
+    this.cancelClick();
   }
 
   render() {

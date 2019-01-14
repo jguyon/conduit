@@ -2,7 +2,11 @@
 
 import * as React from "react";
 import cn from "classnames";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
 type RemoveCommentProps = {|
@@ -24,12 +28,10 @@ class RemoveComment extends React.Component<
     removing: false
   };
 
-  cancelClick: ?() => void = null;
+  cancelClick = noopCancel;
 
   handleClick = () => {
-    if (this.cancelClick) {
-      this.cancelClick();
-    }
+    this.cancelClick();
 
     this.setState({ removing: true });
 
@@ -45,12 +47,10 @@ class RemoveComment extends React.Component<
 
     promise.then(
       () => {
-        this.cancelClick = null;
         this.props.onRemoveComment(this.props.comment.id);
       },
       error => {
         if (!(error instanceof CanceledError)) {
-          this.cancelClick = null;
           this.setState({ removing: false });
         }
       }
@@ -58,9 +58,7 @@ class RemoveComment extends React.Component<
   };
 
   componentWillUnmount() {
-    if (this.cancelClick) {
-      this.cancelClick();
-    }
+    this.cancelClick();
   }
 
   render() {

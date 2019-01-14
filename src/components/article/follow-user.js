@@ -3,7 +3,11 @@
 import * as React from "react";
 import { navigate } from "@reach/router";
 import Button from "../button";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
 type FollowUserProps = {|
@@ -23,15 +27,13 @@ class FollowUser extends React.Component<FollowUserProps, FollowUserState> {
     loading: false
   };
 
-  cancelClick: ?() => void = null;
+  cancelClick = noopCancel;
 
   handleClick = () => {
     const { currentUser, user } = this.props;
 
     if (currentUser) {
-      if (this.cancelClick) {
-        this.cancelClick();
-      }
+      this.cancelClick();
 
       this.setState({ loading: true });
 
@@ -47,13 +49,11 @@ class FollowUser extends React.Component<FollowUserProps, FollowUserState> {
 
         promise.then(
           () => {
-            this.cancelClick = null;
             this.setState({ loading: false });
             this.props.onUnfollowUser();
           },
           error => {
             if (!(error instanceof CanceledError)) {
-              this.cancelClick = null;
               this.setState({ loading: false });
             }
           }
@@ -70,13 +70,11 @@ class FollowUser extends React.Component<FollowUserProps, FollowUserState> {
 
         promise.then(
           () => {
-            this.cancelClick = null;
             this.setState({ loading: false });
             this.props.onFollowUser();
           },
           error => {
             if (!(error instanceof CanceledError)) {
-              this.cancelClick = null;
               this.setState({ loading: false });
             }
           }
@@ -88,9 +86,7 @@ class FollowUser extends React.Component<FollowUserProps, FollowUserState> {
   };
 
   componentWillUnmount() {
-    if (this.cancelClick) {
-      this.cancelClick();
-    }
+    this.cancelClick();
   }
 
   render() {

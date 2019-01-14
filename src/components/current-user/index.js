@@ -1,7 +1,11 @@
 // @flow
 
 import * as React from "react";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
 export type CurrentUserData =
@@ -49,7 +53,7 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
     );
   };
 
-  cancelGetCurrentUser: ?() => void = null;
+  cancelGetCurrentUser = noopCancel;
 
   componentDidMount() {
     const token = localStorage.getItem(USER_TOKEN_KEY);
@@ -61,8 +65,6 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
 
       promise.then(
         user => {
-          this.cancelGetCurrentUser = null;
-
           this.setState({
             data: {
               status: "ready",
@@ -73,8 +75,6 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
         },
         error => {
           if (!(error instanceof CanceledError)) {
-            this.cancelGetCurrentUser = null;
-
             this.setState({
               data: {
                 status: "ready",
@@ -97,9 +97,7 @@ class CurrentUser extends React.Component<CurrentUserProps, CurrentUserState> {
   }
 
   componentWillUnmount() {
-    if (this.cancelGetCurrentUser) {
-      this.cancelGetCurrentUser();
-    }
+    this.cancelGetCurrentUser();
   }
 
   render() {

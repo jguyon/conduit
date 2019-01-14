@@ -3,7 +3,11 @@
 import * as React from "react";
 import { navigate } from "@reach/router";
 import Button from "../button";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
 type FavoriteArticleProps = {|
@@ -28,15 +32,13 @@ class FavoriteArticle extends React.Component<
     favoritesCount: this.props.article.favoritesCount
   };
 
-  cancelClick: ?() => void = null;
+  cancelClick = noopCancel;
 
   handleClick = () => {
     const { currentUser, article } = this.props;
 
     if (currentUser) {
-      if (this.cancelClick) {
-        this.cancelClick();
-      }
+      this.cancelClick();
 
       this.setState({ loading: true });
 
@@ -52,8 +54,6 @@ class FavoriteArticle extends React.Component<
 
         promise.then(
           () => {
-            this.cancelClick = null;
-
             this.setState(({ favorited, favoritesCount }) =>
               favorited
                 ? {
@@ -66,7 +66,6 @@ class FavoriteArticle extends React.Component<
           },
           error => {
             if (!(error instanceof CanceledError)) {
-              this.cancelClick = null;
               this.setState({ loading: false });
             }
           }
@@ -83,8 +82,6 @@ class FavoriteArticle extends React.Component<
 
         promise.then(
           () => {
-            this.cancelClick = null;
-
             this.setState(({ favorited, favoritesCount }) =>
               favorited
                 ? { loading: false }
@@ -97,7 +94,6 @@ class FavoriteArticle extends React.Component<
           },
           error => {
             if (!(error instanceof CanceledError)) {
-              this.cancelClick = null;
               this.setState({ loading: false });
             }
           }
@@ -109,9 +105,7 @@ class FavoriteArticle extends React.Component<
   };
 
   componentWillUnmount() {
-    if (this.cancelClick) {
-      this.cancelClick();
-    }
+    this.cancelClick();
   }
 
   render() {

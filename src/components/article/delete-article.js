@@ -3,7 +3,11 @@
 import * as React from "react";
 import { navigate } from "@reach/router";
 import Button from "../button";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
 type DeleteArticleProps = {|
@@ -24,12 +28,10 @@ class DeleteArticle extends React.Component<
     pending: false
   };
 
-  cancelClick: ?() => void = null;
+  cancelClick = noopCancel;
 
   handleClick = () => {
-    if (this.cancelClick) {
-      this.cancelClick();
-    }
+    this.cancelClick();
 
     this.setState({ pending: true });
 
@@ -44,12 +46,10 @@ class DeleteArticle extends React.Component<
 
     promise.then(
       () => {
-        this.cancelClick = null;
         navigate("/");
       },
       error => {
         if (!(error instanceof CanceledError)) {
-          this.cancelClick = null;
           this.setState({ pending: false });
         }
       }
@@ -57,9 +57,7 @@ class DeleteArticle extends React.Component<
   };
 
   componentWillUnmount() {
-    if (this.cancelClick) {
-      this.cancelClick();
-    }
+    this.cancelClick();
   }
 
   render() {

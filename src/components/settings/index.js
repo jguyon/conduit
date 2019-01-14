@@ -6,7 +6,11 @@ import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "../form";
 import Separator from "../separator";
 import Button from "../button";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
 type SettingsProps = {|
@@ -112,12 +116,10 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
     this.setState({ bio });
   };
 
-  cancelSubmit: ?() => void = null;
+  cancelSubmit = noopCancel;
 
   handleSubmit = () => {
-    if (this.cancelSubmit) {
-      this.cancelSubmit();
-    }
+    this.cancelSubmit();
 
     this.setState({
       submitting: true,
@@ -139,8 +141,6 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
 
     promise.then(
       result => {
-        this.cancelSubmit = null;
-
         if (result.isOk) {
           this.props.setCurrentUser(result.user);
           navigate(`/profile/${encodeURIComponent(result.user.username)}`);
@@ -159,8 +159,6 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
       },
       error => {
         if (!(error instanceof CanceledError)) {
-          this.cancelSubmit = null;
-
           this.setState(
             {
               submitting: false,
@@ -179,9 +177,7 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
   };
 
   componentWillUnmount() {
-    if (this.cancelSubmit) {
-      this.cancelSubmit();
-    }
+    this.cancelSubmit();
   }
 
   render() {

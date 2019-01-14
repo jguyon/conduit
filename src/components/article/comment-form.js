@@ -3,7 +3,11 @@
 import * as React from "react";
 import cn from "classnames";
 import Button from "../button";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
 type CommentFormProps = {|
@@ -54,7 +58,7 @@ class CommentForm extends React.PureComponent<
     });
   };
 
-  cancelSubmit: ?() => void = null;
+  cancelSubmit = noopCancel;
 
   handleSubmit = (event: SyntheticEvent<*>) => {
     const { currentUser, slug } = this.props;
@@ -62,9 +66,7 @@ class CommentForm extends React.PureComponent<
 
     event.preventDefault();
 
-    if (this.cancelSubmit) {
-      this.cancelSubmit();
-    }
+    this.cancelSubmit();
 
     this.setState({
       submitting: true,
@@ -83,8 +85,6 @@ class CommentForm extends React.PureComponent<
 
     promise.then(
       result => {
-        this.cancelSubmit = null;
-
         if (result.isOk) {
           this.setState({
             submitting: false,
@@ -108,8 +108,6 @@ class CommentForm extends React.PureComponent<
       },
       error => {
         if (!(error instanceof CanceledError)) {
-          this.cancelSubmit = null;
-
           this.setState({
             submitting: false,
             error: { type: "network" }
@@ -120,9 +118,7 @@ class CommentForm extends React.PureComponent<
   };
 
   componentWillUnmount() {
-    if (this.cancelSubmit) {
-      this.cancelSubmit();
-    }
+    this.cancelSubmit();
   }
 
   render() {
