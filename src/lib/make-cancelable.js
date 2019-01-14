@@ -24,3 +24,5 @@ export const makeCancelable = <T>(
 
   return [cancelablePromise, cancel];
 };
+
+export const noopCancel = () => {};

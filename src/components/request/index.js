@@ -1,7 +1,11 @@
 // @flow
 
 import * as React from "react";
-import { makeCancelable, CanceledError } from "../../lib/make-cancelable";
+import {
+  makeCancelable,
+  CanceledError,
+  noopCancel
+} from "../../lib/make-cancelable";
 
 export type RequestData<T> =
   | {|
@@ -22,37 +26,45 @@ type RequestProps<T> = {|
 |};
 
 type RequestState<T> = {|
+  load: () => Promise<T>,
   request: RequestData<T>
 |};
 
 class Request<T> extends React.Component<RequestProps<T>, RequestState<T>> {
   state: RequestState<T> = {
+    load: this.props.load,
     request: {
       status: "pending"
     }
   };
 
-  cancel: ?() => void = null;
+  static getDerivedStateFromProps(
+    props: RequestProps<T>,
+    state: RequestState<T>
+  ): RequestState<T> | null {
+    if (props.load !== state.load) {
+      return {
+        load: props.load,
+        request: {
+          status: "pending"
+        }
+      };
+    } else {
+      return null;
+    }
+  }
+
+  cancel = noopCancel;
 
   load() {
-    if (this.cancel) {
-      this.cancel();
-    }
+    this.cancel();
 
-    const [promise, cancel] = makeCancelable(this.props.load());
+    const [promise, cancel] = makeCancelable(this.state.load());
 
     this.cancel = cancel;
 
-    this.setState({
-      request: {
-        status: "pending"
-      }
-    });
-
     promise.then(
       data => {
-        this.cancel = null;
-
         this.setState({
           request: {
             status: "success",
@@ -62,8 +74,6 @@ class Request<T> extends React.Component<RequestProps<T>, RequestState<T>> {
       },
       error => {
         if (!(error instanceof CanceledError)) {
-          this.cancel = null;
-
           this.setState({
             request: {
               status: "error",
@@ -79,23 +89,16 @@ class Request<T> extends React.Component<RequestProps<T>, RequestState<T>> {
     this.load();
   }
 
-  componentDidUpdate(prevProps: RequestProps<T>) {
-    const nextProps = this.props;
+  componentDidUpdate(_prevProps: RequestProps<T>, prevState: RequestState<T>) {
+    const nextState = this.state;
 
-    // This check ensures that we only reload the data if the load function
-    // has changed between renders.
-    // Users of this component should watch for this if their load function
-    // never changes between renders as it could cause data not to be reloaded
-    // when it needs to be.
-    if (nextProps.load !== prevProps.load) {
+    if (nextState.load !== prevState.load) {
       this.load();
     }
   }
 
   componentWillUnmount() {
-    if (this.cancel) {
-      this.cancel();
-    }
+    this.cancel();
   }
 
   render() {
