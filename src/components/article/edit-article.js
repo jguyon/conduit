@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from "react";
-import Button from "../button";
+import { StyledEdit } from "./article-styles";
 import type { Article } from "../../lib/api";
 
 type EditArticleProps = {|
@@ -9,14 +9,7 @@ type EditArticleProps = {|
 |};
 
 const EditArticle = ({ article }: EditArticleProps) => (
-  <Button
-    type="link"
-    color="light-silver"
-    outline
-    to={`/editor/${encodeURIComponent(article.slug)}`}
-  >
-    Edit Article
-  </Button>
+  <StyledEdit path={`/editor/${encodeURIComponent(article.slug)}`} />
 );
 
 export default EditArticle;

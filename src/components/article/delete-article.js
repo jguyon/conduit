@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { navigate } from "@reach/router";
-import Button from "../button";
+import { StyledDelete } from "./article-styles";
 import {
   makeCancelable,
   CanceledError,
@@ -12,8 +12,7 @@ import * as api from "../../lib/api";
 
 type DeleteArticleProps = {|
   article: api.Article,
-  currentUser: api.User,
-  className?: string
+  currentUser: api.User
 |};
 
 type DeleteArticleState = {|
@@ -62,16 +61,7 @@ class DeleteArticle extends React.Component<
 
   render() {
     return (
-      <Button
-        type="button"
-        color="light-red"
-        outline
-        onClick={this.handleClick}
-        disabled={this.state.pending}
-        className={this.props.className}
-      >
-        Delete Article
-      </Button>
+      <StyledDelete loading={this.state.pending} onClick={this.handleClick} />
     );
   }
 }

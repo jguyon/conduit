@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { navigate } from "@reach/router";
-import Button from "../button";
+import { StyledFollow } from "./article-styles";
 import {
   makeCancelable,
   CanceledError,
@@ -14,8 +14,7 @@ type FollowUserProps = {|
   currentUser: ?api.User,
   user: api.Profile,
   onFollowUser: () => void,
-  onUnfollowUser: () => void,
-  className?: string
+  onUnfollowUser: () => void
 |};
 
 type FollowUserState = {|
@@ -91,23 +90,18 @@ class FollowUser extends React.Component<FollowUserProps, FollowUserState> {
 
   render() {
     const {
-      className,
       user: { username, following }
     } = this.props;
     const { loading } = this.state;
 
     return (
-      <Button
-        type="button"
-        color="light-silver"
-        onClick={this.handleClick}
-        disabled={loading}
-        outline={!following}
+      <StyledFollow
+        following={following}
+        username={username}
+        loading={loading}
         testId="follow-user"
-        className={className}
-      >
-        {following ? "Unfollow" : "Follow"} {username}
-      </Button>
+        onClick={this.handleClick}
+      />
     );
   }
 }

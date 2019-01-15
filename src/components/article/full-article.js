@@ -1,26 +1,31 @@
 // @flow
 
 import * as React from "react";
-import cn from "classnames";
-import Banner from "../banner";
-import PlaceholderText from "../placeholder-text";
 import FollowUser from "./follow-user";
 import FavoriteArticle from "./favorite-article";
 import EditArticle from "./edit-article";
 import DeleteArticle from "./delete-article";
-import ArticleInfo from "../article-info";
 import ArticleBody from "./article-body";
-import Separator from "../separator";
+import {
+  StyledBanner,
+  StyledBannerTitle,
+  StyledBannerBottom,
+  StyledContainer,
+  StyledContainerBottom,
+  StyledInfo,
+  StyledTags,
+  StyledSeparator
+} from "./article-styles";
 import * as api from "../../lib/api";
 
 export const FullArticlePlaceholder = () => (
-  <Banner bg="dark-gray" fg="white">
-    <h1 className={cn("f1", "mt0", "mb3", "text-shadow-1")}>
-      <PlaceholderText className={cn("w-40")} />
-    </h1>
+  <StyledBanner>
+    <StyledBannerTitle placeholder />
 
-    <ArticleInfo color="white" placeholder />
-  </Banner>
+    <StyledBannerBottom>
+      <StyledInfo banner placeholder />
+    </StyledBannerBottom>
+  </StyledBanner>
 );
 
 type FullArticleProps = {|
@@ -96,12 +101,7 @@ export class FullArticle extends React.Component<
       currentUser && article.author.username === currentUser.username ? (
         <>
           <EditArticle article={article} />
-
-          <DeleteArticle
-            article={article}
-            currentUser={currentUser}
-            className={cn("ml2")}
-          />
+          <DeleteArticle article={article} currentUser={currentUser} />
         </>
       ) : (
         <>
@@ -111,9 +111,7 @@ export class FullArticle extends React.Component<
             onFollowUser={this.handleFollowUser}
             onUnfollowUser={this.handleUnfollowUser}
           />
-
           <FavoriteArticle
-            className={cn("ml2")}
             currentUser={currentUser}
             article={article}
             onFavoriteArticle={this.handleFavoriteArticle}
@@ -124,52 +122,29 @@ export class FullArticle extends React.Component<
 
     return (
       <article>
-        <Banner bg="dark-gray" fg="white">
-          <h1 className={cn("f1", "mt0", "mb3", "text-shadow-1")}>
-            {article.title}
-          </h1>
+        <StyledBanner>
+          <StyledBannerTitle>{article.title}</StyledBannerTitle>
 
-          <div className={cn("flex", "items-center")}>
-            <ArticleInfo
-              className={cn("mr4")}
-              color="white"
-              article={article}
-              pubdate
-            />
+          <StyledBannerBottom>
+            <StyledInfo banner article={article} pubdate />
 
             {buttons}
-          </div>
-        </Banner>
+          </StyledBannerBottom>
+        </StyledBanner>
 
-        <div className={cn("container", "mh-auto", "mv4")}>
-          <div className={cn("f4", "dark-gray", "mv4")}>
-            <ArticleBody body={article.body} />
-          </div>
+        <StyledContainer>
+          <ArticleBody body={article.body} />
 
-          <div className={cn("mv4", "light-silver", "f6")}>
-            {article.tagList.map(tag => (
-              <span
-                key={tag}
-                className={cn("dib", "br-pill", "ba", "pv1", "ph2", "mr1")}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          <StyledTags tags={article.tagList} />
 
-          <Separator className={cn("mv4")} />
+          <StyledSeparator />
 
-          <div className={cn("flex", "justify-center", "items-center", "mv4")}>
-            <ArticleInfo
-              className={cn("mr4")}
-              color="green"
-              article={article}
-              pubdate
-            />
+          <StyledContainerBottom>
+            <StyledInfo article={article} pubdate />
 
             {buttons}
-          </div>
-        </div>
+          </StyledContainerBottom>
+        </StyledContainer>
       </article>
     );
   }
