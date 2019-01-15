@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Link } from "@reach/router";
 import cn from "classnames";
+import Avatar from "../avatar";
 import PrettyDate from "../pretty-date";
 import RemoveComment from "./remove-comment";
 import * as api from "../../lib/api";
@@ -41,14 +42,10 @@ class Comment extends React.PureComponent<CommentProps> {
             className={cn("mr2", "flex", "items-center")}
             to={authorProfilePath(comment)}
           >
-            <img
-              className={cn("br-100", "h1", "w1", "dib", "overflow-hidden")}
-              alt={comment.author.username}
-              src={
-                comment.author.image
-                  ? comment.author.image
-                  : "https://static.productionready.io/images/smiley-cyrus.jpg"
-              }
+            <Avatar
+              size={1}
+              username={comment.author.username}
+              image={comment.author.image}
             />
           </Link>
 

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import cn from "classnames";
+import Avatar from "../avatar";
 import Button from "../button";
 import {
   makeCancelable,
@@ -160,14 +161,10 @@ class CommentForm extends React.PureComponent<
               "items-center"
             )}
           >
-            <img
-              className={cn("br-100", "h1", "w1", "dib", "overflow-hidden")}
-              alt={this.props.currentUser.username}
-              src={
-                this.props.currentUser.image
-                  ? this.props.currentUser.image
-                  : "https://static.productionready.io/images/smiley-cyrus.jpg"
-              }
+            <Avatar
+              size={1}
+              username={this.props.currentUser.username}
+              image={this.props.currentUser.image}
             />
 
             <div className={cn("flex-auto", "tr")}>
