@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { navigate } from "@reach/router";
-import Button from "../button";
+import { StyledHeadFavorite } from "./styles";
 import {
   makeCancelable,
   CanceledError,
@@ -12,8 +12,7 @@ import * as api from "../../lib/api";
 
 type FavoriteArticleProps = {|
   currentUser: ?api.User,
-  article: api.Article,
-  className?: string
+  article: api.Article
 |};
 
 type FavoriteArticleState = {|
@@ -110,23 +109,18 @@ class FavoriteArticle extends React.Component<
 
   render() {
     const {
-      className,
       article: { slug }
     } = this.props;
     const { loading, favorited, favoritesCount } = this.state;
 
     return (
-      <Button
-        type="button"
-        color="green"
-        outline={!favorited}
-        onClick={this.handleClick}
-        disabled={loading}
+      <StyledHeadFavorite
+        favorited={favorited}
+        favoritesCount={favoritesCount}
+        loading={loading}
         testId={`favorite-article-${slug}`}
-        className={className}
-      >
-        <strong>+</strong> {favoritesCount}
-      </Button>
+        onClick={this.handleClick}
+      />
     );
   }
 }

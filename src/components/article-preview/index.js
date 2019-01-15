@@ -1,39 +1,18 @@
 // @flow
 
 import * as React from "react";
-import { Link } from "@reach/router";
-import cn from "classnames";
-import PlaceholderText from "../placeholder-text";
-import ArticleInfo from "../article-info";
+import {
+  StyledHead,
+  StyledHeadInfo,
+  StyledBody,
+  StyledTitle,
+  StyledDescription,
+  StyledBottom,
+  StyledReadMore,
+  StyledTags
+} from "./styles";
 import FavoriteArticle from "./favorite-article";
 import type { Article, User } from "../../lib/api";
-
-type TagProps =
-  | {|
-      placeholder: true,
-      size: 2 | 3
-    |}
-  | {|
-      placeholder?: false,
-      text: string
-    |};
-
-const Tag = (props: TagProps) => (
-  <span
-    className={cn(
-      "dib",
-      "light-silver",
-      props.placeholder ? ["bg-current", `w${props.size}`, "o-20"] : null,
-      "br-pill",
-      "ba",
-      "pv1",
-      "ph2",
-      "ml1"
-    )}
-  >
-    {props.placeholder ? <>&nbsp;</> : props.text}
-  </span>
-);
 
 type ArticlePreviewProps =
   | {|
@@ -49,38 +28,19 @@ const ArticlePreview = (props: ArticlePreviewProps) => {
   if (props.placeholder) {
     return (
       <article>
-        <div className={cn("mv3")}>
-          <ArticleInfo placeholder color="green" />
-        </div>
+        <StyledHead>
+          <StyledHeadInfo placeholder />
+        </StyledHead>
 
-        <div className={cn("moon-gray")}>
-          <h3 className={cn("f4", "dark-gray", "mv1")}>
-            <PlaceholderText className={cn("w4")} />
-          </h3>
-          <h4 className={cn("f5", "normal", "light-silver", "mv1")}>
-            <PlaceholderText className={cn("w5")} />
-          </h4>
+        <StyledBody placeholder>
+          <StyledTitle placeholder />
+          <StyledDescription placeholder />
 
-          <div
-            className={cn(
-              "f6",
-              "mv3",
-              "h2",
-              "flex",
-              "justify-between",
-              "items-center"
-            )}
-          >
-            <div>
-              <PlaceholderText className={cn("w3")} />
-            </div>
-
-            <div>
-              <Tag placeholder size={2} />
-              <Tag placeholder size={3} />
-            </div>
-          </div>
-        </div>
+          <StyledBottom>
+            <StyledReadMore placeholder />
+            <StyledTags placeholder />
+          </StyledBottom>
+        </StyledBody>
       </article>
     );
   } else {
@@ -88,45 +48,24 @@ const ArticlePreview = (props: ArticlePreviewProps) => {
 
     return (
       <article data-testid={`article-${article.slug}`}>
-        <div className={cn("flex", "mv3")}>
-          <ArticleInfo color="green" article={article} pubdate />
+        <StyledHead>
+          <StyledHeadInfo article={article} pubdate />
 
-          <div className={cn("flex-auto", "tr")}>
-            {(!currentUser ||
-              currentUser.username !== article.author.username) && (
-              <FavoriteArticle currentUser={currentUser} article={article} />
-            )}
-          </div>
-        </div>
+          {(!currentUser ||
+            currentUser.username !== article.author.username) && (
+            <FavoriteArticle currentUser={currentUser} article={article} />
+          )}
+        </StyledHead>
 
-        <Link
-          to={`/article/${article.slug}`}
-          className={cn("link", "moon-gray", "hover-gray")}
-        >
-          <h3 className={cn("f4", "dark-gray", "mv1")}>{article.title}</h3>
-          <h4 className={cn("f5", "normal", "light-silver", "mv1")}>
-            {article.description}
-          </h4>
+        <StyledBody path={`/article/${encodeURIComponent(article.slug)}`}>
+          <StyledTitle>{article.title}</StyledTitle>
+          <StyledDescription>{article.description}</StyledDescription>
 
-          <div
-            className={cn(
-              "f6",
-              "mv3",
-              "h2",
-              "flex",
-              "justify-between",
-              "items-center"
-            )}
-          >
-            <div>Read more...</div>
-
-            <div>
-              {article.tagList.map(tag => (
-                <Tag key={tag} text={tag} />
-              ))}
-            </div>
-          </div>
-        </Link>
+          <StyledBottom>
+            <StyledReadMore />
+            <StyledTags tags={article.tagList} />
+          </StyledBottom>
+        </StyledBody>
       </article>
     );
   }
