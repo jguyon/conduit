@@ -45,7 +45,7 @@ const ArticleInfo = (props: ArticleInfoProps) => {
     )}`;
 
     return (
-      <StyledRoot>
+      <StyledRoot className={props.className}>
         <StyledAvatar
           path={path}
           username={props.article.author.username}
