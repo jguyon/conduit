@@ -210,11 +210,7 @@ class Home extends React.Component<HomeProps, HomeState> {
 
         const articleElements = articles.map((article, i) => (
           <React.Fragment key={article.slug}>
-            <ArticlePreview
-              currentUser={currentUser}
-              article={article}
-              data-testid={`article-${article.slug}`}
-            />
+            <ArticlePreview currentUser={currentUser} article={article} />
             {i === articles.length - 1 ? null : (
               <Separator className={cn("mv4")} />
             )}

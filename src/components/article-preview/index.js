@@ -36,21 +36,19 @@ const Tag = (props: TagProps) => (
 );
 
 type ArticlePreviewProps =
-  | {
+  | {|
       placeholder: true
-    }
-  | {
+    |}
+  | {|
       placeholder?: false,
       currentUser: ?User,
       article: Article
-    };
+    |};
 
 const ArticlePreview = (props: ArticlePreviewProps) => {
   if (props.placeholder) {
-    const { placeholder, ...rest } = props;
-
     return (
-      <article {...rest}>
+      <article>
         <div className={cn("mv3")}>
           <ArticleInfo placeholder color="green" />
         </div>
@@ -86,10 +84,10 @@ const ArticlePreview = (props: ArticlePreviewProps) => {
       </article>
     );
   } else {
-    const { placeholder, article, currentUser, ...rest } = props;
+    const { article, currentUser } = props;
 
     return (
-      <article {...rest}>
+      <article data-testid={`article-${article.slug}`}>
         <div className={cn("flex", "mv3")}>
           <ArticleInfo color="green" article={article} pubdate />
 
