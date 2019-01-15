@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Router } from "@reach/router";
 import CurrentUser from "../current-user";
+import Root from "../root";
 import Navbar from "../navbar";
 import Home from "../home";
 import Article from "../article";
@@ -29,16 +30,16 @@ const App = () => (
       switch (data.status) {
         case "pending":
           return (
-            <div className="sans-serif">
+            <Root>
               <Navbar placeholder />
-            </div>
+            </Root>
           );
 
         case "ready":
           const { currentUser, setCurrentUser } = data;
 
           return (
-            <div className="sans-serif">
+            <Root>
               <Navbar currentUser={currentUser} />
 
               <main>
@@ -108,7 +109,7 @@ const App = () => (
                   <Route default render={<NotFound />} />
                 </Router>
               </main>
-            </div>
+            </Root>
           );
 
         default:
