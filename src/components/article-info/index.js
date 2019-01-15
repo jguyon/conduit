@@ -1,11 +1,13 @@
 // @flow
 
 import * as React from "react";
-import { Link } from "@reach/router";
-import cn from "classnames";
-import Avatar from "../avatar";
-import PlaceholderText from "../placeholder-text";
-import PrettyDate from "../pretty-date";
+import {
+  StyledRoot,
+  StyledAvatar,
+  StyledInfos,
+  StyledUsername,
+  StyledDate
+} from "./styles";
 import type { Article } from "../../lib/api";
 
 type ArticleInfoProps =
@@ -22,58 +24,49 @@ type ArticleInfoProps =
       article: Article
     |};
 
-const authorProfilePath = (article: Article) =>
-  `/profile/${encodeURIComponent(article.author.username)}`;
-
 const ArticleInfo = (props: ArticleInfoProps) => {
   if (props.placeholder) {
-    const { placeholder, color, className, ...rest } = props;
-
     return (
-      <div {...rest} className={cn(className, "flex")}>
-        <div>
-          <Avatar placeholder size={2} />
-        </div>
+      <StyledRoot className={props.className}>
+        <StyledAvatar placeholder />
 
-        <div className={cn("ml2")}>
-          <PlaceholderText className={cn(color, "w3")} />
+        <StyledInfos>
+          <StyledUsername placeholder color={props.color} />
 
           <br />
 
-          <PlaceholderText className={cn("moon-gray", "f6", "w4")} />
-        </div>
-      </div>
+          <StyledDate placeholder />
+        </StyledInfos>
+      </StyledRoot>
     );
   } else {
-    const { placeholder, color, pubdate, className, article, ...rest } = props;
+    const path = `/profile/${encodeURIComponent(
+      props.article.author.username
+    )}`;
 
     return (
-      <div {...rest} className={cn(className, "flex")}>
-        <Link to={authorProfilePath(article)}>
-          <Avatar
-            size={2}
-            username={article.author.username}
-            image={article.author.image}
-          />
-        </Link>
+      <StyledRoot>
+        <StyledAvatar
+          path={path}
+          username={props.article.author.username}
+          image={props.article.author.image}
+        />
 
-        <div className={cn("ml2")}>
-          <Link
-            className={cn("link", color, "underline-hover")}
-            to={authorProfilePath(article)}
-          >
-            {article.author.username}
-          </Link>
+        <StyledInfos>
+          <StyledUsername
+            color={props.color}
+            path={path}
+            username={props.article.author.username}
+          />
 
           <br />
 
-          <PrettyDate
-            className={cn("moon-gray", "f6")}
-            pubdate={pubdate ? "pubdate" : undefined}
-            date={new Date(article.createdAt)}
+          <StyledDate
+            pubdate={props.pubdate}
+            date={new Date(props.article.createdAt)}
           />
-        </div>
-      </div>
+        </StyledInfos>
+      </StyledRoot>
     );
   }
 };
