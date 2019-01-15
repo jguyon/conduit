@@ -1,9 +1,12 @@
 // @flow
 
 import * as React from "react";
-import { Link } from "@reach/router";
-import cn from "classnames";
 import Request from "../request";
+import {
+  StyledContainer,
+  StyledLoadingError,
+  StyledLinks
+} from "./comment-styles";
 import Comment from "./comment";
 import CommentForm from "./comment-form";
 import * as api from "../../lib/api";
@@ -52,57 +55,36 @@ class CommentList extends React.Component<CommentListProps, CommentListState> {
               return null;
 
             case "error":
-              return (
-                <div className={cn("tc", "red", "mv5")}>
-                  Error loading comments!
-                </div>
-              );
+              return <StyledLoadingError />;
 
             case "success":
               const comments = request.data;
               const { addedComments, removedComments } = this.state;
 
               return (
-                <div className={cn("container", "mv5", "mh-auto")}>
-                  <div className={cn("w-60", "mh-auto")}>
-                    {this.props.currentUser ? (
-                      <CommentForm
+                <StyledContainer>
+                  {this.props.currentUser ? (
+                    <CommentForm
+                      currentUser={this.props.currentUser}
+                      slug={this.props.slug}
+                      onAddComment={this.handleAddComment}
+                    />
+                  ) : (
+                    <StyledLinks loginPath="/login" registerPath="/register" />
+                  )}
+
+                  {[...addedComments, ...comments]
+                    .filter(({ id }) => !removedComments.includes(id))
+                    .map(comment => (
+                      <Comment
+                        key={comment.id}
                         currentUser={this.props.currentUser}
                         slug={this.props.slug}
-                        onAddComment={this.handleAddComment}
+                        comment={comment}
+                        onRemoveComment={this.handleRemoveComment}
                       />
-                    ) : (
-                      <div className={cn("tc", "light-silver")}>
-                        <Link
-                          to="/login"
-                          className={cn("link", "green", "underline-hover")}
-                        >
-                          Sign in
-                        </Link>{" "}
-                        or{" "}
-                        <Link
-                          to="/register"
-                          className={cn("link", "green", "underline-hover")}
-                        >
-                          sign up
-                        </Link>{" "}
-                        to add comments on this article
-                      </div>
-                    )}
-
-                    {[...addedComments, ...comments]
-                      .filter(({ id }) => !removedComments.includes(id))
-                      .map(comment => (
-                        <Comment
-                          key={comment.id}
-                          currentUser={this.props.currentUser}
-                          slug={this.props.slug}
-                          comment={comment}
-                          onRemoveComment={this.handleRemoveComment}
-                        />
-                      ))}
-                  </div>
-                </div>
+                    ))}
+                </StyledContainer>
               );
 
             default:

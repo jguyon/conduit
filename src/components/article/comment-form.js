@@ -1,9 +1,14 @@
 // @flow
 
 import * as React from "react";
-import cn from "classnames";
-import Avatar from "../avatar";
-import Button from "../button";
+import {
+  StyledComment,
+  StyledCommentTextArea,
+  StyledCommentBottom,
+  StyledCommentAvatar,
+  StyledCommentPost,
+  StyledCommentError
+} from "./comment-styles";
 import {
   makeCancelable,
   CanceledError,
@@ -130,70 +135,36 @@ class CommentForm extends React.PureComponent<
       <form data-testid="add-comment" onSubmit={this.handleSubmit}>
         {this.renderError()}
 
-        <div className={cn("light-gray", "mv2", "ba", "br1")}>
-          <div className={cn("bb")}>
-            <textarea
-              ref={this.bodyInputRef}
-              data-testid="add-comment-body"
-              disabled={this.state.submitting}
-              value={this.state.body}
-              onChange={this.handleBodyChange}
-              rows="4"
-              placeholder="Write a comment..."
-              className={cn(
-                "w-100",
-                "dark-gray",
-                "bn",
-                "pa3",
-                "bg-transparent",
-                "outline-0"
-              )}
-            />
-          </div>
+        <StyledComment tag="div">
+          <StyledCommentTextArea
+            ref={this.bodyInputRef}
+            testId="add-comment-body"
+            disabled={this.state.submitting}
+            value={this.state.body}
+            onChange={this.handleBodyChange}
+          />
 
-          <div
-            className={cn(
-              "bg-near-white",
-              "ph3",
-              "pv2",
-              "f6",
-              "flex",
-              "items-center"
-            )}
-          >
-            <Avatar
-              size={1}
+          <StyledCommentBottom>
+            <StyledCommentAvatar
               username={this.props.currentUser.username}
               image={this.props.currentUser.image}
             />
 
-            <div className={cn("flex-auto", "tr")}>
-              <Button type="submit" color="green" disabled={submitDisabled}>
-                Post Comment
-              </Button>
-            </div>
-          </div>
-        </div>
+            <StyledCommentPost disabled={submitDisabled} />
+          </StyledCommentBottom>
+        </StyledComment>
       </form>
     );
   }
 
   renderError() {
-    const className = cn("mv3", "dark-red", "tc");
-
     if (this.state.error.type === "none") {
-      return <div role="alert" />;
+      return <StyledCommentError />;
     } else if (this.state.error.type === "network") {
-      return (
-        <div role="alert" className={className}>
-          An error occurred
-        </div>
-      );
+      return <StyledCommentError>An error occurred</StyledCommentError>;
     } else if (this.state.error.type === "fields" && this.state.error.body) {
       return (
-        <div role="alert" className={className}>
-          Body {this.state.error.body[0]}
-        </div>
+        <StyledCommentError>Body {this.state.error.body[0]}</StyledCommentError>
       );
     }
   }

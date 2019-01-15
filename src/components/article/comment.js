@@ -1,10 +1,14 @@
 // @flow
 
 import * as React from "react";
-import { Link } from "@reach/router";
-import cn from "classnames";
-import Avatar from "../avatar";
-import PrettyDate from "../pretty-date";
+import {
+  StyledComment,
+  StyledCommentBody,
+  StyledCommentBottom,
+  StyledCommentAvatar,
+  StyledCommentUsername,
+  StyledCommentDate
+} from "./comment-styles";
 import RemoveComment from "./remove-comment";
 import * as api from "../../lib/api";
 
@@ -23,57 +27,33 @@ class Comment extends React.PureComponent<CommentProps> {
     const { comment, slug, onRemoveComment, currentUser } = this.props;
 
     return (
-      <article className={cn("light-gray", "mv2", "ba", "br1")}>
-        <div className={cn("bb", "pa3")}>
-          <span className={cn("dark-gray")}>{comment.body}</span>
-        </div>
+      <StyledComment tag="article">
+        <StyledCommentBody>{comment.body}</StyledCommentBody>
 
-        <div
-          className={cn(
-            "bg-near-white",
-            "ph3",
-            "pv2",
-            "f6",
-            "flex",
-            "items-center"
-          )}
-        >
-          <Link
-            className={cn("mr2", "flex", "items-center")}
-            to={authorProfilePath(comment)}
-          >
-            <Avatar
-              size={1}
-              username={comment.author.username}
-              image={comment.author.image}
-            />
-          </Link>
-
-          <Link
-            className={cn("mr2", "link", "green", "underline-hover")}
-            to={authorProfilePath(comment)}
-          >
-            {comment.author.username}
-          </Link>
-
-          <PrettyDate
-            className={cn("moon-gray")}
-            pubdate="pubdate"
-            date={new Date(comment.createdAt)}
+        <StyledCommentBottom>
+          <StyledCommentAvatar
+            path={authorProfilePath(comment)}
+            username={comment.author.username}
+            image={comment.author.image}
           />
 
+          <StyledCommentUsername
+            path={authorProfilePath(comment)}
+            username={comment.author.username}
+          />
+
+          <StyledCommentDate date={new Date(comment.createdAt)} pubdate />
+
           {currentUser && currentUser.username === comment.author.username && (
-            <div className={cn("flex-auto", "tr")}>
-              <RemoveComment
-                currentUser={currentUser}
-                slug={slug}
-                comment={comment}
-                onRemoveComment={onRemoveComment}
-              />
-            </div>
+            <RemoveComment
+              currentUser={currentUser}
+              slug={slug}
+              comment={comment}
+              onRemoveComment={onRemoveComment}
+            />
           )}
-        </div>
-      </article>
+        </StyledCommentBottom>
+      </StyledComment>
     );
   }
 }

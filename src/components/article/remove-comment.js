@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from "react";
-import cn from "classnames";
+import { StyledCommentRemove } from "./comment-styles";
 import {
   makeCancelable,
   CanceledError,
@@ -63,26 +63,14 @@ class RemoveComment extends React.Component<
 
   render() {
     const { comment } = this.props;
+    const { removing } = this.state;
 
     return (
-      <button
-        type="button"
-        data-testid={`remove-comment-${comment.id}`}
+      <StyledCommentRemove
+        loading={removing}
+        testId={`remove-comment-${comment.id}`}
         onClick={this.handleClick}
-        disabled={this.state.removing}
-        className={cn(
-          "button-reset",
-          "bg-transparent",
-          "dark-gray",
-          "bn",
-          "f5",
-          "pv0",
-          "ph1",
-          this.state.removing ? "o-40" : ["o-70", "pointer", "glow"]
-        )}
-      >
-        &times;
-      </button>
+      />
     );
   }
 }
