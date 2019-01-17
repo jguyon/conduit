@@ -1,23 +1,17 @@
 // @flow
 
 import * as React from "react";
-import cn from "classnames";
 import Request from "../request";
 import type { RequestData } from "../request";
+import ArticleFeed from "./article-feed";
 import {
   StyledBanner,
   StyledContainer,
-  StyledContainerMain,
   StyledContainerAside,
-  StyledTabs,
-  StyledTabItem,
-  StyledArticleSeparator,
-  StyledPagination,
   StyledTags,
   StyledTagItem,
   StyledTagLoadingError
 } from "./styles";
-import ArticlePreview from "../article-preview";
 import * as api from "../../lib/api";
 
 type HomeProps = {|
@@ -51,37 +45,6 @@ class Home extends React.Component<HomeProps, HomeState> {
   setPage = (page: number) => {
     this.setState({ page });
   };
-
-  loadArticles() {
-    const { currentUser } = this.props;
-    const { page, route } = this.state;
-
-    const opts = {
-      page,
-      perPage: 10,
-      token: currentUser ? currentUser.token : undefined
-    };
-
-    switch (route.type) {
-      case "global":
-        return api.listArticles(opts);
-
-      case "my":
-        return api.listFeedArticles({
-          ...opts,
-          token: route.token
-        });
-
-      case "tag":
-        return api.listArticles({
-          ...opts,
-          tag: route.tag
-        });
-
-      default:
-        throw new Error("invalid route type");
-    }
-  }
 
   handleGlobalFeedClick = () => {
     this.setState({
@@ -130,13 +93,14 @@ class Home extends React.Component<HomeProps, HomeState> {
         <StyledBanner />
 
         <StyledContainer ref={this.focusRef}>
-          <StyledContainerMain>
-            {this.renderTabs()}
-
-            <Request load={() => this.loadArticles()}>
-              {this.renderArticles}
-            </Request>
-          </StyledContainerMain>
+          <ArticleFeed
+            currentUser={this.props.currentUser}
+            page={this.state.page}
+            route={this.state.route}
+            setPage={this.setPage}
+            onGlobalFeedClick={this.handleGlobalFeedClick}
+            onMyFeedClick={this.handleMyFeedClick}
+          />
 
           <StyledContainerAside>
             <StyledTags>
@@ -147,102 +111,6 @@ class Home extends React.Component<HomeProps, HomeState> {
       </>
     );
   }
-
-  renderTabs() {
-    const { currentUser } = this.props;
-    const { route } = this.state;
-
-    return (
-      <StyledTabs>
-        {currentUser ? (
-          <StyledTabItem
-            testId="my-feed"
-            current={route.type === "my"}
-            onClick={this.handleMyFeedClick}
-          >
-            Your Feed
-          </StyledTabItem>
-        ) : null}
-
-        <StyledTabItem
-          testId="global-feed"
-          current={route.type === "global"}
-          onClick={this.handleGlobalFeedClick}
-        >
-          Global Feed
-        </StyledTabItem>
-
-        {route.type === "tag" ? (
-          <StyledTabItem current>#{route.tag}</StyledTabItem>
-        ) : null}
-      </StyledTabs>
-    );
-  }
-
-  renderArticles = (request: RequestData<api.ListArticlesResp>) => {
-    switch (request.status) {
-      case "pending":
-        return (
-          <>
-            <ArticlePreview placeholder />
-            <StyledArticleSeparator />
-            <ArticlePreview placeholder />
-            <StyledArticleSeparator />
-            <ArticlePreview placeholder />
-            <StyledArticleSeparator />
-            <ArticlePreview placeholder />
-            <StyledArticleSeparator />
-            <ArticlePreview placeholder />
-            <StyledArticleSeparator />
-            <ArticlePreview placeholder />
-            <StyledArticleSeparator />
-            <ArticlePreview placeholder />
-            <StyledArticleSeparator />
-            <ArticlePreview placeholder />
-            <StyledArticleSeparator />
-            <ArticlePreview placeholder />
-            <StyledArticleSeparator />
-            <ArticlePreview placeholder />
-          </>
-        );
-
-      case "error":
-        return <div className={cn("red")}>Error loading articles!</div>;
-
-      case "success":
-        const { currentUser } = this.props;
-        const { articles, articlesCount } = request.data;
-
-        const articleElements = articles.map((article, i) => (
-          <React.Fragment key={article.slug}>
-            <ArticlePreview currentUser={currentUser} article={article} />
-            {i === articles.length - 1 ? null : <StyledArticleSeparator />}
-          </React.Fragment>
-        ));
-
-        const paginationElement = (
-          <StyledPagination
-            testIdPrefix="articles"
-            setPage={this.setPage}
-            currentPage={this.state.page}
-            pageCount={
-              Math.floor(articlesCount / 10) +
-              (articlesCount === 0 || articlesCount % 10 !== 0 ? 1 : 0)
-            }
-          />
-        );
-
-        return (
-          <>
-            {articleElements}
-            {paginationElement}
-          </>
-        );
-
-      default:
-        throw new Error("invalid status");
-    }
-  };
 
   renderTags = (request: RequestData<string[]>): React.Node => {
     switch (request.status) {

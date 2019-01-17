@@ -76,6 +76,10 @@ export const StyledTabItem = (props: StyledTabItemProps) => (
   </TabItem>
 );
 
+export const StyledArticlesLoadingError = () => (
+  <div className={cn("red")}>Error loading articles!</div>
+);
+
 export const StyledArticleSeparator = () => <Separator className={cn("mv4")} />;
 
 type StyledPaginationProps = {|
