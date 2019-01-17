@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { navigate } from "@reach/router";
-import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "../form";
 import Request from "../request";
 import NotFound from "../not-found";
