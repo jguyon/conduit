@@ -1,8 +1,12 @@
 // @flow
 
 import * as React from "react";
-import { Link } from "@reach/router";
-import cn from "classnames";
+import {
+  StyledNavbar,
+  StyledNavbarBrand,
+  StyledNavbarLinkGroup,
+  StyledNavbarLink
+} from "./styles";
 import type { User } from "../../lib/api";
 
 type NavbarLinksProps = {|
@@ -10,52 +14,26 @@ type NavbarLinksProps = {|
 |};
 
 const NavbarLinks = ({ currentUser }: NavbarLinksProps) => (
-  <div className={cn("flex-grow", "flex", "items-center", "pa3")}>
-    <Link
-      className={cn("f6", "link", "light-silver", "hover-gray", "mr3")}
-      to="/"
-    >
-      Home
-    </Link>
+  <StyledNavbarLinkGroup>
+    <StyledNavbarLink path="/">Home</StyledNavbarLink>
 
     {currentUser ? (
       <>
-        <Link
-          className={cn("f6", "link", "light-silver", "hover-gray", "mr3")}
-          to="/editor"
-        >
-          New Article
-        </Link>
-        <Link
-          className={cn("f6", "link", "light-silver", "hover-gray", "mr3")}
-          to="/settings"
-        >
-          Settings
-        </Link>
-        <Link
-          className={cn("f6", "link", "light-silver", "hover-gray")}
-          to={`/profile/${encodeURIComponent(currentUser.username)}`}
+        <StyledNavbarLink path="/editor">New Article</StyledNavbarLink>
+        <StyledNavbarLink path="/settings">Settings</StyledNavbarLink>
+        <StyledNavbarLink
+          path={`/profile/${encodeURIComponent(currentUser.username)}`}
         >
           {currentUser.username}
-        </Link>
+        </StyledNavbarLink>
       </>
     ) : (
       <>
-        <Link
-          className={cn("f6", "link", "light-silver", "hover-gray", "mr3")}
-          to="/login"
-        >
-          Sign in
-        </Link>
-        <Link
-          className={cn("f6", "link", "light-silver", "hover-gray")}
-          to="/register"
-        >
-          Sign up
-        </Link>
+        <StyledNavbarLink path="/login">Sign in</StyledNavbarLink>
+        <StyledNavbarLink path="/register">Sign up</StyledNavbarLink>
       </>
     )}
-  </div>
+  </StyledNavbarLinkGroup>
 );
 
 type NavbarProps =
@@ -68,16 +46,10 @@ type NavbarProps =
     |};
 
 const Navbar = (props: NavbarProps) => (
-  <nav className={cn("flex", "justify-between", "container", "mh-auto")}>
-    <Link
-      className={cn("f4", "link", "green", "b", "flex", "items-center", "pa3")}
-      to="/"
-    >
-      conduit
-    </Link>
-
+  <StyledNavbar>
+    <StyledNavbarBrand path="/" />
     {props.placeholder ? null : <NavbarLinks currentUser={props.currentUser} />}
-  </nav>
+  </StyledNavbar>
 );
 
 export default Navbar;
