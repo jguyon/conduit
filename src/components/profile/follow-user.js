@@ -1,9 +1,8 @@
 // @flow
 
 import * as React from "react";
-import cn from "classnames";
 import { navigate } from "@reach/router";
-import Button from "../button";
+import { StyledBannerFollow } from "./styles";
 import {
   makeCancelable,
   CanceledError,
@@ -11,19 +10,19 @@ import {
 } from "../../lib/make-cancelable";
 import * as api from "../../lib/api";
 
-type FollowUserProps = {|
+type FollowUserActiveProps = {|
   currentUser: ?api.User,
   profile: api.Profile
 |};
 
-type FollowUserState = {|
+type FollowUserActiveState = {|
   loading: boolean,
   following: boolean
 |};
 
-export class FollowUser extends React.Component<
-  FollowUserProps,
-  FollowUserState
+class FollowUserActive extends React.Component<
+  FollowUserActiveProps,
+  FollowUserActiveState
 > {
   state = {
     loading: false,
@@ -107,20 +106,38 @@ export class FollowUser extends React.Component<
     const { loading, following } = this.state;
 
     return (
-      <Button
-        type="button"
-        color="light-silver"
-        outline={!following}
-        onClick={this.handleClick}
-        disabled={loading}
+      <StyledBannerFollow
+        following={following}
+        loading={loading}
+        username={username}
         testId="follow-user"
-      >
-        {following ? "Unfollow" : "Follow"} {username}
-      </Button>
+        onClick={this.handleClick}
+      />
     );
   }
 }
 
-export const FollowUserPlaceholder = () => (
-  <div className={cn("f6", "ba", "b--transparent", "pv1", "ph2")}>&nbsp;</div>
-);
+type FollowUserProps =
+  | {|
+      placeholder: true
+    |}
+  | {|
+      placeholder?: false,
+      currentUser: ?api.User,
+      profile: api.Profile
+    |};
+
+const FollowUser = (props: FollowUserProps) => {
+  if (props.placeholder) {
+    return <StyledBannerFollow placeholder />;
+  } else {
+    return (
+      <FollowUserActive
+        currentUser={props.currentUser}
+        profile={props.profile}
+      />
+    );
+  }
+};
+
+export default FollowUser;

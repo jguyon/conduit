@@ -1,13 +1,17 @@
 // @flow
 
 import * as React from "react";
-import cn from "classnames";
 import Request from "../request";
 import type { RequestData } from "../request";
-import { Tabs, TabItem } from "../tabs";
 import ArticlePreview from "../article-preview";
-import Separator from "../separator";
-import Pagination from "../pagination";
+import {
+  StyledContainer,
+  StyledTabs,
+  StyledTabItem,
+  StyledArticleSeparator,
+  StyledArticlesLoadingError,
+  StyledPagination
+} from "./styles";
 import * as api from "../../lib/api";
 
 type ArticleListProps = {|
@@ -21,7 +25,7 @@ type ArticleListState = {|
 |};
 
 class ArticleList extends React.Component<ArticleListProps, ArticleListState> {
-  focusNode: ?HTMLElement = null;
+  focusRef = React.createRef<HTMLDivElement>();
 
   state = {
     page: 1,
@@ -81,10 +85,10 @@ class ArticleList extends React.Component<ArticleListProps, ArticleListState> {
     const nextState = this.state;
 
     if (
-      this.focusNode &&
+      this.focusRef.current &&
       (nextState.page !== prevState.page || nextState.route !== prevState.route)
     ) {
-      this.focusNode.focus();
+      this.focusRef.current.focus();
     }
   }
 
@@ -106,17 +110,10 @@ class ArticleList extends React.Component<ArticleListProps, ArticleListState> {
     return (
       <Request load={() => this.loadArticles()}>
         {request => (
-          <div
-            tabIndex="-1"
-            role="group"
-            ref={node => (this.focusNode = node)}
-            className={cn("outline-0", "container", "mh-auto", "mv4")}
-          >
-            <div className={cn("w-80", "mh-auto")}>
-              {this.renderTabs()}
-              {this.renderArticles(request)}
-            </div>
-          </div>
+          <StyledContainer ref={this.focusRef}>
+            {this.renderTabs()}
+            {this.renderArticles(request)}
+          </StyledContainer>
         )}
       </Request>
     );
@@ -126,23 +123,23 @@ class ArticleList extends React.Component<ArticleListProps, ArticleListState> {
     const { route } = this.state;
 
     return (
-      <Tabs className={cn("mb4")}>
-        <TabItem
-          data-testid="authored-feed"
+      <StyledTabs>
+        <StyledTabItem
+          testId="authored-feed"
           current={route === "authored"}
           onClick={this.handleAuthoredClick}
         >
           My Posts
-        </TabItem>
+        </StyledTabItem>
 
-        <TabItem
-          data-testid="favorited-feed"
+        <StyledTabItem
+          testId="favorited-feed"
           current={route === "favorited"}
           onClick={this.handleFavoritedClick}
         >
           Favorited Posts
-        </TabItem>
-      </Tabs>
+        </StyledTabItem>
+      </StyledTabs>
     );
   }
 
@@ -152,13 +149,13 @@ class ArticleList extends React.Component<ArticleListProps, ArticleListState> {
         return (
           <>
             <ArticlePreview placeholder />
-            <Separator className={cn("mv4")} />
+            <StyledArticleSeparator />
             <ArticlePreview placeholder />
           </>
         );
 
       case "error":
-        return <div className={cn("red")}>Error loading articles!</div>;
+        return <StyledArticlesLoadingError />;
 
       case "success":
         const { currentUser } = this.props;
@@ -167,15 +164,12 @@ class ArticleList extends React.Component<ArticleListProps, ArticleListState> {
         const articleElements = articles.map((article, i) => (
           <React.Fragment key={article.slug}>
             <ArticlePreview currentUser={currentUser} article={article} />
-            {i === articles.length - 1 ? null : (
-              <Separator className={cn("mv4")} />
-            )}
+            {i === articles.length - 1 ? null : <StyledArticleSeparator />}
           </React.Fragment>
         ));
 
         const paginationElement = (
-          <Pagination
-            className={cn("mv4")}
+          <StyledPagination
             testIdPrefix="articles"
             setPage={this.setPage}
             currentPage={this.state.page}

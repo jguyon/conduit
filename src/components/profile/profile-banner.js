@@ -1,11 +1,13 @@
 // @flow
 
 import * as React from "react";
-import cn from "classnames";
-import Banner from "../banner";
-import Avatar from "../avatar";
-import PlaceholderText from "../placeholder-text";
-import { FollowUser, FollowUserPlaceholder } from "./follow-user";
+import {
+  StyledBanner,
+  StyledBannerAvatar,
+  StyledBannerUsername,
+  StyledBannerBio
+} from "./styles";
+import FollowUser from "./follow-user";
 import type { Profile, User } from "../../lib/api";
 
 type BannerProps =
@@ -19,42 +21,36 @@ type BannerProps =
     |};
 
 const ProfileBanner = (props: BannerProps) => (
-  <Banner bg="near-white" fg="dark-gray" className={cn("tc")}>
+  <StyledBanner>
     {props.placeholder ? (
-      <Avatar placeholder size={3} className={cn("shadow-1", "mb3")} />
+      <StyledBannerAvatar placeholder />
     ) : (
-      <Avatar
-        size={3}
-        className={cn("shadow-1", "mb3")}
+      <StyledBannerAvatar
         username={props.profile.username}
         image={props.profile.image}
       />
     )}
 
-    <h1 className={cn("f4", "ma0", "text-shadow-1")}>
-      {props.placeholder ? (
-        <PlaceholderText className={cn("w4")} />
-      ) : (
-        props.profile.username
-      )}
-    </h1>
+    {props.placeholder ? (
+      <StyledBannerUsername placeholder />
+    ) : (
+      <StyledBannerUsername username={props.profile.username} />
+    )}
 
-    <h2 className={cn("f5", "normal", "light-silver", "mv2")}>
-      {props.placeholder ? (
-        <PlaceholderText className={cn("w5")} />
-      ) : (
-        props.profile.bio || "I'm new here, be gentle!"
-      )}
-    </h2>
+    {props.placeholder ? (
+      <StyledBannerBio placeholder />
+    ) : (
+      <StyledBannerBio bio={props.profile.bio} />
+    )}
 
     {props.placeholder ||
     (props.currentUser &&
       props.currentUser.username === props.profile.username) ? (
-      <FollowUserPlaceholder />
+      <FollowUser placeholder />
     ) : (
       <FollowUser currentUser={props.currentUser} profile={props.profile} />
     )}
-  </Banner>
+  </StyledBanner>
 );
 
 export default ProfileBanner;
