@@ -2,10 +2,14 @@
 
 import * as React from "react";
 import { navigate } from "@reach/router";
-import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "../form";
-import Separator from "../separator";
-import Button from "../button";
+import {
+  StyledContainer,
+  StyledTitle,
+  StyledFormContainer,
+  StyledSeparator,
+  StyledLogOutButton
+} from "./styles";
 import {
   makeCancelable,
   CanceledError,
@@ -182,12 +186,10 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
 
   render() {
     return (
-      <div className={cn("container", "mh-auto")}>
-        <h1 className={cn("f2", "normal", "near-black", "tc", "mv4")}>
-          Your Settings
-        </h1>
+      <StyledContainer>
+        <StyledTitle />
 
-        <div className={cn("w-50", "mh-auto")}>
+        <StyledFormContainer>
           <Form testId="settings-form" onSubmit={this.handleSubmit}>
             <GlobalError>
               {this.state.error.type === "network" ? "An error occurred" : null}
@@ -275,20 +277,14 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
             <Submit text="Update Settings" disabled={this.state.submitting} />
           </Form>
 
-          <Separator className={cn("mv4")} />
+          <StyledSeparator />
 
-          <Button
-            type="button"
-            color="red"
-            outline
-            big
-            onClick={this.handleLogOutClick}
+          <StyledLogOutButton
             testId="settings-log-out"
-          >
-            Or click here to log out
-          </Button>
-        </div>
-      </div>
+            onClick={this.handleLogOutClick}
+          />
+        </StyledFormContainer>
+      </StyledContainer>
     );
   }
 }
