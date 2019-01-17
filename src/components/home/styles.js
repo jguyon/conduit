@@ -126,16 +126,22 @@ type StyledTagItemProps =
       placeholder?: false,
       name: string,
       testId?: string,
+      active: boolean,
       onClick: () => void
     |};
 
 export const StyledTagItem = (props: StyledTagItemProps) => (
   <button
     type="button"
+    disabled={props.placeholder ? undefined : props.active}
     data-testid={props.placeholder ? undefined : props.testId}
     onClick={props.placeholder ? undefined : props.onClick}
     className={cn(
-      props.placeholder ? [`w${props.size}`, "o-20"] : "dim",
+      props.placeholder
+        ? [`w${props.size}`, "o-20"]
+        : props.active
+        ? "o-50"
+        : "dim",
       "button",
       "f6",
       "white",

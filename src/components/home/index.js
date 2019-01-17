@@ -1,17 +1,9 @@
 // @flow
 
 import * as React from "react";
-import Request from "../request";
-import type { RequestData } from "../request";
 import ArticleFeed from "./article-feed";
-import {
-  StyledBanner,
-  StyledContainer,
-  StyledContainerAside,
-  StyledTags,
-  StyledTagItem,
-  StyledTagLoadingError
-} from "./styles";
+import PopularTags from "./popular-tags";
+import { StyledBanner, StyledContainer } from "./styles";
 import * as api from "../../lib/api";
 
 type HomeProps = {|
@@ -65,16 +57,15 @@ class Home extends React.Component<HomeProps, HomeState> {
     }
   };
 
-  handleTagClick(tag: string) {
-    return () =>
-      this.setState({
-        page: 1,
-        route: {
-          type: "tag",
-          tag
-        }
-      });
-  }
+  handleTagClick = (tag: string) => {
+    this.setState({
+      page: 1,
+      route: {
+        type: "tag",
+        tag
+      }
+    });
+  };
 
   componentDidUpdate(_prevProps: HomeProps, prevState: HomeState) {
     const nextState = this.state;
@@ -102,57 +93,16 @@ class Home extends React.Component<HomeProps, HomeState> {
             onMyFeedClick={this.handleMyFeedClick}
           />
 
-          <StyledContainerAside>
-            <StyledTags>
-              <Request load={api.listTags}>{this.renderTags}</Request>
-            </StyledTags>
-          </StyledContainerAside>
+          <PopularTags
+            activeTag={
+              this.state.route.type === "tag" ? this.state.route.tag : null
+            }
+            onTagClick={this.handleTagClick}
+          />
         </StyledContainer>
       </>
     );
   }
-
-  renderTags = (request: RequestData<string[]>): React.Node => {
-    switch (request.status) {
-      case "pending":
-        return (
-          <>
-            <StyledTagItem placeholder size={3} />
-            <StyledTagItem placeholder size={2} />
-            <StyledTagItem placeholder size={4} />
-            <StyledTagItem placeholder size={3} />
-            <StyledTagItem placeholder size={3} />
-            <StyledTagItem placeholder size={2} />
-            <StyledTagItem placeholder size={3} />
-            <StyledTagItem placeholder size={2} />
-            <StyledTagItem placeholder size={4} />
-            <StyledTagItem placeholder size={2} />
-            <StyledTagItem placeholder size={3} />
-            <StyledTagItem placeholder size={3} />
-            <StyledTagItem placeholder size={4} />
-            <StyledTagItem placeholder size={3} />
-          </>
-        );
-
-      case "error":
-        return <StyledTagLoadingError />;
-
-      case "success":
-        const tags = request.data;
-
-        return tags.map(tag => (
-          <StyledTagItem
-            key={tag}
-            name={tag}
-            testId={`tag-${tag}`}
-            onClick={this.handleTagClick(tag)}
-          />
-        ));
-
-      default:
-        throw new Error("invalid status");
-    }
-  };
 }
 
 export default Home;
