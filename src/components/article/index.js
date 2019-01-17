@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Request from "../request";
-import { FullArticle, FullArticlePlaceholder } from "./full-article";
+import FullArticle from "./full-article";
 import CommentList from "./comment-list";
 import { StyledLoadingError } from "./comment-styles.js";
 import NotFound from "../not-found";
@@ -34,7 +34,11 @@ const Article = (props: ArticleProps) => (
         {commentsRequest => {
           switch (articleRequest.status) {
             case "pending":
-              return <FullArticlePlaceholder />;
+              return (
+                <>
+                  <FullArticle placeholder />
+                </>
+              );
 
             case "error":
               return <NotFound />;

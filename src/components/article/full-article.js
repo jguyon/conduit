@@ -18,7 +18,7 @@ import {
 } from "./article-styles";
 import * as api from "../../lib/api";
 
-export const FullArticlePlaceholder = () => (
+const FullArticlePlaceholder = () => (
   <StyledBanner>
     <StyledBannerTitle placeholder />
 
@@ -28,18 +28,18 @@ export const FullArticlePlaceholder = () => (
   </StyledBanner>
 );
 
-type FullArticleProps = {|
+type FullArticleDataProps = {|
   article: api.Article,
   currentUser: ?api.User
 |};
 
-type FullArticleState = {|
+type FullArticleDataState = {|
   article: api.Article
 |};
 
-export class FullArticle extends React.Component<
-  FullArticleProps,
-  FullArticleState
+class FullArticleData extends React.Component<
+  FullArticleDataProps,
+  FullArticleDataState
 > {
   state = {
     article: this.props.article
@@ -149,3 +149,28 @@ export class FullArticle extends React.Component<
     );
   }
 }
+
+type FullArticleProps =
+  | {|
+      placeholder: true
+    |}
+  | {|
+      placeholder?: false,
+      currentUser: ?api.User,
+      article: api.Article
+    |};
+
+const FullArticle = (props: FullArticleProps) => {
+  if (props.placeholder) {
+    return <FullArticlePlaceholder />;
+  } else {
+    return (
+      <FullArticleData
+        currentUser={props.currentUser}
+        article={props.article}
+      />
+    );
+  }
+};
+
+export default FullArticle;
