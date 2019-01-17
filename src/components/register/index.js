@@ -5,6 +5,13 @@ import { Link, navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, Submit } from "../form";
 import {
+  StyledContainer,
+  StyledHeader,
+  StyledTitle,
+  StyledLoginLink,
+  StyledFormContainer
+} from "./styles";
+import {
   makeCancelable,
   CanceledError,
   noopCancel
@@ -144,21 +151,13 @@ class Register extends React.Component<RegisterProps, RegisterState> {
 
   render() {
     return (
-      <div className={cn("container", "mh-auto")}>
-        <div className={cn("mv4", "tc")}>
-          <h1 className={cn("f2", "normal", "mb2", "tc", "near-black")}>
-            Sign up
-          </h1>
+      <StyledContainer>
+        <StyledHeader>
+          <StyledTitle />
+          <StyledLoginLink path="/login" />
+        </StyledHeader>
 
-          <Link
-            className={cn("f6", "link", "green", "underline-hover")}
-            to="/login"
-          >
-            Have an account?
-          </Link>
-        </div>
-
-        <div className={cn("w-50", "mh-auto")}>
+        <StyledFormContainer>
           <Form testId="sign-up-form" onSubmit={this.handleSubmit}>
             <GlobalError>
               {this.state.error.type === "network" ? "An error occurred" : null}
@@ -222,8 +221,8 @@ class Register extends React.Component<RegisterProps, RegisterState> {
               }
             />
           </Form>
-        </div>
-      </div>
+        </StyledFormContainer>
+      </StyledContainer>
     );
   }
 }
