@@ -1,8 +1,7 @@
 // @flow
 
 import * as React from "react";
-import { Link, navigate } from "@reach/router";
-import cn from "classnames";
+import { navigate } from "@reach/router";
 import { Form, GlobalError, TextInput, Submit } from "../form";
 import {
   StyledContainer,
