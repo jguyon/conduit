@@ -6,6 +6,7 @@ import cn from "classnames";
 import { Form, GlobalError, TextInput, TextArea, Submit } from "../form";
 import Request from "../request";
 import NotFound from "../not-found";
+import { StyledContainer, StyledTitle, StyledFormContainer } from "./styles";
 import {
   makeCancelable,
   CanceledError,
@@ -49,12 +50,10 @@ type PostArticlePageProps = {|
 |};
 
 const PostArticlePage = (props: PostArticlePageProps) => (
-  <div className={cn("container", "mh-auto")}>
-    <h1 className={cn("f2", "normal", "near-black", "tc", "mv4")}>
-      {props.header}
-    </h1>
+  <StyledContainer>
+    <StyledTitle>{props.header}</StyledTitle>
 
-    <div className={cn("w-80", "mh-auto")}>
+    <StyledFormContainer>
       <Form testId="post-article-form" onSubmit={props.onSubmit}>
         <GlobalError>{props.globalError}</GlobalError>
 
@@ -107,8 +106,8 @@ const PostArticlePage = (props: PostArticlePageProps) => (
 
         <Submit text="Publish Article" disabled={props.submitDisabled} />
       </Form>
-    </div>
-  </div>
+    </StyledFormContainer>
+  </StyledContainer>
 );
 
 type PostArticlePlaceholderProps = {|
