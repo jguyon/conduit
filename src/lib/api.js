@@ -467,19 +467,23 @@ export const deleteArticle = ({
   });
 
 type ListCommentsOpts = {|
+  token?: string,
   slug: string
 |};
 
-export const listComments = ({ slug }: ListCommentsOpts): Promise<Comment[]> =>
-  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}/comments`).then(
-    response => {
-      if (response.status === 200) {
-        return response.json().then(({ comments }) => comments);
-      } else {
-        throw new Error(`expected status 200 but got ${response.status}`);
-      }
+export const listComments = ({
+  token,
+  slug
+}: ListCommentsOpts): Promise<Comment[]> =>
+  fetch(`${ENDPOINT}/articles/${encodeURIComponent(slug)}/comments`, {
+    headers: token ? { authorization: `Token ${token}` } : {}
+  }).then(response => {
+    if (response.status === 200) {
+      return response.json().then(({ comments }) => comments);
+    } else {
+      throw new Error(`expected status 200 but got ${response.status}`);
     }
-  );
+  });
 
 type AddCommentOpts = {|
   token: string,
