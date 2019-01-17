@@ -4,12 +4,20 @@ import * as React from "react";
 import cn from "classnames";
 import Request from "../request";
 import type { RequestData } from "../request";
-import HomeBanner from "./home-banner";
-import { Tags, TagItem } from "./tags";
-import { Tabs, TabItem } from "../tabs";
-import Pagination from "../pagination";
+import {
+  StyledBanner,
+  StyledContainer,
+  StyledContainerMain,
+  StyledContainerAside,
+  StyledTabs,
+  StyledTabItem,
+  StyledArticleSeparator,
+  StyledPagination,
+  StyledTags,
+  StyledTagItem,
+  StyledTagLoadingError
+} from "./styles";
 import ArticlePreview from "../article-preview";
-import Separator from "../separator";
 import * as api from "../../lib/api";
 
 type HomeProps = {|
@@ -31,7 +39,7 @@ type HomeState = {|
 |};
 
 class Home extends React.Component<HomeProps, HomeState> {
-  focusNode: ?HTMLElement = null;
+  focusRef = React.createRef<HTMLDivElement>();
 
   state = {
     page: 1,
@@ -109,38 +117,33 @@ class Home extends React.Component<HomeProps, HomeState> {
     const nextState = this.state;
 
     if (
-      this.focusNode &&
+      this.focusRef.current &&
       (nextState.page !== prevState.page || nextState.route !== prevState.route)
     ) {
-      this.focusNode.focus();
+      this.focusRef.current.focus();
     }
   }
 
   render() {
     return (
       <>
-        <HomeBanner />
+        <StyledBanner />
 
-        <div
-          tabIndex="-1"
-          role="group"
-          ref={node => (this.focusNode = node)}
-          className={cn("outline-0", "container", "mh-auto", "mv4")}
-        >
-          <div className={cn("fl", "pr3", "w-70")}>
+        <StyledContainer ref={this.focusRef}>
+          <StyledContainerMain>
             {this.renderTabs()}
 
             <Request load={() => this.loadArticles()}>
               {this.renderArticles}
             </Request>
-          </div>
+          </StyledContainerMain>
 
-          <div className={cn("fl", "pl3", "w-30")}>
-            <Tags>
+          <StyledContainerAside>
+            <StyledTags>
               <Request load={api.listTags}>{this.renderTags}</Request>
-            </Tags>
-          </div>
-        </div>
+            </StyledTags>
+          </StyledContainerAside>
+        </StyledContainer>
       </>
     );
   }
@@ -150,27 +153,29 @@ class Home extends React.Component<HomeProps, HomeState> {
     const { route } = this.state;
 
     return (
-      <Tabs className={cn("mb4")}>
+      <StyledTabs>
         {currentUser ? (
-          <TabItem
-            data-testid="my-feed"
+          <StyledTabItem
+            testId="my-feed"
             current={route.type === "my"}
             onClick={this.handleMyFeedClick}
           >
             Your Feed
-          </TabItem>
+          </StyledTabItem>
         ) : null}
 
-        <TabItem
-          data-testid="global-feed"
+        <StyledTabItem
+          testId="global-feed"
           current={route.type === "global"}
           onClick={this.handleGlobalFeedClick}
         >
           Global Feed
-        </TabItem>
+        </StyledTabItem>
 
-        {route.type === "tag" ? <TabItem current>#{route.tag}</TabItem> : null}
-      </Tabs>
+        {route.type === "tag" ? (
+          <StyledTabItem current>#{route.tag}</StyledTabItem>
+        ) : null}
+      </StyledTabs>
     );
   }
 
@@ -180,23 +185,23 @@ class Home extends React.Component<HomeProps, HomeState> {
         return (
           <>
             <ArticlePreview placeholder />
-            <Separator className={cn("mv4")} />
+            <StyledArticleSeparator />
             <ArticlePreview placeholder />
-            <Separator className={cn("mv4")} />
+            <StyledArticleSeparator />
             <ArticlePreview placeholder />
-            <Separator className={cn("mv4")} />
+            <StyledArticleSeparator />
             <ArticlePreview placeholder />
-            <Separator className={cn("mv4")} />
+            <StyledArticleSeparator />
             <ArticlePreview placeholder />
-            <Separator className={cn("mv4")} />
+            <StyledArticleSeparator />
             <ArticlePreview placeholder />
-            <Separator className={cn("mv4")} />
+            <StyledArticleSeparator />
             <ArticlePreview placeholder />
-            <Separator className={cn("mv4")} />
+            <StyledArticleSeparator />
             <ArticlePreview placeholder />
-            <Separator className={cn("mv4")} />
+            <StyledArticleSeparator />
             <ArticlePreview placeholder />
-            <Separator className={cn("mv4")} />
+            <StyledArticleSeparator />
             <ArticlePreview placeholder />
           </>
         );
@@ -211,15 +216,12 @@ class Home extends React.Component<HomeProps, HomeState> {
         const articleElements = articles.map((article, i) => (
           <React.Fragment key={article.slug}>
             <ArticlePreview currentUser={currentUser} article={article} />
-            {i === articles.length - 1 ? null : (
-              <Separator className={cn("mv4")} />
-            )}
+            {i === articles.length - 1 ? null : <StyledArticleSeparator />}
           </React.Fragment>
         ));
 
         const paginationElement = (
-          <Pagination
-            className={cn("mv4")}
+          <StyledPagination
             testIdPrefix="articles"
             setPage={this.setPage}
             currentPage={this.state.page}
@@ -247,31 +249,36 @@ class Home extends React.Component<HomeProps, HomeState> {
       case "pending":
         return (
           <>
-            <TagItem placeholder size={3} />
-            <TagItem placeholder size={2} />
-            <TagItem placeholder size={4} />
-            <TagItem placeholder size={3} />
-            <TagItem placeholder size={3} />
-            <TagItem placeholder size={2} />
-            <TagItem placeholder size={3} />
-            <TagItem placeholder size={2} />
-            <TagItem placeholder size={4} />
-            <TagItem placeholder size={2} />
-            <TagItem placeholder size={3} />
-            <TagItem placeholder size={3} />
-            <TagItem placeholder size={4} />
-            <TagItem placeholder size={3} />
+            <StyledTagItem placeholder size={3} />
+            <StyledTagItem placeholder size={2} />
+            <StyledTagItem placeholder size={4} />
+            <StyledTagItem placeholder size={3} />
+            <StyledTagItem placeholder size={3} />
+            <StyledTagItem placeholder size={2} />
+            <StyledTagItem placeholder size={3} />
+            <StyledTagItem placeholder size={2} />
+            <StyledTagItem placeholder size={4} />
+            <StyledTagItem placeholder size={2} />
+            <StyledTagItem placeholder size={3} />
+            <StyledTagItem placeholder size={3} />
+            <StyledTagItem placeholder size={4} />
+            <StyledTagItem placeholder size={3} />
           </>
         );
 
       case "error":
-        return <div className={cn("f6", "red")}>Error loading tags!</div>;
+        return <StyledTagLoadingError />;
 
       case "success":
         const tags = request.data;
 
         return tags.map(tag => (
-          <TagItem key={tag} name={tag} onClick={this.handleTagClick(tag)} />
+          <StyledTagItem
+            key={tag}
+            name={tag}
+            testId={`tag-${tag}`}
+            onClick={this.handleTagClick(tag)}
+          />
         ));
 
       default:
