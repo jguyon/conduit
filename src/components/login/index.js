@@ -5,6 +5,13 @@ import { Link, navigate } from "@reach/router";
 import cn from "classnames";
 import { Form, GlobalError, TextInput, Submit } from "../form";
 import {
+  StyledContainer,
+  StyledHeader,
+  StyledTitle,
+  StyledRegisterLink,
+  StyledFormContainer
+} from "./styles";
+import {
   makeCancelable,
   CanceledError,
   noopCancel
@@ -100,21 +107,13 @@ class Login extends React.Component<LoginProps, LoginState> {
 
   render() {
     return (
-      <div className={cn("container", "mh-auto")}>
-        <div className={cn("mv4", "tc")}>
-          <h1 className={cn("f2", "normal", "mb2", "tc", "near-black")}>
-            Sign in
-          </h1>
+      <StyledContainer>
+        <StyledHeader>
+          <StyledTitle />
+          <StyledRegisterLink path="/register" />
+        </StyledHeader>
 
-          <Link
-            className={cn("f6", "link", "green", "underline-hover")}
-            to="/register"
-          >
-            Need an account?
-          </Link>
-        </div>
-
-        <div className={cn("w-50", "mh-auto")}>
+        <StyledFormContainer>
           <Form testId="sign-in-form" onSubmit={this.handleSubmit}>
             <GlobalError>
               {this.state.error === "credentials"
@@ -154,8 +153,8 @@ class Login extends React.Component<LoginProps, LoginState> {
               }
             />
           </Form>
-        </div>
-      </div>
+        </StyledFormContainer>
+      </StyledContainer>
     );
   }
 }
