@@ -2,17 +2,17 @@
 
 import * as React from "react";
 import { Router } from "@reach/router";
-import CurrentUser from "../current-user";
-import Root from "../root";
-import Navbar from "../navbar";
-import Home from "../home";
-import Article from "../article";
-import Profile from "../profile";
-import Login from "../login";
-import Register from "../register";
-import PostArticle from "../post-article";
-import Settings from "../settings";
-import NotFound from "../not-found";
+import CurrentUser from "./current-user";
+import Root from "./root";
+import Navbar from "./navbar";
+import Home from "./home";
+import Article from "./article";
+import Profile from "./profile";
+import Login from "./login";
+import Register from "./register";
+import PostArticle from "./post-article";
+import Settings from "./settings";
+import NotFound from "./not-found";
 
 // Simple pass-through component to avoid typing errors due to props that will
 // be given via a url fragment.
