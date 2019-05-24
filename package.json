@@ -13,7 +13,8 @@
     "prettier:markdown": "prettier --write --parser=markdown README.md",
     "prettier:html": "prettier --write --parser=html 'public/*.html'",
     "prettier:css": "prettier --write --parser=css 'src/**/*.css'",
-    "prettier:js": "prettier --write --parser=flow 'src/**/*.js'"
+    "prettier:js": "prettier --write --parser=flow 'src/**/*.js'",
+    "now-build": "yarn build"
   },
   "eslintConfig": {
     "extends": "react-app"
